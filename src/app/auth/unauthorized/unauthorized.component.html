@@ -1,0 +1,25 @@
+<div class="unauth-page">
+  <div class="unauth-card">
+    <div class="unauth-icon">
+      <mat-icon>lock</mat-icon>
+    </div>
+    <h2>Access Denied</h2>
+    <p class="unauth-message">
+      You don't have permission to view this page.
+      <ng-container *ngIf="userName">
+        You are signed in as <strong>{{ userName }}</strong>
+        <ng-container *ngIf="userRole"> ({{ userRole }})</ng-container>.
+      </ng-container>
+    </p>
+    <div class="unauth-actions">
+      <button mat-flat-button color="primary" (click)="goToDashboard()">
+        <mat-icon>home</mat-icon>
+        Go to Dashboard
+      </button>
+      <button mat-stroked-button (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        Sign Out
+      </button>
+    </div>
+  </div>
+</div>

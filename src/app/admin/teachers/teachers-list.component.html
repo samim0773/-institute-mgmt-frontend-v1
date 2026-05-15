@@ -1,0 +1,120 @@
+<!-- teachers-list.component.html -->
+<div class="teachers-page">
+
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Teachers</h2>
+      <p class="page-sub">{{ teachers.length }} total · {{ teachers | teacherCount:true }} active</p>
+    </div>
+    <button mat-raised-button color="primary" routerLink="/admin/teachers/new">
+      <mat-icon>person_add</mat-icon> Add Teacher
+    </button>
+  </div>
+
+  <mat-card class="filter-card">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search teachers</mat-label>
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput [formControl]="searchCtrl" placeholder="Name, email, or subject…" />
+      <button *ngIf="searchCtrl.value" mat-icon-button matSuffix (click)="searchCtrl.setValue('')">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+  </mat-card>
+
+  <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+
+  <div class="empty-state" *ngIf="!loading && filtered.length === 0">
+    <mat-icon>people_outline</mat-icon>
+    <h3>{{ searchCtrl.value ? 'No teachers match your search' : 'No teachers yet' }}</h3>
+    <p *ngIf="!searchCtrl.value">Add your first teacher to get started.</p>
+    <button mat-raised-button color="primary" *ngIf="!searchCtrl.value" routerLink="/admin/teachers/new">
+      <mat-icon>person_add</mat-icon> Add First Teacher
+    </button>
+  </div>
+
+  <mat-card class="table-card" *ngIf="filtered.length > 0 || loading">
+    <div class="table-scroll">
+      <table mat-table [dataSource]="filtered" class="teachers-table" aria-label="Teachers">
+
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Teacher</th>
+          <td mat-cell *matCellDef="let t">
+            <div class="teacher-cell">
+              <div class="teacher-avatar" [class.avatar-inactive]="!t.isActive">
+                {{ t.name[0] }}
+              </div>
+              <div>
+                <div class="teacher-name">{{ t.name }}</div>
+                <div class="teacher-email">{{ t.email }}</div>
+              </div>
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="subject">
+          <th mat-header-cell *matHeaderCellDef>Subject</th>
+          <td mat-cell *matCellDef="let t">
+            <span class="subject-badge" *ngIf="t.subject; else noSubject">{{ t.subject }}</span>
+            <ng-template #noSubject><span class="no-subject">Not assigned</span></ng-template>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="classes">
+          <th mat-header-cell *matHeaderCellDef>Classes &amp; Subjects</th>
+          <td mat-cell *matCellDef="let t">
+            <div class="classes-wrap"
+              *ngIf="t.homeroomClasses?.length || t.subjectAssignments?.length; else noClasses">
+              <span class="class-chip homeroom-chip"
+                *ngFor="let c of t.homeroomClasses"
+                [matTooltip]="'Homeroom teacher · ' + c.academicYear">
+                <mat-icon class="chip-icon">home</mat-icon>{{ c.displayName }}
+              </span>
+              <span class="class-chip subject-chip"
+                *ngFor="let a of t.subjectAssignments"
+                [matTooltip]="a.subjectName + ' · ' + a.academicYear">
+                {{ a.displayName }} · {{ a.subjectName }}
+              </span>
+            </div>
+            <ng-template #noClasses><span class="no-subject">—</span></ng-template>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let t">
+            <span class="status-badge" [class.badge-active]="t.isActive" [class.badge-inactive]="!t.isActive">
+              <mat-icon>{{ t.isActive ? 'check_circle' : 'cancel' }}</mat-icon>
+              {{ t.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="lastLogin">
+          <th mat-header-cell *matHeaderCellDef>Last Login</th>
+          <td mat-cell *matCellDef="let t" class="last-login">{{ formatDate(t.lastLoginAt || '') }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let t" class="actions-cell">
+            <button mat-icon-button [color]="t.isActive ? 'warn' : 'primary'"
+              (click)="toggleActive(t)"
+              [disabled]="togglingId === t._id"
+              [matTooltip]="t.isActive ? 'Deactivate' : 'Activate'">
+              <mat-spinner *ngIf="togglingId === t._id" diameter="18"></mat-spinner>
+              <mat-icon *ngIf="togglingId !== t._id">
+                {{ t.isActive ? 'person_off' : 'person' }}
+              </mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+        <tr mat-row *matRowDef="let t; columns: displayedColumns;" class="data-row"
+          [class.row-inactive]="!t.isActive"></tr>
+
+      </table>
+    </div>
+  </mat-card>
+</div>

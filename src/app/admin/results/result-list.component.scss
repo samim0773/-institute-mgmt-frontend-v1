@@ -1,0 +1,147 @@
+// result-list.component.scss
+.results-page { max-width: 1200px; margin: 0 auto; }
+
+.page-header { display: flex; align-items: flex-start; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+.page-title  { font-size: 1.4rem; font-weight: 700; color: #212121; margin: 0 0 2px; }
+.page-sub    { font-size: 0.85rem; color: #757575; margin: 0; }
+
+.filter-card { margin-bottom: 16px; padding: 16px 20px !important; }
+.filter-row {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 12px;
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
+}
+.filter-exam  { flex: 1; min-width: 260px; }
+.filter-class { width: 160px; }
+.spacer { flex: 1; }
+.btn-spinner { display: inline-block; margin-right: 4px;
+  ::ng-deep circle { stroke: currentColor !important; } }
+
+// Compute summary callout
+.compute-summary {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 8px;
+  padding: 12px 16px; margin-bottom: 16px; font-size: 0.875rem; color: #1b5e20;
+  .summary-icon { color: #2e7d32; flex-shrink: 0; }
+  .summary-warn { color: #e65100; margin-left: 8px; }
+}
+
+// Published banner
+.published-banner {
+  display: flex; align-items: center; gap: 8px;
+  background: #e3f2fd; border: 1px solid #90caf9; border-radius: 8px;
+  padding: 10px 16px; margin-bottom: 16px; font-size: 0.875rem; color: #0d47a1;
+  mat-icon { color: #1565c0; }
+}
+
+// Stats strip
+.stats-strip {
+  display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px;
+}
+.stat-item {
+  display: flex; flex-direction: column; align-items: center;
+  background: #fff; border-radius: 10px; padding: 12px 24px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08); min-width: 80px;
+}
+.stat-val  { font-size: 1.5rem; font-weight: 700; line-height: 1; }
+.stat-lbl  { font-size: 0.72rem; color: #757575; text-transform: uppercase; margin-top: 2px; }
+.stat-total .stat-val { color: #424242; }
+.stat-pass  .stat-val { color: #2e7d32; }
+.stat-fail  .stat-val { color: #c62828; }
+.stat-avg   .stat-val { color: #1565c0; }
+.stat-top   .stat-val { color: #6a1b9a; }
+
+.list-progress { border-radius: 0; margin-bottom: 2px; }
+
+// Empty state
+.empty-state {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 64px 24px; color: #9e9e9e; text-align: center; gap: 8px;
+  mat-icon { font-size: 64px; width: 64px; height: 64px; opacity: 0.3; }
+  h3 { margin: 8px 0 0; color: #616161; }
+  p  { margin: 0; font-size: 0.875rem; }
+}
+
+// Table card
+.table-card { overflow: hidden; }
+.table-scroll { overflow-x: auto; }
+.results-table {
+  width: 100%; min-width: 800px;
+  ::ng-deep th.mat-header-cell {
+    background: #f5f5f5; font-size: 0.78rem; font-weight: 700;
+    color: #616161; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+}
+.data-row { cursor: pointer; transition: background 0.12s;
+  &:hover { background: #f5f7ff !important; } }
+.row-fail { background: #fff8f8 !important; }
+
+// Rank
+.rank-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: 50%;
+  font-size: 0.85rem; font-weight: 700;
+  background: #f5f5f5; color: #424242;
+  &.rank-top3 { background: linear-gradient(135deg, #ffd54f, #ff8f00); color: #fff; }
+}
+
+.roll-chip { background: #e8eaf6; color: #3949ab; font-size: 0.8rem;
+  font-weight: 700; padding: 2px 9px; border-radius: 10px; }
+
+// Name cell
+.name-cell { display: flex; align-items: center; gap: 10px; }
+.student-avatar {
+  width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, #66bb6a, #2e7d32);
+  color: #fff; font-size: 0.8rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.student-name { font-weight: 600; font-size: 0.875rem; color: #212121; }
+.student-sub  { font-size: 0.72rem; color: #9e9e9e; }
+
+// Fail subjects
+.fail-subjects { display: flex; flex-wrap: wrap; gap: 4px; }
+.fail-chip {
+  font-size: 0.7rem; padding: 2px 6px; border-radius: 8px;
+  background: #ffebee; color: #c62828; font-weight: 500;
+  max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.all-pass { font-size: 0.75rem; color: #2e7d32; font-weight: 500; }
+
+// Marks
+.marks-val { font-weight: 700; font-size: 0.9rem; color: #212121; }
+.marks-max { font-size: 0.75rem; color: #9e9e9e; }
+
+// Percentage bar
+.pct-cell { display: flex; flex-direction: column; gap: 3px; min-width: 80px; }
+.pct-val  { font-weight: 700; font-size: 0.85rem; color: #212121; }
+.pct-bar  { height: 4px; background: #e0e0e0; border-radius: 2px; overflow: hidden; width: 72px; }
+.pct-fill {
+  height: 100%; background: linear-gradient(90deg, #42a5f5, #1565c0);
+  border-radius: 2px; transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+  min-width: 2px;
+  &--low { background: linear-gradient(90deg, #ef9a9a, #c62828); }
+}
+
+// Grade badge
+.grade-badge {
+  font-size: 0.85rem; font-weight: 800; padding: 3px 12px; border-radius: 10px;
+  &.grade-a1 { background: #e8f5e9; color: #1b5e20; }
+  &.grade-a2 { background: #f1f8e9; color: #33691e; }
+  &.grade-b1 { background: #e3f2fd; color: #0d47a1; }
+  &.grade-b2 { background: #e8eaf6; color: #283593; }
+  &.grade-c1 { background: #fff8e1; color: #f57f17; }
+  &.grade-c2 { background: #fff3e0; color: #e65100; }
+  &.grade-d  { background: #fce4ec; color: #880e4f; }
+  &.grade-e  { background: #ffebee; color: #b71c1c; }
+  &.grade-default { background: #f5f5f5; color: #616161; }
+}
+
+// Pass/Fail chip
+.result-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 0.78rem; font-weight: 700; padding: 3px 10px; border-radius: 10px;
+  mat-icon { font-size: 14px; width: 14px; height: 14px; }
+}
+.result-pass { background: #e8f5e9; color: #2e7d32; }
+.result-fail { background: #ffebee; color: #c62828; }

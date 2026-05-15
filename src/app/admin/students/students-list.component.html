@@ -1,0 +1,245 @@
+<!-- students-list.component.html -->
+<div class="students-page">
+
+  <!-- ── Page header ──────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Students</h2>
+      <p class="page-sub">{{ totalStudents }} total
+        <span *ngIf="showInactive" class="inactive-badge">Showing inactive</span>
+      </p>
+    </div>
+    <button mat-raised-button color="primary" (click)="addStudent()">
+      <mat-icon>person_add</mat-icon> Add Student
+    </button>
+  </div>
+
+  <!-- ── Filter bar ────────────────────────────────────────────────────────── -->
+  <mat-card class="filter-card">
+    <div class="filter-row">
+
+      <!-- Search -->
+      <mat-form-field appearance="outline" class="filter-search">
+        <mat-label>Search by name</mat-label>
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput [formControl]="searchCtrl" placeholder="e.g. Arjun Sharma" />
+        <button
+          *ngIf="searchCtrl.value"
+          mat-icon-button matSuffix
+          (click)="searchCtrl.setValue('')"
+          aria-label="Clear search"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+
+      <!-- Class filter -->
+      <mat-form-field appearance="outline" class="filter-class">
+        <mat-label>Class</mat-label>
+        <mat-select [formControl]="classFilterCtrl">
+          <mat-option value="">All Classes</mat-option>
+          <mat-option *ngFor="let cls of classNames" [value]="cls">
+            Class {{ cls }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Section filter — only shown when class is selected -->
+      <mat-form-field
+        appearance="outline"
+        class="filter-section"
+        *ngIf="sections.length > 0"
+      >
+        <mat-label>Section</mat-label>
+        <mat-select [formControl]="sectionFilterCtrl">
+          <mat-option value="">All Sections</mat-option>
+          <mat-option *ngFor="let s of sections" [value]="s">{{ s }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Clear filters -->
+      <button
+        mat-stroked-button
+        *ngIf="hasActiveFilter"
+        (click)="clearFilters()"
+        class="clear-btn"
+        color="warn"
+      >
+        <mat-icon>filter_alt_off</mat-icon> Clear
+      </button>
+
+      <span class="filter-spacer"></span>
+
+      <!-- Toggle inactive -->
+      <button
+        mat-stroked-button
+        (click)="toggleInactive()"
+        [color]="showInactive ? 'warn' : ''"
+        class="inactive-toggle"
+        matTooltip="Show deactivated students"
+      >
+        <mat-icon>{{ showInactive ? 'visibility_off' : 'visibility' }}</mat-icon>
+        {{ showInactive ? 'Hide Inactive' : 'Show Inactive' }}
+      </button>
+    </div>
+  </mat-card>
+
+  <!-- ── Loading bar ───────────────────────────────────────────────────────── -->
+  <mat-progress-bar
+    *ngIf="loading"
+    mode="indeterminate"
+    class="list-progress-bar"
+  ></mat-progress-bar>
+
+  <!-- ── Table card ────────────────────────────────────────────────────────── -->
+  <mat-card class="table-card">
+
+    <!-- ── Empty state ─────────────────────────────────────────────────────── -->
+    <div *ngIf="!loading && dataSource.data.length === 0" class="empty-state">
+      <mat-icon>people_outline</mat-icon>
+      <h3>No students found</h3>
+      <p *ngIf="hasActiveFilter">Try adjusting your filters, or
+        <a (click)="clearFilters()" class="link">clear all filters</a>.
+      </p>
+      <p *ngIf="!hasActiveFilter">Get started by adding your first student.</p>
+      <button mat-raised-button color="primary" (click)="addStudent()">
+        <mat-icon>person_add</mat-icon> Add First Student
+      </button>
+    </div>
+
+    <!-- ── Data table ───────────────────────────────────────────────────────── -->
+    <div class="table-scroll" *ngIf="dataSource.data.length > 0 || loading">
+      <table
+        mat-table
+        [dataSource]="dataSource"
+        matSort
+        class="students-table"
+        aria-label="Students list"
+      >
+
+        <!-- Roll No -->
+        <ng-container matColumnDef="rollNo">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Roll No</th>
+          <td mat-cell *matCellDef="let s">
+            <span class="roll-chip">{{ s.rollNo }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Name -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Student</th>
+          <td mat-cell *matCellDef="let s">
+            <div class="student-cell">
+              <div class="student-avatar">{{ s.name[0] }}</div>
+              <div>
+                <div class="student-name">{{ s.name }}</div>
+                <div class="student-meta">
+                  <span *ngIf="s.gender" class="meta-tag">{{ s.gender | titlecase }}</span>
+                  <span *ngIf="s.bloodGroup" class="meta-tag blood-tag">{{ s.bloodGroup }}</span>
+                </div>
+              </div>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Class / Section -->
+        <ng-container matColumnDef="class">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Class</th>
+          <td mat-cell *matCellDef="let s">
+            <span class="class-badge">{{ s.class }}-{{ s.section }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Guardian Phone -->
+        <ng-container matColumnDef="guardianPhone">
+          <th mat-header-cell *matHeaderCellDef>Guardian</th>
+          <td mat-cell *matCellDef="let s">
+            <div class="guardian-cell">
+              <span class="guardian-name">{{ s.guardianName }}</span>
+              <a class="guardian-phone" [href]="'tel:' + s.guardianPhone">
+                {{ s.guardianPhone }}
+              </a>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Status -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let s">
+            <span
+              class="status-chip"
+              [class.status-active]="s.isActive"
+              [class.status-inactive]="!s.isActive"
+            >
+              <mat-icon class="status-dot">
+                {{ s.isActive ? 'check_circle' : 'cancel' }}
+              </mat-icon>
+              {{ s.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Actions -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let s" class="actions-cell">
+
+            <button
+              mat-icon-button
+              color="primary"
+              (click)="viewStudent(s._id); $event.stopPropagation()"
+              matTooltip="View details"
+            >
+              <mat-icon>visibility</mat-icon>
+            </button>
+
+            <button
+              mat-icon-button
+              (click)="editStudent(s._id); $event.stopPropagation()"
+              matTooltip="Edit student"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+
+            <button
+              mat-icon-button
+              color="warn"
+              *ngIf="s.isActive"
+              (click)="deleteStudent(s); $event.stopPropagation()"
+              [disabled]="deletingId === s._id"
+              matTooltip="Deactivate"
+            >
+              <mat-spinner *ngIf="deletingId === s._id" diameter="18"></mat-spinner>
+              <mat-icon *ngIf="deletingId !== s._id">person_off</mat-icon>
+            </button>
+
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+        <tr
+          mat-row
+          *matRowDef="let s; columns: displayedColumns;"
+          class="data-row"
+          (click)="viewStudent(s._id)"
+          [class.row-inactive]="!s.isActive"
+          [attr.aria-label]="s.name"
+        ></tr>
+
+      </table>
+    </div>
+
+    <!-- ── Paginator ─────────────────────────────────────────────────────────── -->
+    <mat-paginator
+      *ngIf="totalStudents > 0"
+      [length]="totalStudents"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[10, 20, 50, 100]"
+      (page)="onPageChange($event)"
+      showFirstLastButtons
+      aria-label="Students pagination"
+    ></mat-paginator>
+
+  </mat-card>
+</div>

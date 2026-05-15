@@ -1,0 +1,258 @@
+// admin-layout.component.scss
+// Full-height sidenav layout. Sidebar 260px wide on desktop, over-mode on mobile.
+
+:host {
+  display: block;
+  height:  100vh;
+}
+
+// ── Container ─────────────────────────────────────────────────────────────────
+.layout-container {
+  height: 100%;
+}
+
+// ══ SIDEBAR ═══════════════════════════════════════════════════════════════════
+.sidebar {
+  width:      260px;
+  background: #1a237e;   // deep indigo — consistent with Material indigo theme
+  display:    flex;
+  flex-direction: column;
+
+  // All text in sidebar is white
+  color: rgba(255, 255, 255, 0.9);
+
+  ::ng-deep .mat-drawer-inner-container {
+    display:        flex;
+    flex-direction: column;
+    height:         100%;
+    overflow:       hidden;
+  }
+}
+
+// Brand section at top
+.sidebar-brand {
+  display:      flex;
+  align-items:  center;
+  gap:          12px;
+  padding:      20px 20px 12px;
+  font-size:    1.1rem;
+  font-weight:  700;
+  letter-spacing: 0.3px;
+
+  .brand-icon {
+    font-size:  28px;
+    width:      28px;
+    height:     28px;
+    color:      #90caf9;   // light blue accent
+  }
+
+  .brand-text { color: #fff; }
+}
+
+// Institute portal sub-line
+.sidebar-inst-name {
+  display:     flex;
+  align-items: center;
+  gap:         8px;
+  padding:     4px 20px 12px;
+  font-size:   0.8rem;
+  opacity:     0.65;
+
+  .inst-icon  { font-size: 16px; width: 16px; height: 16px; }
+  .inst-label { text-transform: uppercase; letter-spacing: 0.8px; }
+}
+
+::ng-deep .sidebar mat-divider {
+  border-top-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+// ── Navigation list ───────────────────────────────────────────────────────────
+.nav-list {
+  flex:       1;
+  overflow-y: auto;
+  padding:    8px 0;
+
+  // Custom scrollbar inside sidebar
+  &::-webkit-scrollbar       { width: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
+}
+
+.nav-divider {
+  margin: 6px 0 !important;
+}
+
+.nav-item {
+  border-radius: 0 24px 24px 0 !important;   // pill shape on the right side
+  margin-right:  12px !important;
+  height:        44px !important;
+  color:         rgba(255, 255, 255, 0.75) !important;
+  transition:    background 0.15s, color 0.15s !important;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color:      #fff !important;
+  }
+
+  // Active state
+  &.nav-item--active {
+    background: rgba(255, 255, 255, 0.18) !important;
+    color:      #fff !important;
+
+    .nav-icon { color: #90caf9 !important; }
+  }
+}
+
+.nav-icon {
+  color:      inherit !important;
+  font-size:  22px !important;
+  width:      22px !important;
+  height:     22px !important;
+  transition: color 0.15s;
+}
+
+.nav-label {
+  font-size:   0.875rem;
+  font-weight: 500;
+}
+
+// Badge (e.g. pending fees count)
+.nav-badge {
+  background:    #ef5350;
+  color:         #fff;
+  font-size:     0.7rem;
+  font-weight:   700;
+  padding:       2px 7px;
+  border-radius: 10px;
+  min-width:     20px;
+  text-align:    center;
+}
+
+// ── Sidebar footer ────────────────────────────────────────────────────────────
+.sidebar-footer {
+  margin-top: auto;
+
+  ::ng-deep mat-divider {
+    border-top-color: rgba(255,255,255,0.12) !important;
+  }
+}
+
+.sidebar-footer-inner {
+  display:     flex;
+  align-items: center;
+  gap:         12px;
+  padding:     16px 20px;
+}
+
+.user-avatar {
+  width:            36px;
+  height:           36px;
+  border-radius:    50%;
+  background:       rgba(255,255,255,0.2);
+  color:            #fff;
+  display:          flex;
+  align-items:      center;
+  justify-content:  center;
+  font-size:        0.9rem;
+  font-weight:      700;
+  flex-shrink:      0;
+}
+
+.user-info {
+  display:        flex;
+  flex-direction: column;
+  overflow:       hidden;
+}
+
+.user-name {
+  font-size:     0.85rem;
+  font-weight:   600;
+  color:         #fff;
+  white-space:   nowrap;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+}
+
+.user-role {
+  font-size: 0.72rem;
+  opacity:   0.6;
+}
+
+// ══ TOP TOOLBAR ════════════════════════════════════════════════════════════════
+.top-toolbar {
+  position:   sticky;
+  top:        0;
+  z-index:    100;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.18);
+  gap:        4px;
+}
+
+.toolbar-toggle {
+  margin-right: 4px;
+}
+
+.toolbar-title {
+  font-size:   1rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow:    hidden;
+  text-overflow: ellipsis;
+}
+
+.spacer { flex: 1; }
+
+.toolbar-action {
+  color: rgba(255,255,255,0.85);
+
+  &:hover { color: #fff; }
+}
+
+.toolbar-avatar-btn {
+  padding: 0 !important;
+  width:   40px !important;
+  height:  40px !important;
+}
+
+.toolbar-avatar {
+  width:            32px;
+  height:           32px;
+  border-radius:    50%;
+  background:       rgba(255,255,255,0.25);
+  color:            #fff;
+  display:          flex;
+  align-items:      center;
+  justify-content:  center;
+  font-size:        0.85rem;
+  font-weight:      700;
+}
+
+// ── User menu ─────────────────────────────────────────────────────────────────
+.menu-user-header {
+  padding:        12px 16px !important;
+  display:        flex !important;
+  flex-direction: column !important;
+  gap:            2px;
+  cursor:         default;
+  opacity:        1 !important;
+
+  strong { font-size: 0.875rem; color: #212121; }
+  small  { font-size: 0.75rem;  color: #757575; }
+}
+
+.menu-logout { color: #c62828 !important; }
+.menu-logout mat-icon { color: #c62828 !important; }
+
+// ══ MAIN CONTENT ═══════════════════════════════════════════════════════════════
+.content-area {
+  background: #f5f5f5;
+  display:    flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.page-content {
+  flex:    1;
+  padding: 24px;
+
+  @media (max-width: 600px) { padding: 16px 12px; }
+}

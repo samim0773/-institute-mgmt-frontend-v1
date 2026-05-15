@@ -1,0 +1,194 @@
+<!-- payment-history.component.html -->
+<div class="history-page">
+
+  <!-- ── Toolbar ──────────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <button mat-icon-button (click)="goBack()" aria-label="Back">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h2 class="page-title">
+        {{ history?.student?.name || 'Payment History' }}
+      </h2>
+      <p class="page-sub">
+        Class {{ history?.student?.class }}-{{ history?.student?.section }}
+        · Roll {{ history?.student?.rollNo }}
+      </p>
+    </div>
+  </div>
+
+  <!-- ── Loading ───────────────────────────────────────────────────────────── -->
+  <div *ngIf="loading" class="loading-row">
+    <mat-spinner diameter="40"></mat-spinner>
+    <span>Loading payment history…</span>
+  </div>
+
+  <ng-container *ngIf="!loading && history">
+
+    <!-- ── Summary cards ──────────────────────────────────────────────────── -->
+    <div class="summary-row">
+      <mat-card class="summary-card">
+        <mat-card-content>
+          <span class="sum-label">Total Billed</span>
+          <span class="sum-value">{{ fmt(history.summary.totalDue) }}</span>
+        </mat-card-content>
+      </mat-card>
+      <mat-card class="summary-card summary-card--green">
+        <mat-card-content>
+          <span class="sum-label">Paid</span>
+          <span class="sum-value">{{ fmt(history.summary.totalPaid) }}</span>
+        </mat-card-content>
+      </mat-card>
+      <mat-card class="summary-card" [class.summary-card--red]="history.summary.totalBalance > 0">
+        <mat-card-content>
+          <span class="sum-label">Balance</span>
+          <span class="sum-value">{{ fmt(history.summary.totalBalance) }}</span>
+        </mat-card-content>
+      </mat-card>
+      <mat-card class="summary-card" [class.summary-card--amber]="history.summary.overdueCount > 0">
+        <mat-card-content>
+          <span class="sum-label">Overdue</span>
+          <span class="sum-value">{{ history.summary.overdueCount }} fee(s)</span>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- ── Fee timeline ────────────────────────────────────────────────────── -->
+    <div *ngIf="history.data.length === 0" class="empty-state">
+      <mat-icon>receipt_long</mat-icon>
+      <h3>No fee records found</h3>
+      <p>No fees have been generated for this student yet.</p>
+    </div>
+
+    <div class="fee-list" *ngIf="history.data.length > 0">
+      <mat-card
+        *ngFor="let fee of history.data; trackBy: trackByFeeId"
+        class="fee-card"
+        [class.fee-card--paid]="fee.status === 'paid'"
+        [class.fee-card--overdue]="fee.isOverdue"
+        [class.fee-card--waived]="fee.status === 'waived'"
+      >
+
+        <!-- Fee header -->
+        <div class="fee-header">
+          <div class="fee-header-left">
+            <div class="fee-type-icon" [ngClass]="'fee-icon-' + fee.status">
+              <mat-icon>{{ fee.status === 'paid' ? 'check_circle' :
+                            fee.status === 'waived' ? 'do_not_disturb_on' :
+                            fee.isOverdue ? 'warning' : 'receipt_long' }}</mat-icon>
+            </div>
+            <div>
+              <span class="fee-type-label">{{ fee.feeType }}</span>
+              <span class="fee-year">{{ fee.academicYear || '' }}</span>
+            </div>
+          </div>
+          <div class="fee-header-right">
+            <span class="status-badge" [ngClass]="statusClass(fee.status)">
+              {{ statusLabel(fee.status) }}
+            </span>
+            <button
+              mat-raised-button color="primary" class="pay-now-btn"
+              *ngIf="fee.status !== 'paid' && fee.status !== 'waived'"
+              (click)="openPaymentDialog(fee)"
+            >
+              <mat-icon>payment</mat-icon> Pay Now
+            </button>
+          </div>
+        </div>
+
+        <!-- Fee amounts row -->
+        <div class="fee-amounts">
+          <div class="amount-block">
+            <span class="amount-label">Total Amount</span>
+            <span class="amount-value">{{ fmt(fee.amount) }}</span>
+          </div>
+          <div class="amount-block">
+            <span class="amount-label">Paid</span>
+            <span class="amount-value amount-paid">{{ fmt(fee.amountPaid) }}</span>
+          </div>
+          <div class="amount-block">
+            <span class="amount-label">Balance</span>
+            <span class="amount-value" [class.amount-due]="fee.amountDue > 0">
+              {{ fmt(fee.amountDue) }}
+            </span>
+          </div>
+          <div class="amount-block" *ngIf="fee.lateFine > 0">
+            <span class="amount-label">Late Fine</span>
+            <span class="amount-value amount-fine">{{ fmt(fee.lateFine) }}</span>
+          </div>
+          <div class="amount-block">
+            <span class="amount-label">Due Date</span>
+            <span class="amount-value" [class.date-overdue]="fee.isOverdue">
+              {{ formatDate(fee.dueDate) }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Waiver info -->
+        <div class="waiver-row" *ngIf="fee.waivedAmount && fee.waivedAmount > 0">
+          <mat-icon>info</mat-icon>
+          <span>Waiver of {{ fmt(fee.waivedAmount) }} applied
+            <ng-container *ngIf="fee.waivedReason"> — {{ fee.waivedReason }}</ng-container>
+          </span>
+        </div>
+
+        <!-- Notes -->
+        <div class="notes-row" *ngIf="fee.notes">
+          <mat-icon>sticky_note_2</mat-icon>
+          <span>{{ fee.notes }}</span>
+        </div>
+
+        <!-- ── Payment timeline ─────────────────────────────────────────── -->
+        <div class="payments-section" *ngIf="fee.payments && fee.payments.length > 0">
+          <p class="payments-title">Payment History</p>
+          <div class="timeline">
+            <div
+              *ngFor="let p of fee.payments; let last = last; trackBy: trackByPayId"
+              class="timeline-item"
+              [class.timeline-item--last]="last"
+            >
+              <!-- Connector line -->
+              <div class="timeline-line"></div>
+              <div class="timeline-dot"></div>
+
+              <!-- Payment entry -->
+              <div class="timeline-content">
+                <div class="timeline-header">
+                  <span class="payment-amount">{{ fmt(p.amount) }}</span>
+                  <span class="payment-mode">
+                    <mat-icon class="mode-icon">{{ modeIcon(p.mode) }}</mat-icon>
+                    {{ modeLabel(p.mode) }}
+                  </span>
+                  <span class="payment-date">{{ formatDate(p.date) }}</span>
+                </div>
+                <div class="timeline-meta" *ngIf="p.referenceNo || p.note">
+                  <span *ngIf="p.referenceNo" class="ref-no">Ref: {{ p.referenceNo }}</span>
+                  <span *ngIf="p.note" class="pay-note">{{ p.note }}</span>
+                </div>
+                <!-- Delete payment entry (bounced cheque) -->
+                <button
+                  mat-icon-button class="delete-payment-btn"
+                  color="warn"
+                  (click)="deletePayment(fee._id, p._id!, p.amount)"
+                  [disabled]="deletingId === p._id"
+                  matTooltip="Remove payment entry (e.g. bounced cheque)"
+                >
+                  <mat-spinner *ngIf="deletingId === p._id" diameter="16"></mat-spinner>
+                  <mat-icon *ngIf="deletingId !== p._id">delete_outline</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- No payments yet -->
+        <div class="no-payments" *ngIf="!fee.payments || fee.payments.length === 0">
+          <mat-icon>hourglass_empty</mat-icon>
+          <span>No payments recorded yet</span>
+        </div>
+
+      </mat-card>
+    </div><!-- /fee-list -->
+
+  </ng-container>
+</div>

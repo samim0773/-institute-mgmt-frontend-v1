@@ -1,0 +1,233 @@
+<!-- marks-entry.component.html -->
+<div class="marks-page">
+
+  <!-- ── Header ─────────────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Mark Entry</h2>
+      <p class="page-sub">Subject: <strong>{{ subjectName }}</strong></p>
+    </div>
+    <button
+      mat-raised-button color="primary"
+      *ngIf="entries.length > 0"
+      (click)="saveAll()"
+      [disabled]="savingAll || allSaved"
+      class="save-all-btn"
+    >
+      <mat-spinner *ngIf="savingAll" diameter="18" class="btn-spinner"></mat-spinner>
+      <mat-icon *ngIf="!savingAll">save</mat-icon>
+      {{ savingAll ? 'Saving all…' : 'Save All' }}
+    </button>
+  </div>
+
+  <!-- ── Step selectors ──────────────────────────────────────────────────────── -->
+  <mat-card class="selector-card">
+    <div class="selector-row">
+
+      <!-- Step 1: Class -->
+      <mat-form-field appearance="outline" class="sel-field">
+        <mat-label>Class</mat-label>
+        <mat-select [(ngModel)]="selectedClass" (ngModelChange)="onClassChange($event)">
+          <mat-option value="">Select…</mat-option>
+          <mat-option *ngFor="let c of classNames" [value]="c">Class {{ c }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Step 2: Section -->
+      <mat-form-field appearance="outline" class="sel-field" *ngIf="sections.length > 0">
+        <mat-label>Section</mat-label>
+        <mat-select [(ngModel)]="selectedSection" (ngModelChange)="onSectionChange($event)">
+          <mat-option value="">Select…</mat-option>
+          <mat-option *ngFor="let s of sections" [value]="s">{{ s }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Loading exams -->
+      <div class="loading-hint" *ngIf="loadingExams">
+        <mat-spinner diameter="20"></mat-spinner> Loading exams…
+      </div>
+
+      <!-- Step 3: Exam -->
+      <mat-form-field appearance="outline" class="sel-field-lg"
+        *ngIf="!loadingExams && exams.length > 0">
+        <mat-label>Exam</mat-label>
+        <mat-select [(ngModel)]="selectedExam" (ngModelChange)="onExamChange($event)">
+          <mat-option value="">Select…</mat-option>
+          <mat-option *ngFor="let e of exams" [value]="e">
+            {{ e.name }} · Class {{ e.class }}<ng-container *ngIf="e.section !== 'ALL'">-{{ e.section }}</ng-container>
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+    </div>
+
+    <!-- No exams hint -->
+    <p class="no-exam-hint" *ngIf="!loadingExams && selectedSection && exams.length === 0">
+      <mat-icon>info</mat-icon>
+      No published exams found for {{ subjectName }} in Class {{ selectedClass }}-{{ selectedSection }}.
+      Ask your admin to publish an exam that includes this subject.
+    </p>
+  </mat-card>
+
+  <!-- ── Exam detail banner ──────────────────────────────────────────────────── -->
+  <div class="exam-banner" *ngIf="selectedExam">
+    <div class="exam-banner-info">
+      <mat-icon>assignment</mat-icon>
+      <div>
+        <span class="exam-banner-name">{{ selectedExam.name }}</span>
+        <span class="exam-banner-sub">
+          {{ subjectName }} · Max Marks: <strong>{{ maxMarks }}</strong>
+        </span>
+      </div>
+    </div>
+    <!-- Progress bar -->
+    <div class="progress-section">
+      <span class="progress-label">{{ savedCount }} / {{ entries.length }} saved</span>
+      <mat-progress-bar
+        mode="determinate"
+        [value]="completionPct"
+        [color]="allSaved ? 'accent' : 'primary'"
+        class="progress-bar"
+      ></mat-progress-bar>
+      <span class="progress-pct">{{ completionPct }}%</span>
+    </div>
+  </div>
+
+  <!-- ── Loading roster ─────────────────────────────────────────────────────── -->
+  <div class="loading-center" *ngIf="loadingStudents">
+    <mat-spinner diameter="40"></mat-spinner>
+    <span>Loading student roster…</span>
+  </div>
+
+  <!-- ── No students ────────────────────────────────────────────────────────── -->
+  <div class="empty-state" *ngIf="!loadingStudents && selectedExam && entries.length === 0">
+    <mat-icon>people_outline</mat-icon>
+    <h3>No students found</h3>
+    <p>Class {{ selectedClass }}-{{ selectedSection }} has no active students.</p>
+  </div>
+
+  <!-- ══ Marks entry table ═════════════════════════════════════════════════════ -->
+  <mat-card class="table-card" *ngIf="entries.length > 0">
+    <div class="table-scroll">
+      <table class="marks-table" aria-label="Marks entry table">
+
+        <thead>
+          <tr>
+            <th class="col-roll">Roll</th>
+            <th class="col-name">Student</th>
+            <th class="col-absent">Absent</th>
+            <th class="col-marks">
+              Marks <span class="max-label">(/ {{ maxMarks }})</span>
+            </th>
+            <th class="col-remarks">Remarks</th>
+            <th class="col-save">Save</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr
+            *ngFor="let entry of entries; trackBy: trackByStudentId"
+            class="entry-row"
+            [class.row-absent]="entry.isAbsent"
+            [class.row-saved]="entry.saved"
+            [class.row-error]="!!entry.error"
+          >
+
+            <!-- Roll no -->
+            <td class="col-roll">
+              <span class="roll-chip">{{ entry.rollNo }}</span>
+            </td>
+
+            <!-- Name -->
+            <td class="col-name">
+              <div class="student-cell">
+                <div class="s-avatar">{{ entry.name[0] }}</div>
+                <div>
+                  <span class="s-name">{{ entry.name }}</span>
+                  <span class="s-section">Sec {{ entry.section }}</span>
+                </div>
+              </div>
+            </td>
+
+            <!-- Absent checkbox -->
+            <td class="col-absent">
+              <mat-checkbox
+                [checked]="entry.isAbsent"
+                (change)="toggleAbsent(entry)"
+                color="warn"
+                aria-label="Mark absent"
+              ></mat-checkbox>
+            </td>
+
+            <!-- Marks input -->
+            <td class="col-marks">
+              <input
+                type="number"
+                class="marks-input"
+                [class.marks-input--error]="!!entry.error"
+                [(ngModel)]="entry.marks"
+                (ngModelChange)="entry.saved = false; entry.error = ''"
+                [disabled]="entry.isAbsent"
+                [min]="0"
+                [max]="maxMarks"
+                placeholder="—"
+                [attr.aria-label]="'Marks for ' + entry.name"
+              />
+              <span class="row-error-msg" *ngIf="entry.error">{{ entry.error }}</span>
+            </td>
+
+            <!-- Remarks -->
+            <td class="col-remarks">
+              <input
+                type="text"
+                class="remarks-input"
+                [(ngModel)]="entry.remarks"
+                (ngModelChange)="entry.saved = false"
+                placeholder="optional"
+                maxlength="200"
+                 [attr.aria-label]="'Remarks for ' + entry.name"
+              />
+            </td>
+
+            <!-- Save button (per-row) -->
+            <td class="col-save">
+              <button
+                mat-icon-button
+                (click)="saveRow(entry)"
+                [disabled]="entry.saving"
+                [class.save-btn-saved]="entry.saved"
+                [matTooltip]="entry.saved ? 'Saved ✓' : 'Save this row'"
+              >
+                <mat-spinner *ngIf="entry.saving" diameter="18"></mat-spinner>
+                <mat-icon *ngIf="!entry.saving">
+                  {{ entry.saved ? 'check_circle' : 'save' }}
+                </mat-icon>
+              </button>
+            </td>
+
+          </tr>
+        </tbody>
+
+      </table>
+    </div>
+
+    <!-- Table footer: bulk save -->
+    <div class="table-footer">
+      <span class="footer-count">
+        <mat-icon [class.all-done]="allSaved">{{ allSaved ? 'check_circle' : 'pending' }}</mat-icon>
+        {{ savedCount }} of {{ entries.length }} entries saved
+      </span>
+      <button
+        mat-raised-button color="primary"
+        (click)="saveAll()"
+        [disabled]="savingAll || allSaved"
+        class="save-all-btn"
+      >
+        <mat-spinner *ngIf="savingAll" diameter="18" class="btn-spinner"></mat-spinner>
+        <mat-icon *ngIf="!savingAll">save</mat-icon>
+        {{ allSaved ? 'All Saved ✓' : (savingAll ? 'Saving…' : 'Save All') }}
+      </button>
+    </div>
+  </mat-card>
+
+</div>

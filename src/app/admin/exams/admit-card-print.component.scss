@@ -1,0 +1,342 @@
+// admit-card-print.component.scss
+//
+// TWO contexts:
+//   SCREEN  — looks like a card preview with shadow + max-width
+//   PRINT   — @media print rules take over completely, hiding everything
+//             on the page except .print-area, giving a clean A4 printout.
+//
+// The global styles.scss already has the base .no-print / .print-area rules.
+// This file adds component-specific print styling.
+
+// ─── Screen preview ───────────────────────────────────────────────────────────
+:host {
+  display: block;
+}
+
+.admit-card-print {
+  background:    #fff;
+  max-width:     720px;
+  margin:        0 auto;
+  box-shadow:    0 4px 24px rgba(0,0,0,0.15);
+  border-radius: 4px;
+  font-family:   'Times New Roman', Times, serif;  // matches physical admit cards
+  color:         #000;
+}
+
+.card-doc {
+  padding: 0;
+}
+
+// ── Institute header ──────────────────────────────────────────────────────────
+.inst-header {
+  display:         flex;
+  align-items:     center;
+  gap:             16px;
+  padding:         20px 28px 12px;
+  border-bottom:   3px double #000;
+}
+
+.inst-logo {
+  width:      70px;
+  height:     70px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.inst-text {
+  flex: 1;
+  text-align: center;
+}
+
+.inst-name {
+  font-size:   1.4rem;
+  font-weight: 700;
+  margin:      0 0 4px;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.inst-address,
+.inst-phone {
+  font-size:  0.85rem;
+  margin:     0;
+  color:      #333;
+  line-height: 1.4;
+}
+
+// ── Title bar (ADMIT CARD banner) ─────────────────────────────────────────────
+.admit-title-bar {
+  display:          flex;
+  flex-direction:   column;
+  align-items:      center;
+  justify-content:  center;
+  padding:          10px;
+  background:       #1a237e;
+  color:            #fff;
+  text-align:       center;
+  gap:              2px;
+}
+
+.admit-title-text {
+  font-size:      1.1rem;
+  font-weight:    700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+
+.exam-name-label {
+  font-size:   0.9rem;
+  opacity:     0.9;
+  font-style:  italic;
+}
+
+// ── Student section: info left, photo right ───────────────────────────────────
+.student-section {
+  display:  flex;
+  gap:      16px;
+  padding:  16px 28px;
+  border-bottom: 1px solid #888;
+}
+
+.student-info-table {
+  flex:            1;
+  border-collapse: collapse;
+  font-size:       0.88rem;
+
+  td { padding: 4px 8px; vertical-align: top; }
+
+  .info-label {
+    font-weight:  600;
+    white-space:  nowrap;
+    width:        130px;
+    color:        #333;
+
+    &::after { content: ':'; }
+  }
+
+  .info-value {
+    color:      #000;
+    &--name { font-weight: 700; font-size: 1rem; }
+  }
+}
+
+.student-photo-box {
+  width:        90px;
+  height:       110px;
+  border:       1px solid #888;
+  flex-shrink:  0;
+  display:      flex;
+  align-items:  center;
+  justify-content: center;
+  overflow:     hidden;
+  position:     relative;
+}
+
+.student-photo {
+  width:      100%;
+  height:     100%;
+  object-fit: cover;
+}
+
+.photo-placeholder {
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  gap:            4px;
+  color:          #999;
+  font-size:      0.7rem;
+  text-align:     center;
+  padding:        4px;
+
+  mat-icon {
+    font-size: 32px;
+    width:     32px;
+    height:    32px;
+    color:     #ccc;
+  }
+}
+
+// ── Exam details row ──────────────────────────────────────────────────────────
+.exam-details-row {
+  display:  flex;
+  flex-wrap: wrap;
+  gap:      12px;
+  padding:  10px 28px;
+  background: #f5f5f5;
+  border-bottom: 1px solid #888;
+  font-size: 0.85rem;
+
+  .detail-item {
+    display:     flex;
+    flex-direction: column;
+    gap:         2px;
+
+    .detail-label { font-size: 0.75rem; color: #666; font-weight: 600; text-transform: uppercase; }
+    .detail-value { font-weight: 600; color: #000; }
+  }
+}
+
+// ── Schedule table ────────────────────────────────────────────────────────────
+.schedule-section {
+  padding: 12px 28px 8px;
+}
+
+.schedule-title {
+  font-size:      0.85rem;
+  font-weight:    700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin:         0 0 8px;
+  color:          #333;
+  border-bottom:  1px solid #ccc;
+  padding-bottom: 4px;
+}
+
+.schedule-table {
+  width:           100%;
+  border-collapse: collapse;
+  font-size:       0.82rem;
+
+  th, td {
+    border:  1px solid #aaa;
+    padding: 6px 10px;
+    text-align: left;
+  }
+
+  th {
+    background:     #1a237e;
+    color:          #fff;
+    font-weight:    600;
+    font-size:      0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  td { color: #111; }
+
+  tr:nth-child(even) td { background: #f0f2ff; }
+
+  .col-subject  { min-width: 140px; }
+  .col-date     { white-space: nowrap; }
+  .col-time     { white-space: nowrap; }
+  .col-marks    { text-align: center; }
+  .col-passing  { text-align: center; }
+}
+
+// ── Instructions box ──────────────────────────────────────────────────────────
+.instructions-box {
+  margin:   8px 28px 12px;
+  border:   1px solid #aaa;
+  border-radius: 2px;
+  padding:  8px 12px;
+  font-size: 0.8rem;
+  color:    #333;
+  line-height: 1.5;
+
+  .instr-title {
+    font-weight:    700;
+    text-transform: uppercase;
+    font-size:      0.75rem;
+    margin-bottom:  4px;
+    display:        block;
+  }
+}
+
+// ── Signatures row ────────────────────────────────────────────────────────────
+.signatures-row {
+  display:         flex;
+  justify-content: space-between;
+  padding:         16px 28px 20px;
+  border-top:      1px solid #aaa;
+}
+
+.sig-block {
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  gap:            4px;
+  min-width:      140px;
+}
+
+.sig-line {
+  width:        140px;
+  border-bottom: 1px solid #000;
+  margin-bottom: 4px;
+  height:        32px;
+}
+
+.sig-image {
+  max-width:  140px;
+  max-height: 36px;
+  object-fit: contain;
+}
+
+.sig-label {
+  font-size:  0.72rem;
+  color:      #555;
+  text-align: center;
+  font-style: italic;
+}
+
+.sig-name {
+  font-size:   0.78rem;
+  font-weight: 600;
+  text-align:  center;
+}
+
+// ── Footer / watermark ────────────────────────────────────────────────────────
+.card-footer {
+  text-align:  center;
+  font-size:   0.7rem;
+  color:       #888;
+  padding:     4px 28px 8px;
+  border-top:  1px solid #e0e0e0;
+  font-style:  italic;
+}
+
+// ══ @media print — CRITICAL SECTION ══════════════════════════════════════════
+// When window.print() is called, this takes over.
+// The global styles.scss hides body > * and shows only .print-area.
+// These rules fine-tune the admit card's appearance on paper.
+@media print {
+  // Force the admit card to fill the page
+  .admit-card-print {
+    box-shadow:    none !important;
+    max-width:     100% !important;
+    border-radius: 0 !important;
+    margin:        0 !important;
+  }
+
+  // Ensure institute header prints with background colour
+  .admit-title-bar {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust:         exact !important;
+    background: #1a237e !important;
+    color: #fff !important;
+  }
+
+  // Force table header backgrounds to print
+  .schedule-table th {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust:         exact !important;
+    background: #1a237e !important;
+    color: #fff !important;
+  }
+
+  // Alternate row background
+  .schedule-table tr:nth-child(even) td {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust:         exact !important;
+    background: #f0f2ff !important;
+  }
+
+  // Don't break the card across pages
+  .card-doc { page-break-inside: avoid; }
+
+  // Page setup
+  @page {
+    size:   A4 portrait;
+    margin: 15mm 12mm;
+  }
+}

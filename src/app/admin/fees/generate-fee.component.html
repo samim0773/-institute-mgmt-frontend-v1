@@ -1,0 +1,203 @@
+<!-- generate-fee.component.html -->
+<div class="generate-fee-page">
+
+  <!-- ── Header ──────────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <button mat-icon-button (click)="cancel()" aria-label="Back to fees">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h2 class="page-title">Generate Fees</h2>
+      <p class="page-sub">Create fee records for a whole class or a single student</p>
+    </div>
+  </div>
+
+  <!-- ── Mode toggle ─────────────────────────────────────────────────────── -->
+  <div class="mode-toggle">
+    <mat-button-toggle-group [value]="mode" (change)="setMode($event.value)">
+      <mat-button-toggle value="bulk">
+        <mat-icon>groups</mat-icon> Bulk — Entire Class
+      </mat-button-toggle>
+      <mat-button-toggle value="single">
+        <mat-icon>person</mat-icon> Single Student
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <div class="form-grid">
+
+      <!-- ══ Left: Target (who gets the fee) ═══════════════════════════════ -->
+      <mat-card class="section-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="section-icon icon-indigo">
+            {{ mode === 'bulk' ? 'groups' : 'person' }}
+          </mat-icon>
+          <mat-card-title>{{ mode === 'bulk' ? 'Class Selection' : 'Student Selection' }}</mat-card-title>
+          <mat-card-subtitle>
+            {{ mode === 'bulk'
+               ? 'Fees will be generated for all students in the selected section'
+               : 'Select the student to generate a fee for' }}
+          </mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content class="card-body">
+
+          <!-- Class dropdown -->
+          <mat-form-field appearance="outline" class="field-full">
+            <mat-label>Class *</mat-label>
+            <mat-icon matPrefix class="field-icon">class</mat-icon>
+            <mat-select formControlName="class">
+              <mat-option value="">Select class…</mat-option>
+              <mat-option *ngFor="let c of classNames" [value]="c">Class {{ c }}</mat-option>
+            </mat-select>
+            <mat-error>{{ getError('class') }}</mat-error>
+          </mat-form-field>
+
+          <!-- Section dropdown -->
+          <mat-form-field appearance="outline" class="field-full" *ngIf="sections.length > 0 || g('class').value">
+            <mat-label>Section *</mat-label>
+            <mat-icon matPrefix class="field-icon">splitscreen</mat-icon>
+            <mat-select formControlName="section">
+              <mat-option value="">Select section…</mat-option>
+              <mat-option *ngFor="let s of sections" [value]="s">{{ s }}</mat-option>
+            </mat-select>
+            <mat-error>{{ getError('section') }}</mat-error>
+          </mat-form-field>
+
+          <!-- Student dropdown (single mode only) -->
+          <ng-container *ngIf="mode === 'single'">
+            <mat-progress-bar *ngIf="loadingStudents" mode="indeterminate" class="student-loader"></mat-progress-bar>
+
+            <mat-form-field appearance="outline" class="field-full"
+              *ngIf="g('section').value && !loadingStudents">
+              <mat-label>Student *</mat-label>
+              <mat-icon matPrefix class="field-icon">person</mat-icon>
+              <mat-select formControlName="studentId">
+                <mat-option value="">Select student…</mat-option>
+                <mat-option *ngFor="let s of students" [value]="s._id">
+                  {{ s.name }} (Roll {{ s.rollNo }})
+                </mat-option>
+              </mat-select>
+              <mat-error>{{ getError('studentId') }}</mat-error>
+            </mat-form-field>
+
+            <div class="hint-box" *ngIf="!g('class').value">
+              <mat-icon>info</mat-icon>
+              Select a class and section to load students.
+            </div>
+
+            <div class="hint-box hint-warn" *ngIf="g('section').value && !loadingStudents && students.length === 0">
+              <mat-icon>warning_amber</mat-icon>
+              No students found in this section.
+            </div>
+          </ng-container>
+
+          <!-- Bulk info banner -->
+          <div class="hint-box hint-info" *ngIf="mode === 'bulk' && g('class').value && g('section').value">
+            <mat-icon>check_circle</mat-icon>
+            Fees will be generated for all active students in Class
+            {{ g('class').value }}-{{ g('section').value }}.
+          </div>
+
+        </mat-card-content>
+      </mat-card>
+
+      <!-- ══ Right: Fee Details ═══════════════════════════════════════════ -->
+      <mat-card class="section-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="section-icon icon-teal">receipt_long</mat-icon>
+          <mat-card-title>Fee Details</mat-card-title>
+          <mat-card-subtitle>Configure the fee amount and due date</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content class="card-body">
+
+          <!-- Fee Type dropdown -->
+          <mat-form-field appearance="outline" class="field-full" *ngIf="!customFeeType">
+            <mat-label>Fee Type *</mat-label>
+            <mat-icon matPrefix class="field-icon">label</mat-icon>
+            <mat-select formControlName="feeType">
+              <mat-option value="">Select fee type…</mat-option>
+              <mat-option *ngFor="let t of feeTypes" [value]="t">{{ t }}</mat-option>
+            </mat-select>
+            <mat-error>{{ getError('feeType') }}</mat-error>
+          </mat-form-field>
+
+          <!-- Custom fee type text (shown when "Other" selected) -->
+          <mat-form-field appearance="outline" class="field-full" *ngIf="customFeeType">
+            <mat-label>Fee Type Name *</mat-label>
+            <mat-icon matPrefix class="field-icon">label</mat-icon>
+            <input matInput formControlName="customFeeTypeText" placeholder="e.g. Annual Maintenance Fee" />
+            <button mat-icon-button matSuffix type="button"
+              (click)="form.get('feeType')!.setValue('')" matTooltip="Back to dropdown">
+              <mat-icon>arrow_drop_down</mat-icon>
+            </button>
+          </mat-form-field>
+
+          <!-- Amount -->
+          <mat-form-field appearance="outline" class="field-full">
+            <mat-label>Amount (₹) *</mat-label>
+            <mat-icon matPrefix class="field-icon">currency_rupee</mat-icon>
+            <input matInput type="number" formControlName="amount"
+              placeholder="0" min="1" step="1" />
+            <mat-error>{{ getError('amount') }}</mat-error>
+          </mat-form-field>
+
+          <!-- Due Date -->
+          <mat-form-field appearance="outline" class="field-full">
+            <mat-label>Due Date *</mat-label>
+            <mat-icon matPrefix class="field-icon">event</mat-icon>
+            <input matInput [matDatepicker]="duePicker" formControlName="dueDate" />
+            <mat-datepicker-toggle matIconSuffix [for]="duePicker"></mat-datepicker-toggle>
+            <mat-datepicker #duePicker></mat-datepicker>
+            <mat-error>{{ getError('dueDate') }}</mat-error>
+          </mat-form-field>
+
+          <!-- Academic Year -->
+          <mat-form-field appearance="outline" class="field-full">
+            <mat-label>Academic Year</mat-label>
+            <mat-icon matPrefix class="field-icon">school</mat-icon>
+            <input matInput formControlName="academicYear" placeholder="e.g. 2024-25" />
+            <mat-hint>Optional — defaults to institute's current year</mat-hint>
+          </mat-form-field>
+
+          <!-- Late Fine Per Day -->
+          <mat-form-field appearance="outline" class="field-full">
+            <mat-label>Late Fine Per Day (₹)</mat-label>
+            <mat-icon matPrefix class="field-icon">schedule</mat-icon>
+            <input matInput type="number" formControlName="lateFinePerDay"
+              placeholder="0" min="0" step="1" />
+            <mat-hint>Applied daily after the due date if unpaid</mat-hint>
+            <mat-error>{{ getError('lateFinePerDay') }}</mat-error>
+          </mat-form-field>
+
+          <!-- Notes -->
+          <mat-form-field appearance="outline" class="field-full">
+            <mat-label>Notes</mat-label>
+            <mat-icon matPrefix class="field-icon">notes</mat-icon>
+            <textarea matInput formControlName="notes" rows="2"
+              placeholder="Optional internal note…"></textarea>
+            <mat-hint align="end">{{ g('notes').value?.length || 0 }}/500</mat-hint>
+            <mat-error>{{ getError('notes') }}</mat-error>
+          </mat-form-field>
+
+        </mat-card-content>
+      </mat-card>
+
+    </div><!-- /form-grid -->
+
+    <!-- ── Actions ──────────────────────────────────────────────────────── -->
+    <div class="form-actions">
+      <button mat-stroked-button type="button" (click)="cancel()" [disabled]="saving">
+        Cancel
+      </button>
+      <button mat-raised-button color="primary" type="submit" [disabled]="saving" class="submit-btn">
+        <mat-spinner *ngIf="saving" diameter="18" class="btn-spinner"></mat-spinner>
+        <mat-icon *ngIf="!saving">receipt_long</mat-icon>
+        {{ saving ? 'Generating…' : 'Generate Fees' }}
+      </button>
+    </div>
+
+  </form>
+</div>

@@ -1,0 +1,137 @@
+<!-- admin-layout.component.html -->
+<mat-sidenav-container class="layout-container" autosize>
+
+  <!-- ══ SIDEBAR ═══════════════════════════════════════════════════════════ -->
+  <mat-sidenav
+    #sidenav
+    [mode]="sidenavMode"
+    [opened]="sidenavOpened"
+    class="sidebar"
+    fixedInViewport
+  >
+    <!-- Brand logo -->
+    <div class="sidebar-brand">
+      <mat-icon class="brand-icon">school</mat-icon>
+      <span class="brand-text">InstituteMS</span>
+    </div>
+
+    <!-- Institute name sub-heading -->
+    <div class="sidebar-inst-name">
+      <mat-icon class="inst-icon">business</mat-icon>
+      <span class="inst-label">Admin Portal</span>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Navigation list -->
+    <mat-nav-list class="nav-list">
+      <ng-container *ngFor="let item of navItems">
+
+        <!-- Optional divider before certain items -->
+        <mat-divider *ngIf="item.divider" class="nav-divider"></mat-divider>
+
+        <a
+          mat-list-item
+          [routerLink]="item.route"
+          class="nav-item"
+          [class.nav-item--active]="isActive(item.route, item.exact)"
+          [attr.aria-current]="isActive(item.route, item.exact) ? 'page' : null"
+        >
+          <mat-icon matListItemIcon class="nav-icon">{{ item.icon }}</mat-icon>
+          <span matListItemTitle class="nav-label">{{ item.label }}</span>
+
+          <!-- Badge (e.g. pending fee count) -->
+          <span
+            *ngIf="item.badge && item.badge > 0"
+            class="nav-badge"
+            [attr.aria-label]="item.badge + ' pending'"
+          >{{ item.badge > 99 ? '99+' : item.badge }}</span>
+        </a>
+
+      </ng-container>
+    </mat-nav-list>
+
+    <!-- Sidebar footer -->
+    <div class="sidebar-footer">
+      <mat-divider></mat-divider>
+      <div class="sidebar-footer-inner">
+        <div class="user-avatar" [attr.aria-label]="userName">
+          {{ userInitial }}
+        </div>
+        <div class="user-info">
+          <span class="user-name">{{ userName }}</span>
+          <span class="user-role">{{ userRole }}</span>
+        </div>
+      </div>
+    </div>
+  </mat-sidenav>
+
+  <!-- ══ MAIN CONTENT ══════════════════════════════════════════════════════ -->
+  <mat-sidenav-content class="content-area">
+
+    <!-- ── Top toolbar ───────────────────────────────────────────────────── -->
+    <mat-toolbar class="top-toolbar" color="primary">
+
+      <!-- Hamburger toggle (mobile + collapse on desktop) -->
+      <button
+        mat-icon-button
+        class="toolbar-toggle"
+        (click)="toggleSidenav()"
+        [attr.aria-label]="sidenav.opened ? 'Close navigation' : 'Open navigation'"
+        [attr.aria-expanded]="sidenav.opened"
+      >
+        <mat-icon>{{ sidenav.opened && !isMobile ? 'menu_open' : 'menu' }}</mat-icon>
+      </button>
+
+      <!-- Page title -->
+      <span class="toolbar-title">{{ getPageTitle() }}</span>
+
+      <span class="spacer"></span>
+
+      <!-- Quick action: back to dashboard -->
+      <a
+        mat-icon-button
+        routerLink="/admin/dashboard"
+        matTooltip="Dashboard"
+        aria-label="Go to dashboard"
+        class="toolbar-action"
+      >
+        <mat-icon>home</mat-icon>
+      </a>
+
+      <!-- User menu -->
+      <button
+        mat-icon-button
+        [matMenuTriggerFor]="userMenu"
+        class="toolbar-avatar-btn"
+        [attr.aria-label]="'User menu for ' + userName"
+      >
+        <div class="toolbar-avatar">{{ userInitial }}</div>
+      </button>
+
+      <mat-menu #userMenu="matMenu" xPosition="before">
+        <div class="menu-user-header" mat-menu-item disabled>
+          <strong>{{ userName }}</strong>
+          <small>{{ userRole }}</small>
+        </div>
+        <mat-divider></mat-divider>
+        <a mat-menu-item routerLink="/admin/profile">
+          <mat-icon>person</mat-icon> My Profile
+        </a>
+        <a mat-menu-item routerLink="/admin/change-password">
+          <mat-icon>lock</mat-icon> Change Password
+        </a>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="logout()" class="menu-logout">
+          <mat-icon>logout</mat-icon> Sign Out
+        </button>
+      </mat-menu>
+    </mat-toolbar>
+
+    <!-- ── Page content ───────────────────────────────────────────────────── -->
+    <main class="page-content" role="main">
+      <router-outlet></router-outlet>
+    </main>
+
+  </mat-sidenav-content>
+</mat-sidenav-container>

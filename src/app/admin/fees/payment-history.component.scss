@@ -1,0 +1,156 @@
+// payment-history.component.scss
+.history-page { max-width: 860px; margin: 0 auto; }
+
+.page-header {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 20px;
+}
+.page-title { font-size: 1.3rem; font-weight: 700; color: #212121; margin: 0; }
+.page-sub   { font-size: 0.8rem; color: #757575; margin: 2px 0 0; }
+.loading-row { display: flex; align-items: center; gap: 12px; padding: 40px; color: #757575; }
+
+// ── Summary cards ─────────────────────────────────────────────────────────────
+.summary-row {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px; margin-bottom: 20px;
+}
+.summary-card mat-card-content {
+  display: flex; flex-direction: column; padding: 14px 16px !important;
+}
+.sum-label { font-size: 0.72rem; color: #757575; text-transform: uppercase; letter-spacing: 0.4px; }
+.sum-value { font-size: 1.2rem; font-weight: 700; color: #212121; margin-top: 2px; }
+.summary-card--green { border-left: 3px solid #2e7d32 !important;
+  .sum-value { color: #2e7d32; } }
+.summary-card--red   { border-left: 3px solid #c62828 !important;
+  .sum-value { color: #c62828; } }
+.summary-card--amber { border-left: 3px solid #f57f17 !important;
+  .sum-value { color: #f57f17; } }
+
+// ── Empty state ───────────────────────────────────────────────────────────────
+.empty-state {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 56px 24px; color: #9e9e9e; text-align: center; gap: 8px;
+  mat-icon { font-size: 56px; width: 56px; height: 56px; opacity: 0.35; }
+  h3 { margin: 8px 0 0; color: #616161; }
+  p  { margin: 0; font-size: 0.875rem; }
+}
+
+// ── Fee cards ─────────────────────────────────────────────────────────────────
+.fee-list { display: flex; flex-direction: column; gap: 16px; }
+
+.fee-card {
+  border-left: 4px solid #e0e0e0 !important;
+  &--paid    { border-left-color: #66bb6a !important; }
+  &--overdue { border-left-color: #ef5350 !important; }
+  &--waived  { border-left-color: #ab47bc !important; }
+}
+
+// Fee header
+.fee-header {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px; padding: 16px 20px 12px;
+}
+.fee-header-left { display: flex; align-items: center; gap: 12px; }
+.fee-type-icon {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  mat-icon { font-size: 22px; width: 22px; height: 22px; }
+}
+.fee-icon-paid    { background: #e8f5e9; mat-icon { color: #2e7d32; } }
+.fee-icon-pending { background: #fff8e1; mat-icon { color: #f57f17; } }
+.fee-icon-partial { background: #e3f2fd; mat-icon { color: #1565c0; } }
+.fee-icon-waived  { background: #f3e5f5; mat-icon { color: #6a1b9a; } }
+
+.fee-type-label { font-size: 1rem; font-weight: 700; color: #212121; display: block; }
+.fee-year       { font-size: 0.75rem; color: #757575; }
+
+.fee-header-right { display: flex; align-items: center; gap: 10px; }
+.pay-now-btn mat-icon { font-size: 16px; width: 16px; height: 16px; margin-right: 4px; }
+
+// Fee amounts
+.fee-amounts {
+  display: flex; flex-wrap: wrap; gap: 20px;
+  padding: 12px 20px; background: #f9f9f9; margin: 0;
+}
+.amount-block  { display: flex; flex-direction: column; gap: 2px; }
+.amount-label  { font-size: 0.72rem; color: #757575; text-transform: uppercase; letter-spacing: 0.4px; }
+.amount-value  { font-size: 0.95rem; font-weight: 600; color: #212121; }
+.amount-paid   { color: #2e7d32; }
+.amount-due    { color: #c62828; }
+.amount-fine   { color: #c62828; }
+.date-overdue  { color: #c62828; }
+
+// Waiver / notes rows
+.waiver-row, .notes-row {
+  display: flex; align-items: flex-start; gap: 8px;
+  font-size: 0.82rem; color: #616161; padding: 8px 20px;
+  mat-icon { font-size: 16px; width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; }
+}
+.waiver-row { color: #6a1b9a; background: #fce4ec0a; }
+
+// ── Payment timeline ──────────────────────────────────────────────────────────
+.payments-section { padding: 12px 20px 16px; }
+.payments-title   {
+  font-size: 0.8rem; font-weight: 700; color: #616161;
+  text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 12px;
+}
+
+.timeline { position: relative; }
+
+.timeline-item {
+  display: flex; gap: 12px; position: relative; padding-left: 28px; margin-bottom: 14px;
+  &:last-child { margin-bottom: 0; }
+}
+
+.timeline-line {
+  position: absolute; left: 8px; top: 24px; bottom: -14px;
+  width: 2px; background: #e0e0e0;
+}
+.timeline-item--last .timeline-line { display: none; }
+
+.timeline-dot {
+  position: absolute; left: 2px; top: 6px;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: #1565c0; border: 2px solid #fff;
+  box-shadow: 0 0 0 2px #bbdefb;
+  flex-shrink: 0;
+}
+
+.timeline-content {
+  flex: 1; background: #f8f9ff; border: 1px solid #e8eaf6;
+  border-radius: 8px; padding: 10px 14px; position: relative;
+}
+
+.timeline-header {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 10px;
+}
+.payment-amount { font-size: 1rem; font-weight: 700; color: #2e7d32; }
+.payment-mode   { display: flex; align-items: center; gap: 4px;
+  font-size: 0.8rem; color: #616161; }
+.mode-icon      { font-size: 15px; width: 15px; height: 15px; }
+.payment-date   { font-size: 0.78rem; color: #9e9e9e; margin-left: auto; }
+
+.timeline-meta  { display: flex; gap: 12px; margin-top: 4px; flex-wrap: wrap; }
+.ref-no  { font-size: 0.75rem; color: #757575; font-family: monospace; }
+.pay-note { font-size: 0.75rem; color: #9e9e9e; font-style: italic; }
+
+.delete-payment-btn {
+  position: absolute; top: 4px; right: 4px;
+  width: 28px !important; height: 28px !important;
+  ::ng-deep .mat-mdc-icon-button { padding: 0; }
+}
+
+// No payments
+.no-payments {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.82rem; color: #9e9e9e; padding: 12px 20px;
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+}
+
+// ── Status badges ─────────────────────────────────────────────────────────────
+.status-badge {
+  font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 12px;
+}
+.badge-pending { background: #fff8e1; color: #f57f17; }
+.badge-partial { background: #e3f2fd; color: #1565c0; }
+.badge-paid    { background: #e8f5e9; color: #2e7d32; }
+.badge-waived  { background: #f3e5f5; color: #6a1b9a; }

@@ -1,0 +1,123 @@
+// institutes-list.component.scss
+.institutes-page { max-width: 1280px; margin: 0 auto; }
+
+.page-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px; margin-bottom: 20px;
+  button mat-icon { margin-right: 6px; vertical-align: middle; }
+}
+.page-title { font-size: 1.4rem; font-weight: 700; color: #212121; margin: 0 0 2px; }
+.page-sub   { font-size: 0.85rem; color: #757575; margin: 0; }
+
+// Stat cards
+.stat-row {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px; margin-bottom: 16px;
+}
+.stat-card mat-card-content {
+  display: flex; align-items: center; gap: 14px; padding: 16px !important;
+  mat-icon { font-size: 30px; width: 30px; height: 30px; }
+}
+.stat-info    { display: flex; flex-direction: column; }
+.stat-label   { font-size: 0.72rem; color: #757575; text-transform: uppercase; letter-spacing: 0.4px; }
+.stat-value   { font-size: 1.4rem; font-weight: 700; }
+.stat-blue    { border-left: 4px solid #1565c0 !important; mat-icon { color: #1565c0; } .stat-value { color: #1565c0; } }
+.stat-green   { border-left: 4px solid #2e7d32 !important; mat-icon { color: #2e7d32; } .stat-value { color: #2e7d32; } }
+.stat-amber   { border-left: 4px solid #f57f17 !important; mat-icon { color: #f57f17; } .stat-value { color: #f57f17; } }
+.stat-purple  { border-left: 4px solid #6a1b9a !important; mat-icon { color: #6a1b9a; } .stat-value { color: #6a1b9a; } }
+
+// Plan chips
+.plan-chips { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.plan-label { font-size: 0.8rem; color: #757575; }
+.plan-chip {
+  font-size: 0.78rem; font-weight: 700; padding: 4px 12px;
+  border-radius: 20px; border: 1px solid currentColor;
+}
+
+// Filter bar
+.filter-card { margin-bottom: 12px; padding: 14px 18px !important; }
+.filter-row  {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 12px;
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
+}
+.filter-search { flex: 1; min-width: 200px; }
+.filter-sm     { width: 160px; }
+.list-progress { border-radius: 0; }
+
+// Empty state
+.empty-state {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 64px 24px; color: #9e9e9e; text-align: center; gap: 8px;
+  mat-icon { font-size: 64px; width: 64px; height: 64px; opacity: 0.3; }
+  h3 { margin: 8px 0 0; color: #616161; }
+  p  { margin: 0; font-size: 0.875rem; }
+  button { margin-top: 12px; }
+}
+
+// Table
+.table-card   { overflow: hidden; }
+.table-scroll { overflow-x: auto; }
+.inst-table {
+  width: 100%; min-width: 900px;
+  ::ng-deep th.mat-header-cell {
+    background: #37474f; color: #fff; font-weight: 700;
+    font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.4px;
+  }
+}
+.data-row {
+  cursor: pointer; transition: background 0.12s;
+  &:hover { background: #f5f5f5 !important; }
+}
+.row-inactive { opacity: 0.55; }
+
+// Institute cell
+.inst-cell { display: flex; align-items: center; gap: 12px; padding: 8px 0; }
+.inst-avatar {
+  width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+  background: linear-gradient(135deg, #546e7a, #37474f);
+  color: #fff; font-size: 1rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  &--inactive { opacity: 0.4; }
+}
+.inst-name    { font-weight: 700; font-size: 0.9rem; color: #212121; }
+.inst-address { font-size: 0.75rem; color: #757575; }
+.inst-email   { font-size: 0.72rem; color: #9e9e9e; }
+
+// Code badge
+.code-badge {
+  background: #eceff1; color: #455a64; font-family: monospace;
+  font-size: 0.85rem; font-weight: 700; padding: 4px 10px; border-radius: 6px;
+}
+
+// Plan badge
+.plan-badge  { font-size: 0.75rem; font-weight: 700; padding: 3px 10px; border-radius: 12px; }
+.expired-label { font-size: 0.7rem; color: #c62828; margin-top: 2px; }
+
+// Stats cells
+.stat-cell   { display: flex; flex-direction: column; }
+.stat-primary { font-size: 1.1rem; font-weight: 700; color: #212121; }
+.stat-secondary { font-size: 0.72rem; color: #9e9e9e; }
+
+// User chips
+.user-stat { display: flex; gap: 6px; }
+.user-chip {
+  display: flex; align-items: center; gap: 3px;
+  font-size: 0.75rem; font-weight: 600; padding: 3px 8px; border-radius: 10px;
+  mat-icon { font-size: 13px; width: 13px; height: 13px; }
+}
+.admin-chip   { background: #e3f2fd; color: #1565c0; }
+.teacher-chip { background: #e8f5e9; color: #2e7d32; }
+
+// Fee count
+.fee-count {
+  display: flex; align-items: center; gap: 4px; font-size: 0.8rem; color: #9e9e9e;
+  mat-icon { font-size: 15px; width: 15px; height: 15px; }
+  &--warn { color: #f57f17; font-weight: 600; }
+}
+
+// Status toggle
+.status-cell { display: flex; align-items: center; gap: 8px; }
+.status-text { font-size: 0.78rem; color: #9e9e9e; white-space: nowrap;
+  &--active { color: #2e7d32; font-weight: 600; } }
+
+.actions-cell { white-space: nowrap; }

@@ -1,0 +1,95 @@
+<!-- teacher-results.component.html -->
+<div class="results-page">
+  <div class="page-header">
+    <h2 class="page-title">Published Results</h2>
+    <p class="page-sub">View and print student marksheets for published exams</p>
+  </div>
+
+  <mat-card class="filter-card">
+    <div class="filter-row">
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Select Exam</mat-label>
+        <mat-select [(ngModel)]="selectedExamId" (ngModelChange)="onExamChange($event)">
+          <mat-option value="">— Select exam —</mat-option>
+          <mat-option *ngFor="let e of exams" [value]="e._id">
+            {{ e.name }} · Class {{ e.class }}
+          </mat-option>
+        </mat-select>
+        <mat-hint *ngIf="!loadingExams && exams.length === 0">No published exams found</mat-hint>
+      </mat-form-field>
+      <mat-spinner *ngIf="loadingExams" diameter="24"></mat-spinner>
+    </div>
+  </mat-card>
+
+  <mat-progress-bar *ngIf="loadingResults" mode="indeterminate"></mat-progress-bar>
+
+  <div class="empty-state" *ngIf="!selectedExamId && !loadingExams">
+    <mat-icon>leaderboard</mat-icon>
+    <h3>Select an exam to view results</h3>
+    <p>Only published results are shown here.</p>
+  </div>
+
+  <mat-card class="table-card" *ngIf="results.length > 0">
+    <div class="table-scroll">
+      <table mat-table [dataSource]="results" class="results-table">
+
+        <ng-container matColumnDef="rank">
+          <th mat-header-cell *matHeaderCellDef>Rank</th>
+          <td mat-cell *matCellDef="let r">
+            <span class="rank-badge" [class.rank-top]="r.rank <= 3">{{ r.rank }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="student">
+          <th mat-header-cell *matHeaderCellDef>Student</th>
+          <td mat-cell *matCellDef="let r">
+            <div class="student-cell">
+              <span class="s-name">{{ r.studentId?.name || '—' }}</span>
+              <span class="s-roll">Roll {{ r.studentId?.rollNo }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="percentage">
+          <th mat-header-cell *matHeaderCellDef>%</th>
+          <td mat-cell *matCellDef="let r">
+            <span class="pct" [class.pct-pass]="r.isPassed" [class.pct-fail]="!r.isPassed">
+              {{ r.percentage?.toFixed(1) }}%
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="grade">
+          <th mat-header-cell *matHeaderCellDef>Grade</th>
+          <td mat-cell *matCellDef="let r">
+            <span class="grade-badge grade-{{ r.grade?.toLowerCase() }}">{{ r.grade }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="result">
+          <th mat-header-cell *matHeaderCellDef>Result</th>
+          <td mat-cell *matCellDef="let r">
+            <span class="result-chip" [class.chip-pass]="r.isPassed" [class.chip-fail]="!r.isPassed">
+              {{ r.isPassed ? 'PASS' : 'FAIL' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="print">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let r">
+            <button mat-icon-button color="primary"
+              (click)="printMarksheet(r.studentId?._id)"
+              matTooltip="Print marksheet">
+              <mat-icon>print</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="['rank','student','percentage','grade','result','print']; sticky: true"></tr>
+        <tr mat-row *matRowDef="let r; columns: ['rank','student','percentage','grade','result','print'];"
+          class="data-row"></tr>
+      </table>
+    </div>
+  </mat-card>
+</div>

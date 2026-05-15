@@ -1,0 +1,250 @@
+<!-- dashboard.component.html -->
+<div class="dashboard">
+
+  <!-- ── Greeting header ──────────────────────────────────────────────────── -->
+  <div class="dash-header">
+    <div>
+      <h1 class="dash-greeting">{{ greeting }}, {{ userName }} 👋</h1>
+      <p class="dash-date">{{ today | date:'EEEE, d MMMM yyyy' }}</p>
+    </div>
+    <button
+      mat-stroked-button
+      routerLink="/admin/students"
+      class="dash-cta"
+    >
+      <mat-icon>add</mat-icon> Add Student
+    </button>
+  </div>
+
+  <!-- ── Stat cards row ───────────────────────────────────────────────────── -->
+  <div class="stat-grid">
+    <mat-card
+      *ngFor="let card of cards; trackBy: trackById"
+      class="stat-card stat-card--{{ card.color }}"
+      [routerLink]="card.route"
+      [class.stat-card--clickable]="!!card.route"
+      role="region"
+      [attr.aria-label]="card.label"
+    >
+      <mat-card-content class="stat-content">
+
+        <!-- Icon bubble -->
+        <div class="stat-icon-wrap">
+          <mat-icon class="stat-icon">{{ card.icon }}</mat-icon>
+        </div>
+
+        <!-- Text side -->
+        <div class="stat-text">
+          <span class="stat-label">{{ card.label }}</span>
+
+          <!-- Loading skeleton -->
+          <div *ngIf="card.loading" class="stat-skeleton"></div>
+
+          <!-- Value -->
+          <span *ngIf="!card.loading" class="stat-value">{{ card.value }}</span>
+
+          <!-- Sub text -->
+          <span *ngIf="!card.loading && card.sub" class="stat-sub">{{ card.sub }}</span>
+        </div>
+
+        <!-- Arrow hint on clickable cards -->
+        <mat-icon *ngIf="card.route && !card.loading" class="stat-arrow">
+          chevron_right
+        </mat-icon>
+
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- ── Lower section: two columns ───────────────────────────────────────── -->
+  <div class="dash-grid">
+
+    <!-- ── Column 1: Upcoming exams ───────────────────────────────────────── -->
+    <mat-card class="dash-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="card-header-icon icon-purple">assignment</mat-icon>
+        <mat-card-title>Upcoming Exams</mat-card-title>
+        <mat-card-subtitle>Next 5 scheduled</mat-card-subtitle>
+        <span class="card-header-spacer"></span>
+        <a mat-button color="primary" routerLink="/admin/exams" class="view-all-btn">
+          View all
+        </a>
+      </mat-card-header>
+
+      <mat-card-content>
+
+        <!-- Loading shimmer rows -->
+        <div *ngIf="examsLoading" class="shimmer-list">
+          <div *ngFor="let _ of [1,2,3]" class="shimmer-row">
+            <div class="shimmer-line shimmer-line--wide"></div>
+            <div class="shimmer-line shimmer-line--narrow"></div>
+          </div>
+        </div>
+
+        <!-- Empty state -->
+        <div *ngIf="!examsLoading && upcomingExams.length === 0" class="empty-state">
+          <mat-icon>event_available</mat-icon>
+          <p>No exams scheduled</p>
+          <a mat-stroked-button routerLink="/admin/exams" color="primary">
+            Create Exam
+          </a>
+        </div>
+
+        <!-- Exam rows -->
+        <div *ngIf="!examsLoading && upcomingExams.length > 0" class="exam-list">
+          <div
+            *ngFor="let exam of upcomingExams; trackBy: trackById"
+            class="exam-row"
+            [routerLink]="['/admin/exams']"
+          >
+            <div class="exam-info">
+              <span class="exam-name">{{ exam.name }}</span>
+              <span class="exam-class">Class {{ exam.class }}
+                <ng-container *ngIf="exam.section && exam.section !== 'ALL'">
+                  -{{ exam.section }}
+                </ng-container>
+              </span>
+            </div>
+            <div class="exam-right">
+              <span class="exam-date">{{ formatDate(exam.startDate) }}</span>
+              <span class="exam-status" [ngClass]="examStatusColor(exam.status)">
+                {{ exam.status | titlecase }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+      </mat-card-content>
+    </mat-card>
+
+    <!-- ── Column 2: Class strength breakdown ─────────────────────────────── -->
+    <mat-card class="dash-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="card-header-icon icon-blue">bar_chart</mat-icon>
+        <mat-card-title>Class Strength</mat-card-title>
+        <mat-card-subtitle>Active students per section</mat-card-subtitle>
+        <span class="card-header-spacer"></span>
+        <a mat-button color="primary" routerLink="/admin/students" class="view-all-btn">
+          View all
+        </a>
+      </mat-card-header>
+
+      <mat-card-content>
+
+        <!-- Loading -->
+        <div *ngIf="classLoading" class="shimmer-list">
+          <div *ngFor="let _ of [1,2,3,4]" class="shimmer-row">
+            <div class="shimmer-line shimmer-line--wide"></div>
+          </div>
+        </div>
+
+        <!-- Empty -->
+        <div *ngIf="!classLoading && classCounts.length === 0" class="empty-state">
+          <mat-icon>people_outline</mat-icon>
+          <p>No students added yet</p>
+          <a mat-stroked-button routerLink="/admin/students" color="primary">
+            Add Students
+          </a>
+        </div>
+
+        <!-- Bar chart list -->
+        <div *ngIf="!classLoading && classCounts.length > 0" class="class-bars">
+          <div
+            *ngFor="let row of classCounts"
+            class="class-bar-row"
+          >
+            <span class="class-bar-label">
+              {{ row._id.class }}-{{ row._id.section }}
+            </span>
+            <div class="class-bar-track">
+              <div
+                class="class-bar-fill"
+                [style.width.%]="getBarWidth(row.count)"
+              ></div>
+            </div>
+            <span class="class-bar-count">{{ row.count }}</span>
+          </div>
+        </div>
+
+      </mat-card-content>
+    </mat-card>
+
+    <!-- ── Column 3: Recent notices (drafts pending publish) ──────────────── -->
+    <mat-card class="dash-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="card-header-icon icon-green">notifications</mat-icon>
+        <mat-card-title>Draft Notices</mat-card-title>
+        <mat-card-subtitle>Waiting to be published</mat-card-subtitle>
+        <span class="card-header-spacer"></span>
+        <a mat-button color="primary" routerLink="/admin/notices" class="view-all-btn">
+          Manage
+        </a>
+      </mat-card-header>
+
+      <mat-card-content>
+
+        <!-- Loading -->
+        <div *ngIf="noticesLoading" class="shimmer-list">
+          <div *ngFor="let _ of [1,2,3]" class="shimmer-row">
+            <div class="shimmer-line shimmer-line--wide"></div>
+            <div class="shimmer-line shimmer-line--narrow"></div>
+          </div>
+        </div>
+
+        <!-- All published — nothing pending -->
+        <div *ngIf="!noticesLoading && recentNotices.length === 0" class="empty-state empty-state--success">
+          <mat-icon>check_circle</mat-icon>
+          <p>All notices published!</p>
+        </div>
+
+        <!-- Draft notice chips -->
+        <div *ngIf="!noticesLoading && recentNotices.length > 0" class="notice-list">
+          <div
+            *ngFor="let notice of recentNotices; trackBy: trackById"
+            class="notice-row"
+            [routerLink]="['/admin/notices']"
+          >
+            <span class="notice-emoji">{{ noticeCategory(notice.category) }}</span>
+            <div class="notice-info">
+              <span class="notice-title">{{ notice.title }}</span>
+              <span class="notice-date">Created {{ formatDate(notice.createdAt) }}</span>
+            </div>
+            <mat-chip class="notice-draft-chip">Draft</mat-chip>
+          </div>
+        </div>
+
+      </mat-card-content>
+    </mat-card>
+
+    <!-- ── Column 4: Quick actions ─────────────────────────────────────────── -->
+    <mat-card class="dash-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="card-header-icon icon-amber">bolt</mat-icon>
+        <mat-card-title>Quick Actions</mat-card-title>
+        <mat-card-subtitle>Common tasks at a glance</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content class="quick-actions">
+        <a mat-raised-button color="primary"   routerLink="/admin/students/new"   class="qa-btn">
+          <mat-icon>person_add</mat-icon> New Student
+        </a>
+        <a mat-raised-button color="accent"    routerLink="/admin/exams/new"      class="qa-btn">
+          <mat-icon>add_task</mat-icon> New Exam
+        </a>
+        <a mat-stroked-button color="primary"  routerLink="/admin/fees/generate"  class="qa-btn">
+          <mat-icon>receipt_long</mat-icon> Generate Fees
+        </a>
+        <a mat-stroked-button color="primary"  routerLink="/admin/notices/new"    class="qa-btn">
+          <mat-icon>campaign</mat-icon> Post Notice
+        </a>
+        <a mat-stroked-button color="primary"  routerLink="/admin/teachers"       class="qa-btn">
+          <mat-icon>manage_accounts</mat-icon> Manage Teachers
+        </a>
+        <a mat-stroked-button                  routerLink="/admin/results"        class="qa-btn">
+          <mat-icon>leaderboard</mat-icon> View Results
+        </a>
+      </mat-card-content>
+    </mat-card>
+
+  </div><!-- /dash-grid -->
+</div><!-- /dashboard -->

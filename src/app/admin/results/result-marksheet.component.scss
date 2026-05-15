@@ -1,0 +1,296 @@
+// result-marksheet.component.scss
+//
+// SCREEN: renders as a preview card with shadow.
+// PRINT:  @media print takes over — hides all chrome (toolbar, hints),
+//         prints only .print-area (the marksheet document) cleanly on A4.
+
+:host { display: block; }
+
+.marksheet-page { max-width: 920px; margin: 0 auto; }
+
+// ── Screen-only chrome ────────────────────────────────────────────────────────
+.ms-toolbar {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 12px; flex-wrap: wrap;
+}
+.toolbar-title { font-size: 1.1rem; font-weight: 600; color: #212121; }
+.spacer { flex: 1; }
+.print-btn mat-icon { margin-right: 6px; vertical-align: middle; }
+
+.loading-center {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 16px; padding: 80px; color: #757575;
+  p { margin: 0; }
+}
+
+.preview-hint {
+  display: flex; align-items: center; gap: 6px; font-size: 0.8rem;
+  color: #757575; margin: 0 0 12px;
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+}
+
+// ══ MARKSHEET DOCUMENT ═══════════════════════════════════════════════════════
+.marksheet-doc {
+  background:    #fff;
+  box-shadow:    0 4px 24px rgba(0,0,0,0.15);
+  border-radius: 4px;
+  font-family:   'Times New Roman', Times, serif;
+  color:         #000;
+  overflow:      hidden;
+}
+
+// ── Institute header ──────────────────────────────────────────────────────────
+.ms-header {
+  display:       flex;
+  align-items:   center;
+  gap:           20px;
+  padding:       20px 32px 14px;
+  border-bottom: 3px double #000;
+}
+
+.ms-logo {
+  width: 80px; height: 80px; object-fit: contain; flex-shrink: 0;
+}
+
+.ms-inst-text { flex: 1; text-align: center; }
+
+.ms-inst-name {
+  font-size: 1.5rem; font-weight: 700;
+  margin: 0 0 4px; text-transform: uppercase; letter-spacing: 1.5px; line-height: 1.2;
+}
+.ms-inst-addr,
+.ms-inst-phone { font-size: 0.85rem; margin: 0; color: #333; line-height: 1.5; }
+
+// ── Title bar ─────────────────────────────────────────────────────────────────
+.ms-title-bar {
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  padding:        10px;
+  background:     #1a237e;
+  color:          #fff;
+  text-align:     center;
+  gap:            2px;
+}
+.ms-title-text { font-size: 1.1rem; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; }
+.ms-exam-name  { font-size: 0.9rem; opacity: 0.9; font-style: italic; }
+.ms-ay         { font-size: 0.78rem; opacity: 0.75; }
+
+// ── Student section ───────────────────────────────────────────────────────────
+.ms-student-row {
+  display:    flex;
+  gap:        16px;
+  padding:    16px 32px;
+  border-bottom: 1px solid #888;
+}
+
+.ms-student-table {
+  flex: 1; border-collapse: collapse; font-size: 0.875rem;
+  td { padding: 4px 8px; vertical-align: top; }
+  .info-label { font-weight: 600; white-space: nowrap; width: 140px; color: #333;
+    &::after { content: ':'; } }
+  .info-value { color: #000; &--name { font-size: 1rem; font-weight: 700; } }
+}
+
+.ms-right-panel {
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  gap:            12px;
+  flex-shrink:    0;
+}
+
+.ms-photo-box {
+  width: 96px; height: 116px; border: 1px solid #888;
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.ms-photo { width: 100%; height: 100%; object-fit: cover; }
+.ms-photo-placeholder {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 4px; color: #aaa; font-size: 0.7rem; text-align: center;
+  mat-icon { font-size: 36px; width: 36px; height: 36px; color: #ccc; }
+}
+
+// PASS / FAIL stamp
+.ms-stamp {
+  font-size: 1.3rem; font-weight: 900; letter-spacing: 3px;
+  border: 3px solid; border-radius: 4px; padding: 4px 14px;
+  text-transform: uppercase;
+  &.stamp-pass { border-color: #2e7d32; color: #2e7d32; }
+  &.stamp-fail { border-color: #c62828; color: #c62828; }
+}
+
+// ── Marks table ───────────────────────────────────────────────────────────────
+.ms-marks-section { padding: 12px 32px 4px; }
+
+.ms-section-title {
+  font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.8px; color: #333; margin-bottom: 8px;
+  border-bottom: 1px solid #ccc; padding-bottom: 4px;
+}
+
+.ms-marks-table {
+  width: 100%; border-collapse: collapse; font-size: 0.83rem;
+
+  th, td { border: 1px solid #aaa; padding: 7px 10px; }
+
+  th {
+    background: #1a237e; color: #fff;
+    font-weight: 700; font-size: 0.75rem;
+    text-transform: uppercase; letter-spacing: 0.4px;
+  }
+
+  td { color: #111; }
+
+  tr:nth-child(even) td { background: #f5f6ff; }
+  .row-fail td   { background: #fff5f5 !important; }
+  .row-absent td { background: #fffde7 !important; }
+
+  .col-no      { width: 36px; text-align: center; }
+  .col-subject { min-width: 140px; }
+  .col-max, .col-pass, .col-obtained, .col-grade, .col-result { width: 80px; }
+  .center      { text-align: center; }
+
+  .subject-name { font-weight: 500; }
+  .marks-fail   { color: #c62828; font-weight: 700; }
+  .absent-label { color: #e65100; font-weight: 700; font-style: italic; }
+
+  .grade-chip {
+    font-size: 0.78rem; font-weight: 800; padding: 2px 8px; border-radius: 8px;
+    &.grade-a1 { background: #e8f5e9; color: #1b5e20; }
+    &.grade-a2 { background: #f1f8e9; color: #33691e; }
+    &.grade-b1 { background: #e3f2fd; color: #0d47a1; }
+    &.grade-b2 { background: #e8eaf6; color: #283593; }
+    &.grade-c1 { background: #fff8e1; color: #f57f17; }
+    &.grade-c2 { background: #fff3e0; color: #e65100; }
+    &.grade-d  { background: #fce4ec; color: #880e4f; }
+    &.grade-e  { background: #ffebee; color: #b71c1c; }
+    &.grade-default { background: #f5f5f5; color: #616161; }
+  }
+
+  .mini-result { font-size: 0.8rem; font-weight: 700; }
+  .mini-pass   { color: #2e7d32; }
+  .mini-fail   { color: #c62828; }
+}
+
+// ── Summary row ───────────────────────────────────────────────────────────────
+.ms-summary-row {
+  display:    flex;
+  gap:        16px;
+  padding:    12px 32px;
+  border-top: 1px solid #888;
+  border-bottom: 1px solid #888;
+  flex-wrap:  wrap;
+}
+
+.ms-summary-table {
+  flex: 1; border-collapse: collapse; font-size: 0.875rem; min-width: 280px;
+  td { padding: 5px 8px; }
+  .sum-label { font-weight: 600; color: #333; width: 160px;
+    &::after { content: ':'; } }
+  .sum-value { color: #000; }
+  .fail-text { color: #c62828; font-weight: 600; }
+}
+
+.pct-high { color: #2e7d32; }
+.pct-mid  { color: #1565c0; }
+.pct-low  { color: #c62828; }
+
+.overall-grade {
+  font-size: 1rem; font-weight: 800; padding: 2px 12px; border-radius: 8px;
+  &.grade-a1 { background: #e8f5e9; color: #1b5e20; }
+  &.grade-a2 { background: #f1f8e9; color: #33691e; }
+  &.grade-b1 { background: #e3f2fd; color: #0d47a1; }
+  &.grade-b2 { background: #e8eaf6; color: #283593; }
+  &.grade-c1 { background: #fff8e1; color: #f57f17; }
+  &.grade-c2 { background: #fff3e0; color: #e65100; }
+  &.grade-d  { background: #fce4ec; color: #880e4f; }
+  &.grade-e  { background: #ffebee; color: #b71c1c; }
+}
+.grade-remarks { font-size: 0.85rem; color: #555; font-style: italic; margin-left: 8px; }
+
+// Grade scale reference box
+.grade-scale {
+  flex-shrink: 0; min-width: 180px;
+  border: 1px solid #ccc; border-radius: 4px; overflow: hidden; font-size: 0.75rem;
+}
+.grade-scale-title {
+  background: #333; color: #fff; font-weight: 700;
+  text-align: center; padding: 4px; font-size: 0.72rem; text-transform: uppercase;
+}
+.grade-scale-rows { padding: 4px; display: flex; flex-direction: column; gap: 2px; }
+.gs-row {
+  display: flex; gap: 6px; align-items: center;
+  &.gs-fail .gs-range { color: #c62828; }
+}
+.gs-grade { font-weight: 700; min-width: 22px; color: #1a237e; }
+.gs-range { color: #555; }
+
+// ── Signatures ────────────────────────────────────────────────────────────────
+.ms-signatures {
+  display:         flex;
+  justify-content: space-between;
+  padding:         16px 32px 24px;
+  gap:             12px;
+  flex-wrap:       wrap;
+}
+.sig-block { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; min-width: 120px; }
+.sig-line  { width: 120px; border-bottom: 1px solid #000; height: 36px; margin-bottom: 4px; }
+.sig-label { font-size: 0.72rem; color: #555; text-align: center; font-style: italic; }
+
+// ── Footer ────────────────────────────────────────────────────────────────────
+.ms-footer {
+  text-align: center; font-size: 0.7rem; color: #888;
+  padding: 6px 32px 10px; border-top: 1px solid #e0e0e0;
+  display: flex; justify-content: center; gap: 8px; align-items: center;
+  font-style: italic;
+}
+.footer-divider { color: #ccc; }
+.draft-watermark-footer { color: #f57c00; font-weight: 700; font-style: normal; }
+
+// ══ @media print — THE CRITICAL SECTION ═════════════════════════════════════
+// global styles.scss already hides body > * and shows .print-area.
+// These rules fine-tune the marksheet for paper output.
+@media print {
+
+  // Fill the full page width
+  .marksheet-doc {
+    box-shadow:    none !important;
+    border-radius: 0 !important;
+    margin:        0 !important;
+    max-width:     100% !important;
+  }
+
+  // Force dark backgrounds to print
+  .ms-title-bar,
+  .ms-marks-table th {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust:         exact !important;
+    background: #1a237e !important;
+    color: #fff !important;
+  }
+
+  // Alternate rows print with background
+  .ms-marks-table tr:nth-child(even) td,
+  .ms-marks-table .row-fail td,
+  .ms-marks-table .row-absent td {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust:         exact !important;
+  }
+
+  // Stamp colours
+  .ms-stamp.stamp-pass { border-color: #2e7d32 !important; color: #2e7d32 !important; }
+  .ms-stamp.stamp-fail { border-color: #c62828 !important; color: #c62828 !important; }
+
+  // Avoid splitting across pages
+  .ms-student-row,
+  .ms-marks-section,
+  .ms-summary-row,
+  .ms-signatures { page-break-inside: avoid; }
+
+  // A4 page setup
+  @page {
+    size:   A4 portrait;
+    margin: 12mm 14mm;
+  }
+}

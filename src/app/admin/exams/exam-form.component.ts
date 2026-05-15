@@ -1,0 +1,210 @@
+import { Component, OnInit, OnDestroy }  from '@angular/core';
+import {
+  FormBuilder, FormGroup, FormArray,
+  Validators, AbstractControl,
+} from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subject }                from 'rxjs';
+import { takeUntil, finalize }    from 'rxjs/operators';
+
+import { ExamService }         from './exam.service';
+import { StudentService }      from '../students/student.service';
+import { NotificationService } from '../../core/services/notification.service';
+
+@Component({
+  selector:    'app-exam-form',
+  templateUrl: './exam-form.component.html',
+  styleUrls:   ['./exam-form.component.scss'],
+})
+export class ExamFormComponent implements OnInit, OnDestroy {
+
+  form!:    FormGroup;
+  isEdit    = false;
+  examId    = '';
+  saving    = false;
+  loading   = false;
+
+  classNames: string[] = [];
+
+  private destroy$ = new Subject<void>();
+
+  constructor(
+    private fb:         FormBuilder,
+    private route:      ActivatedRoute,
+    private router:     Router,
+    private examSvc:    ExamService,
+    private studentSvc: StudentService,
+    private notify:     NotificationService,
+  ) {}
+
+  ngOnInit(): void {
+    this.buildForm();
+    this.loadClassNames();
+    this.route.params.pipe(takeUntil(this.destroy$)).subscribe(p => {
+      if (p['id']) { this.isEdit = true; this.examId = p['id']; this.loadExam(p['id']); }
+    });
+  }
+
+  ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
+
+  // ─── Build form ────────────────────────────────────────────────────────────
+  private buildForm(): void {
+    this.form = this.fb.group({
+      name:               ['', [Validators.required, Validators.minLength(3), Validators.maxLength(150)]],
+      class:              ['', Validators.required],
+      section:            ['ALL'],
+      startDate:          [null, Validators.required],
+      endDate:            [null, Validators.required],
+      academicYear:       ['', Validators.pattern(/^\d{4}-\d{2}$/)],
+      center:             ['', Validators.maxLength(200)],
+      instructions:       ['', Validators.maxLength(1000)],
+      admitCardIssueDate: [null],
+      subjects:           this.fb.array([this.newSubjectRow()], Validators.minLength(1)),
+    }, { validators: this.endAfterStart });
+  }
+
+  // ─── End date must be after start ─────────────────────────────────────────
+  private endAfterStart(group: AbstractControl) {
+    const start = group.get('startDate')?.value;
+    const end   = group.get('endDate')?.value;
+    if (start && end && new Date(end) <= new Date(start)) {
+      group.get('endDate')?.setErrors({ endBeforeStart: true });
+    }
+    return null;
+  }
+
+  // ─── Subject rows ──────────────────────────────────────────────────────────
+  get subjects(): FormArray { return this.form.get('subjects') as FormArray; }
+
+  newSubjectRow(): FormGroup {
+    return this.fb.group({
+      name:         ['', [Validators.required, Validators.maxLength(100)]],
+      maxMarks:     [100, [Validators.required, Validators.min(1), Validators.max(1000)]],
+      passingMarks: [35,  [Validators.required, Validators.min(0)]],
+      examDate:     [null],
+      examTime:     ['', Validators.maxLength(50)],
+    });
+  }
+
+  addSubject():         void { this.subjects.push(this.newSubjectRow()); }
+  removeSubject(i: number): void {
+    if (this.subjects.length > 1) this.subjects.removeAt(i);
+    else this.notify.warn('An exam must have at least one subject.');
+  }
+
+  // ─── Load class names ──────────────────────────────────────────────────────
+  private loadClassNames(): void {
+    this.studentSvc.getClassNames()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(res => this.classNames = res.data || []);
+  }
+
+  // ─── Load exam for edit ────────────────────────────────────────────────────
+  private loadExam(id: string): void {
+    this.loading = true;
+    this.examSvc.getExam(id)
+      .pipe(takeUntil(this.destroy$), finalize(() => this.loading = false))
+      .subscribe({
+        next: res => {
+          const e = res.data;
+          // Rebuild subjects FormArray
+          while (this.subjects.length) this.subjects.removeAt(0);
+          (e.subjects || []).forEach(() => this.subjects.push(this.newSubjectRow()));
+
+          this.form.patchValue({
+            name:               e.name,
+            class:              e.class,
+            section:            e.section || 'ALL',
+            startDate:          e.startDate ? new Date(e.startDate) : null,
+            endDate:            e.endDate   ? new Date(e.endDate)   : null,
+            academicYear:       e.academicYear  || '',
+            center:             e.center        || '',
+            instructions:       e.instructions  || '',
+            admitCardIssueDate: e.admitCardIssueDate ? new Date(e.admitCardIssueDate) : null,
+            subjects: (e.subjects || []).map((s: any) => ({
+              name:         s.name,
+              maxMarks:     s.maxMarks,
+              passingMarks: s.passingMarks,
+              examDate:     s.examDate ? new Date(s.examDate) : null,
+              examTime:     s.examTime || '',
+            })),
+          });
+        },
+        error: () => {
+          this.notify.error('Could not load exam.');
+          this.router.navigate(['/admin/exams']);
+        },
+      });
+  }
+
+  // ─── Submit ────────────────────────────────────────────────────────────────
+  onSubmit(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.notify.warn('Please fix the highlighted errors.');
+      return;
+    }
+    this.saving = true;
+    const payload = this.buildPayload();
+
+    const call = this.isEdit
+      ? this.examSvc.updateExam(this.examId, payload)
+      : this.examSvc.createExam(payload);
+
+    call.pipe(takeUntil(this.destroy$), finalize(() => this.saving = false))
+      .subscribe({
+        next: res => {
+          this.notify.success(
+            this.isEdit ? `"${res.data?.name}" updated.` : `"${res.data?.name}" created as draft.`
+          );
+          this.router.navigate(['/admin/exams']);
+        },
+      });
+  }
+
+  private buildPayload(): Record<string, any> {
+    const v = this.form.getRawValue();
+    return {
+      name:     v.name.trim(),
+      class:    v.class.toUpperCase(),
+      section:  (v.section || 'ALL').toUpperCase(),
+      startDate: v.startDate instanceof Date ? v.startDate.toISOString() : v.startDate,
+      endDate:   v.endDate   instanceof Date ? v.endDate.toISOString()   : v.endDate,
+      ...(v.academicYear       && { academicYear:       v.academicYear }),
+      ...(v.center             && { center:             v.center.trim() }),
+      ...(v.instructions       && { instructions:       v.instructions.trim() }),
+      ...(v.admitCardIssueDate && { admitCardIssueDate: v.admitCardIssueDate instanceof Date
+        ? v.admitCardIssueDate.toISOString() : v.admitCardIssueDate }),
+      subjects: v.subjects.map((s: any) => ({
+        name:         s.name.trim(),
+        maxMarks:     Number(s.maxMarks),
+        passingMarks: Number(s.passingMarks),
+        ...(s.examDate && { examDate: s.examDate instanceof Date ? s.examDate.toISOString() : s.examDate }),
+        ...(s.examTime && { examTime: s.examTime.trim() }),
+      })),
+    };
+  }
+
+  // ─── Helpers ───────────────────────────────────────────────────────────────
+  g(path: string): AbstractControl { return this.form.get(path)!; }
+
+  sg(i: number, field: string): AbstractControl {
+    return (this.subjects.at(i) as FormGroup).get(field)!;
+  }
+
+  getError(path: string): string {
+    const c = this.g(path);
+    if (!c.touched || c.valid) return '';
+    if (c.hasError('required'))       return 'Required';
+    if (c.hasError('minlength'))      return `Min ${c.errors?.['minlength'].requiredLength} chars`;
+    if (c.hasError('maxlength'))      return `Max ${c.errors?.['maxlength'].requiredLength} chars`;
+    if (c.hasError('pattern'))        return 'Format: YYYY-YY (e.g. 2024-25)';
+    if (c.hasError('endBeforeStart')) return 'End date must be after start date';
+    if (c.hasError('min'))            return `Minimum value: ${c.errors?.['min'].min}`;
+    if (c.hasError('max'))            return `Maximum value: ${c.errors?.['max'].max}`;
+    return 'Invalid';
+  }
+
+  get pageTitle(): string { return this.isEdit ? 'Edit Exam' : 'Create New Exam'; }
+  cancel():         void  { this.router.navigate(['/admin/exams']); }
+}

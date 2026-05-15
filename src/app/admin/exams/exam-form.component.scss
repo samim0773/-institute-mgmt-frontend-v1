@@ -1,0 +1,63 @@
+// exam-form.component.scss
+.form-page { max-width: 860px; margin: 0 auto; }
+.form-header { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+.form-title  { font-size: 1.4rem; font-weight: 700; color: #212121; margin: 0; }
+.form-sub    { font-size: 0.85rem; color: #757575; margin: 4px 0 0; }
+.loading-row { display: flex; align-items: center; gap: 12px; padding: 40px; color: #757575; }
+.form-card { overflow: hidden; &--loading { opacity: 0.5; pointer-events: none; } }
+
+.form-section { padding: 24px 24px 8px; @media (max-width:600px) { padding: 16px; } }
+.section-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.95rem; font-weight: 700; color: #424242;
+  margin: 0 0 20px; text-transform: uppercase; letter-spacing: 0.4px;
+  mat-icon { font-size: 20px; width: 20px; height: 20px; color: #7986cb; }
+}
+.section-header-row {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;
+  .section-title { margin: 0; }
+  button mat-icon { margin-right: 4px; }
+}
+.section-divider { margin: 0 !important; }
+
+.field-row { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 16px; align-items: flex-start; }
+.field-sm  { flex: 1; min-width: 120px; max-width: 160px; }
+.field-md  { flex: 1; min-width: 180px; max-width: 260px; }
+.field-lg  { flex: 2; min-width: 240px; }
+.field-xl  { flex: 1; min-width: 300px; }
+.field-full { width: 100%; margin-bottom: 16px; }
+
+// Subjects array
+.subject-row {
+  display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px;
+  padding: 12px 16px; background: #f8f9ff;
+  border: 1px solid #e8eaf6; border-radius: 8px;
+}
+.subject-index {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: #e8eaf6; color: #3949ab; font-size: 0.8rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 12px;
+}
+.subject-fields {
+  flex: 1; display: flex; flex-wrap: wrap; gap: 12px;
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper { min-height: 16px; }
+}
+.subfield-name { flex: 2; min-width: 160px; }
+.subfield-num  { flex: 1; min-width: 90px; max-width: 120px; }
+.subfield-date { flex: 1; min-width: 140px; }
+.subfield-time { flex: 1; min-width: 160px; }
+.remove-subject-btn { flex-shrink: 0; margin-top: 6px; }
+
+.subject-hint, .no-subjects-hint {
+  display: flex; align-items: center; gap: 6px;
+  color: #f57c00; font-size: 0.85rem; margin: 8px 0;
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+}
+
+.form-actions {
+  display: flex; justify-content: flex-end; gap: 12px;
+  padding: 16px 24px; border-top: 1px solid #e0e0e0; background: #fafafa;
+}
+.save-btn { display: flex; align-items: center; gap: 8px; }
+.btn-spinner { ::ng-deep circle { stroke: rgba(255,255,255,0.8) !important; } }

@@ -1,0 +1,146 @@
+<!-- class-form.component.html -->
+<div class="class-form-page">
+
+  <!-- ── Header ─────────────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <button mat-icon-button (click)="cancel()" aria-label="Back to classes">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h2 class="page-title">{{ isEditMode ? 'Edit Class' : 'Add New Class' }}</h2>
+      <p class="page-sub">{{ isEditMode ? 'Update class details and teacher assignment' : 'Create a new class section' }}</p>
+    </div>
+  </div>
+
+  <!-- ── Loading (edit prefill) ─────────────────────────────────────────────── -->
+  <div class="loading-state" *ngIf="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading class details…</p>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate *ngIf="!loading">
+    <div class="form-grid">
+
+      <!-- ══ Left: Class Identity ═════════════════════════════════════════════ -->
+      <mat-card class="section-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="section-icon icon-indigo">class</mat-icon>
+          <mat-card-title>Class Identity</mat-card-title>
+          <mat-card-subtitle>Class name, section and academic year</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content class="card-body">
+
+          <!-- Class Name -->
+          <mat-form-field appearance="outline" class="field-full">
+            <mat-label>Class Name *</mat-label>
+            <mat-icon matPrefix class="field-icon">tag</mat-icon>
+            <input matInput formControlName="className"
+              placeholder="e.g. 10, KG, LKG" maxlength="10"
+              style="text-transform: uppercase" />
+            <mat-hint>Saved as uppercase — e.g. "10", "KG", "LKG"</mat-hint>
+            <mat-error>{{ getError('className') }}</mat-error>
+          </mat-form-field>
+
+          <!-- Suggestions -->
+          <div class="suggestion-row" *ngIf="classNames.length > 0 && !isEditMode">
+            <span class="suggestion-label">Quick pick:</span>
+            <button *ngFor="let cn of classNames" type="button" class="suggestion-chip"
+              (click)="g('className').setValue(cn)">
+              {{ cn }}
+            </button>
+          </div>
+
+          <!-- Section -->
+          <mat-form-field appearance="outline" class="field-full">
+            <mat-label>Section *</mat-label>
+            <mat-icon matPrefix class="field-icon">splitscreen</mat-icon>
+            <input matInput formControlName="section"
+              placeholder="e.g. A, B, C" maxlength="5"
+              style="text-transform: uppercase" />
+            <mat-hint>Saved as uppercase — e.g. "A", "B"</mat-hint>
+            <mat-error>{{ getError('section') }}</mat-error>
+          </mat-form-field>
+
+          <!-- Academic Year -->
+          <mat-form-field appearance="outline" class="field-full">
+            <mat-label>Academic Year</mat-label>
+            <mat-icon matPrefix class="field-icon">calendar_today</mat-icon>
+            <input matInput formControlName="academicYear"
+              placeholder="e.g. 2025-26" maxlength="7" />
+            <mat-hint>Format: YYYY-YY — auto-generated if left blank</mat-hint>
+            <mat-error>{{ getError('academicYear') }}</mat-error>
+          </mat-form-field>
+
+          <!-- Room Number -->
+          <mat-form-field appearance="outline" class="field-full">
+            <mat-label>Room Number</mat-label>
+            <mat-icon matPrefix class="field-icon">meeting_room</mat-icon>
+            <input matInput formControlName="roomNumber"
+              placeholder="e.g. Room 5, Block-B 12" maxlength="20" />
+            <mat-error>{{ getError('roomNumber') }}</mat-error>
+          </mat-form-field>
+
+        </mat-card-content>
+      </mat-card>
+
+      <!-- ══ Right: Teacher Assignment ════════════════════════════════════════ -->
+      <mat-card class="section-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="section-icon icon-teal">supervisor_account</mat-icon>
+          <mat-card-title>Class Teacher</mat-card-title>
+          <mat-card-subtitle>Optional homeroom teacher for this class</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content class="card-body">
+
+          <mat-form-field appearance="outline" class="field-full">
+            <mat-label>Assign Class Teacher</mat-label>
+            <mat-icon matPrefix class="field-icon">person</mat-icon>
+            <mat-select formControlName="classTeacherId">
+              <mat-option [value]="null">None (unassigned)</mat-option>
+              <mat-option *ngFor="let t of teachers" [value]="t._id">
+                {{ t.name }}
+                <span class="teacher-subject-hint" *ngIf="t.subject"> — {{ t.subject }}</span>
+              </mat-option>
+            </mat-select>
+            <mat-hint>Only active teachers in your institute are listed</mat-hint>
+          </mat-form-field>
+
+          <!-- Selected teacher info -->
+          <div class="teacher-preview" *ngIf="g('classTeacherId').value">
+            <ng-container *ngFor="let t of teachers">
+              <ng-container *ngIf="t._id === g('classTeacherId').value">
+                <div class="preview-avatar">{{ t.name[0] }}</div>
+                <div class="preview-info">
+                  <strong>{{ t.name }}</strong>
+                  <span>{{ t.subject || 'No subject assigned' }}</span>
+                  <span class="preview-email">{{ t.email }}</span>
+                </div>
+              </ng-container>
+            </ng-container>
+          </div>
+
+          <div class="no-teacher-hint" *ngIf="teachers.length === 0">
+            <mat-icon>info</mat-icon>
+            <span>No active teachers found. Add teachers first before assigning.</span>
+          </div>
+
+        </mat-card-content>
+      </mat-card>
+
+    </div><!-- /form-grid -->
+
+    <!-- ── Actions ─────────────────────────────────────────────────────────── -->
+    <div class="form-actions">
+      <button mat-stroked-button type="button" (click)="cancel()" [disabled]="saving">
+        Cancel
+      </button>
+      <button mat-raised-button color="primary" type="submit"
+        [disabled]="saving" class="submit-btn">
+        <mat-spinner *ngIf="saving" diameter="18" class="btn-spinner"></mat-spinner>
+        <mat-icon *ngIf="!saving">{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+        {{ saving ? (isEditMode ? 'Saving…' : 'Creating…') : (isEditMode ? 'Save Changes' : 'Create Class') }}
+      </button>
+    </div>
+
+  </form>
+</div>

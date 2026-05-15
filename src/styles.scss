@@ -1,0 +1,62 @@
+// Angular Material prebuilt theme is loaded in angular.json
+// This file handles global resets and custom overrides
+
+// ─── Reset & base ─────────────────────────────────────────────────────────────
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background-color: #f5f5f5;
+}
+
+// ─── Snackbar colors ─────────────────────────────────────────────────────────
+.snack-error   .mdc-snackbar__surface { background: #d32f2f !important; }
+.snack-warn    .mdc-snackbar__surface { background: #f57c00 !important; }
+.snack-success .mdc-snackbar__surface { background: #388e3c !important; }
+.snack-error, .snack-warn, .snack-success {
+  .mdc-snackbar__label, .mat-mdc-snack-bar-action { color: #fff !important; }
+}
+
+// ─── Print helper — hide everything except .print-area ───────────────────────
+@media print {
+  body > * { display: none !important; }
+  .print-area { display: block !important; }
+  .print-area * { display: revert !important; }
+  .no-print { display: none !important; }
+}
+
+// ─── Layout helpers ──────────────────────────────────────────────────────────
+.page-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.flex-row   { display: flex; flex-direction: row; }
+.flex-col   { display: flex; flex-direction: column; }
+.gap-16     { gap: 16px; }
+.gap-24     { gap: 24px; }
+.flex-1     { flex: 1; }
+.text-right { text-align: right; }
+.mt-16      { margin-top: 16px; }
+.mt-24      { margin-top: 24px; }
+.w-100      { width: 100%; }
+
+// ─── Material table tweaks ───────────────────────────────────────────────────
+.mat-mdc-table {
+  width: 100%;
+  background: white;
+}
+
+.mat-mdc-row:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+// ─── Status badge chips ──────────────────────────────────────────────────────
+.badge-paid    { background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+.badge-pending { background: #fff8e1; color: #f57f17; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+.badge-partial { background: #e3f2fd; color: #1565c0; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }

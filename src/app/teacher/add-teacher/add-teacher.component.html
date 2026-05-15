@@ -1,0 +1,182 @@
+<!-- add-teacher.component.html -->
+<div class="add-teacher-page">
+
+  <!-- ── Header ────────────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <button mat-icon-button (click)="cancel()" aria-label="Back to teachers list">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h2 class="page-title">Add New Teacher</h2>
+      <p class="page-sub">Teacher can log in immediately after creation</p>
+    </div>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <div class="form-grid">
+
+      <!-- ══ Left: Account Details ════════════════════════════════════════ -->
+      <mat-card class="section-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="section-icon icon-teal">person</mat-icon>
+          <mat-card-title>Account Details</mat-card-title>
+          <mat-card-subtitle>Login credentials for the teacher</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content class="card-body">
+
+          <!-- Full Name -->
+          <mat-form-field appearance="outline" class="field-full">
+            <mat-label>Full Name *</mat-label>
+            <mat-icon matPrefix class="field-icon">badge</mat-icon>
+            <input matInput formControlName="name" placeholder="e.g. Priya Mehta" />
+            <mat-error>{{ getError('name') }}</mat-error>
+          </mat-form-field>
+
+          <!-- Email -->
+          <mat-form-field appearance="outline" class="field-full">
+            <mat-label>Email Address *</mat-label>
+            <mat-icon matPrefix class="field-icon">email</mat-icon>
+            <input matInput formControlName="email" type="email" placeholder="teacher@school.edu" autocomplete="off" />
+            <mat-hint>Used for login — must be unique</mat-hint>
+            <mat-error>{{ getError('email') }}</mat-error>
+          </mat-form-field>
+
+          <!-- Password -->
+          <mat-form-field appearance="outline" class="field-full">
+            <mat-label>Password *</mat-label>
+            <mat-icon matPrefix class="field-icon">lock</mat-icon>
+            <input matInput [type]="showPassword ? 'text' : 'password'" formControlName="password"
+              autocomplete="new-password" placeholder="Min 6 chars" />
+            <button mat-icon-button matSuffix type="button" (click)="showPassword = !showPassword" tabindex="-1"
+              [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
+              <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            <mat-error>{{ getError('password') }}</mat-error>
+          </mat-form-field>
+
+          <!-- Password strength bar -->
+          <div class="strength-wrap" *ngIf="g('password').value">
+            <div class="strength-bar">
+              <div class="strength-fill" [class.strength-weak]="passwordStrength === 'weak'"
+                [class.strength-ok]="passwordStrength === 'ok'" [class.strength-strong]="passwordStrength === 'strong'">
+              </div>
+            </div>
+            <span class="strength-label" [class.strength-weak]="passwordStrength === 'weak'"
+              [class.strength-ok]="passwordStrength === 'ok'" [class.strength-strong]="passwordStrength === 'strong'">
+              {{ passwordStrength === 'weak' ? 'Weak' : passwordStrength === 'ok' ? 'Good' : 'Strong' }}
+            </span>
+          </div>
+
+          <!-- Password rules checklist -->
+          <div class="rules-list">
+            <div class="rule" [class.rule-ok]="g('password').value?.length >= 6">
+              <mat-icon>{{ g('password').value?.length >= 6 ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+              At least 6 characters
+            </div>
+            <!-- <div class="rule" [class.rule-ok]="g('password').value && /[A-Z]/.test(g('password').value)">
+              <mat-icon>{{ g('password').value && /[A-Z]/.test(g('password').value) ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+              One uppercase letter
+            </div>
+            <div class="rule" [class.rule-ok]="g('password').value && /[0-9]/.test(g('password').value)">
+              <mat-icon>{{ g('password').value && /[0-9]/.test(g('password').value) ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+              One number
+            </div> -->
+            <div class="rule" [class.rule-ok]="hasUppercase()">
+              <mat-icon>
+                {{ hasUppercase() ? 'check_circle' : 'radio_button_unchecked' }}
+              </mat-icon>
+              One uppercase letter
+            </div>
+
+            <div class="rule" [class.rule-ok]="hasNumber()">
+              <mat-icon>
+                {{ hasNumber() ? 'check_circle' : 'radio_button_unchecked' }}
+              </mat-icon>
+              One number
+            </div>
+          </div>
+
+        </mat-card-content>
+      </mat-card>
+
+      <!-- ══ Right: Subject + Classes ═════════════════════════════════════ -->
+      <mat-card class="section-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="section-icon icon-indigo">school</mat-icon>
+          <mat-card-title>Teaching Assignment</mat-card-title>
+          <mat-card-subtitle>Subject and classes this teacher handles</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content class="card-body">
+
+          <!-- Subject dropdown -->
+          <mat-form-field appearance="outline" class="field-full" *ngIf="!customSubject">
+            <mat-label>Subject</mat-label>
+            <mat-icon matPrefix class="field-icon">book</mat-icon>
+            <mat-select formControlName="subject">
+              <mat-option value="">Not specified</mat-option>
+              <mat-option *ngFor="let s of subjects" [value]="s">{{ s }}</mat-option>
+            </mat-select>
+            <mat-hint>Determines which exams this teacher can enter marks for</mat-hint>
+          </mat-form-field>
+
+          <!-- Custom subject free-text (shown when "Other" selected) -->
+          <mat-form-field appearance="outline" class="field-full" *ngIf="customSubject">
+            <mat-label>Subject Name *</mat-label>
+            <mat-icon matPrefix class="field-icon">book</mat-icon>
+            <input matInput formControlName="customSubjectText" placeholder="Enter subject name…" />
+            <button mat-icon-button matSuffix type="button" (click)="form.get('subject')!.setValue('')"
+              matTooltip="Back to dropdown">
+              <mat-icon>arrow_drop_down</mat-icon>
+            </button>
+          </mat-form-field>
+
+          <!-- Assigned classes (multi-select chips) -->
+          <div class="classes-section" *ngIf="classNames.length > 0">
+            <label class="classes-label">
+              Assigned Classes
+              <span class="classes-hint">(optional — teacher sees students from these classes)</span>
+            </label>
+
+            <div class="class-chips-grid">
+              <button *ngFor="let cls of classNames" type="button" class="class-toggle-btn"
+                [class.class-selected]="isClassSelected(cls)" (click)="toggleClass(cls)">
+                <mat-icon *ngIf="isClassSelected(cls)">check</mat-icon>
+                Class {{ cls }}
+              </button>
+            </div>
+
+            <p class="selected-hint" *ngIf="g('assignedClasses').value?.length > 0">
+              <mat-icon>info</mat-icon>
+              {{ g('assignedClasses').value.length }} class(es) selected:
+              {{ g('assignedClasses').value.join(', ') }}
+            </p>
+          </div>
+
+          <!-- No classes warning -->
+          <div class="no-classes-hint" *ngIf="classNames.length === 0">
+            <mat-icon>info</mat-icon>
+            <span>No classes created yet. You can assign classes to this teacher later after adding class
+              sections.</span>
+          </div>
+
+        </mat-card-content>
+      </mat-card>
+
+    </div><!-- /form-grid -->
+
+    <!-- ── Actions ─────────────────────────────────────────────────────── -->
+    <div class="form-actions">
+      <button mat-stroked-button type="button" (click)="cancel()" [disabled]="saving">
+        Cancel
+      </button>
+      <button mat-raised-button color="primary" type="submit" [disabled]="saving" class="submit-btn">
+        <mat-spinner *ngIf="saving" diameter="18" class="btn-spinner"></mat-spinner>
+        <mat-icon *ngIf="!saving">person_add</mat-icon>
+        {{ saving ? 'Adding teacher…' : 'Add Teacher' }}
+      </button>
+    </div>
+
+  </form>
+</div>

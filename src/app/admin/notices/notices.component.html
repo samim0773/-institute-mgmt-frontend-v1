@@ -1,0 +1,222 @@
+<!-- notices.component.html -->
+<div class="notices-page">
+
+  <!-- ══ LIST VIEW ═════════════════════════════════════════════════════════ -->
+  <ng-container *ngIf="panelMode === 'list'">
+    <div class="page-header">
+      <div>
+        <h2 class="page-title">Notices</h2>
+        <p class="page-sub">{{ notices.length }} total · {{ notices | noticeCount:'draft' }} drafts</p>
+      </div>
+      <button mat-raised-button color="primary" (click)="openCreate()">
+        <mat-icon>campaign</mat-icon> New Notice
+      </button>
+    </div>
+
+    <!-- Filter toggles -->
+    <div class="filter-row">
+      <!-- <mat-chip-set>
+        <mat-chip
+          [class.chip-active]="showDrafts"
+          (click)="showDrafts = !showDrafts"
+          color="accent" [selected]="showDrafts"
+        >
+          <mat-icon matChipAvatar>edit_note</mat-icon>
+          Drafts
+        </mat-chip>
+        <mat-chip
+          [class.chip-active]="showPublished"
+          (click)="showPublished = !showPublished"
+          color="primary" [selected]="showPublished"
+        >
+          <mat-icon matChipAvatar>public</mat-icon>
+          Published
+        </mat-chip>
+      </mat-chip-set> -->
+      <mat-chip-set>
+        <mat-chip-option [class.chip-active]="showDrafts" (click)="showDrafts = !showDrafts" color="accent"
+          [selected]="showDrafts">
+          <mat-icon matChipAvatar>edit_note</mat-icon>
+          Drafts
+        </mat-chip-option>
+
+        <mat-chip-option [class.chip-active]="showPublished" (click)="showPublished = !showPublished" color="primary"
+          [selected]="showPublished">
+          <mat-icon matChipAvatar>public</mat-icon>
+          Published
+        </mat-chip-option>
+      </mat-chip-set>
+    </div>
+
+    <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+
+    <!-- Empty state -->
+    <div class="empty-state" *ngIf="!loading && filteredNotices.length === 0">
+      <mat-icon>notifications_none</mat-icon>
+      <h3>No notices yet</h3>
+      <p>Create your first notice to inform students and teachers.</p>
+      <button mat-raised-button color="primary" (click)="openCreate()">
+        <mat-icon>campaign</mat-icon> Create Notice
+      </button>
+    </div>
+
+    <!-- Notice cards -->
+    <div class="notices-list" *ngIf="!loading && filteredNotices.length > 0">
+      <mat-card *ngFor="let n of filteredNotices; trackBy: trackById" class="notice-card"
+        [class.notice-card--draft]="!n.isPublished" [class.notice-card--urgent]="(n | noticeCategory) === 'urgent'"
+        (click)="openEdit(n)">
+        <mat-card-content class="card-inner">
+
+          <!-- Left: category emoji + title -->
+          <div class="notice-main">
+            <span class="notice-emoji">{{ emoji((n | noticeCategory) || 'general') }}</span>
+            <div class="notice-body">
+              <div class="notice-header-row">
+                <span class="notice-title">{{ n.title }}</span>
+                <span class="category-badge cat-{{ (n | noticeCategory) || 'general' }}">
+                  {{ cLabel((n | noticeCategory) || 'general') }}
+                </span>
+                <span *ngIf="n.targetClass" class="class-badge">Class {{ n.targetClass }}</span>
+              </div>
+              <p class="notice-preview">{{ n.content }}</p>
+              <div class="notice-meta">
+                <span>{{ fmt(n.createdAt) }}</span>
+                <span *ngIf="n.isPublished && (n | noticePublishedAt)" class="meta-sep">·</span>
+                <span *ngIf="n.isPublished">Published {{ fmt((n | noticePublishedAt) || '') }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: status + actions -->
+          <div class="notice-actions" (click)="$event.stopPropagation()">
+            <span class="status-chip" [class.chip-published]="n.isPublished" [class.chip-draft]="!n.isPublished">
+              <mat-icon>{{ n.isPublished ? 'public' : 'edit_note' }}</mat-icon>
+              {{ n.isPublished ? 'Live' : 'Draft' }}
+            </span>
+
+            <!-- Publish / Unpublish -->
+            <button mat-icon-button color="primary" *ngIf="!n.isPublished" (click)="publish(n, $event)"
+              [disabled]="actioningId === n._id" matTooltip="Publish notice">
+              <mat-spinner *ngIf="actioningId === n._id" diameter="18"></mat-spinner>
+              <mat-icon *ngIf="actioningId !== n._id">publish</mat-icon>
+            </button>
+            <button mat-icon-button *ngIf="n.isPublished" (click)="unpublish(n, $event)"
+              [disabled]="actioningId === n._id" matTooltip="Unpublish">
+              <mat-icon>unpublished</mat-icon>
+            </button>
+
+            <!-- Edit -->
+            <button mat-icon-button (click)="openEdit(n); $event.stopPropagation()" matTooltip="Edit">
+              <mat-icon>edit</mat-icon>
+            </button>
+
+            <!-- Delete -->
+            <button mat-icon-button color="warn" (click)="delete(n, $event)" [disabled]="deletingId === n._id"
+              matTooltip="Delete notice">
+              <mat-spinner *ngIf="deletingId === n._id" diameter="18"></mat-spinner>
+              <mat-icon *ngIf="deletingId !== n._id">delete_outline</mat-icon>
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </ng-container>
+
+  <!-- ══ CREATE / EDIT FORM ════════════════════════════════════════════════ -->
+  <ng-container *ngIf="panelMode === 'create' || panelMode === 'edit'">
+    <div class="form-header">
+      <button mat-icon-button (click)="cancelEdit()" aria-label="Back">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h2 class="page-title">{{ pageTitle }}</h2>
+        <p class="page-sub" *ngIf="panelMode === 'edit'">
+          Changes to content require unpublishing first
+        </p>
+      </div>
+    </div>
+
+    <mat-card class="form-card">
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+        <!-- Title -->
+        <mat-form-field appearance="outline" class="field-full">
+          <mat-label>Notice Title *</mat-label>
+          <input matInput formControlName="title" placeholder="e.g. Annual Sports Day" />
+          <mat-error *ngIf="form.get('title')?.touched && form.get('title')?.invalid">
+            Title is required (3–200 chars)
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Content (rich textarea) -->
+        <mat-form-field appearance="outline" class="field-full">
+          <mat-label>Notice Content *</mat-label>
+          <textarea matInput formControlName="content" rows="8"
+            placeholder="Write the full notice here. Use line breaks for formatting."
+            class="content-textarea"></textarea>
+          <mat-hint align="end">{{ charCount }}/5000</mat-hint>
+          <mat-error *ngIf="form.get('content')?.touched && form.get('content')?.invalid">
+            Content is required (10–5000 chars)
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Category + Target class row -->
+        <div class="field-row">
+          <mat-form-field appearance="outline" class="field-md">
+            <mat-label>Category</mat-label>
+            <mat-select formControlName="category">
+              <mat-option *ngFor="let c of categories" [value]="c.value">
+                <mat-icon class="cat-icon">{{ c.icon }}</mat-icon>
+                {{ c.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="field-md">
+            <mat-label>Target Class (optional)</mat-label>
+            <input matInput formControlName="targetClass" placeholder="e.g. 10 — leave blank for all classes" />
+            <mat-hint>Leave blank to show to all classes</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="field-md">
+            <mat-label>Expires On (optional)</mat-label>
+            <input matInput [matDatepicker]="expPicker" formControlName="expiresAt" />
+            <mat-datepicker-toggle matIconSuffix [for]="expPicker"></mat-datepicker-toggle>
+            <mat-datepicker #expPicker></mat-datepicker>
+            <mat-hint>Auto-hides after this date</mat-hint>
+          </mat-form-field>
+        </div>
+
+        <!-- Attachment URL -->
+        <mat-form-field appearance="outline" class="field-full">
+          <mat-label>Attachment URL (optional)</mat-label>
+          <mat-icon matPrefix>attach_file</mat-icon>
+          <input matInput formControlName="attachmentUrl" placeholder="https://example.com/circular.pdf" type="url" />
+          <mat-error *ngIf="form.get('attachmentUrl')?.touched && form.get('attachmentUrl')?.invalid">
+            Enter a valid URL (must start with https://)
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Publish immediately toggle -->
+        <div class="publish-toggle">
+          <mat-slide-toggle formControlName="isPublished" color="primary">
+            Publish immediately (visible to teachers)
+          </mat-slide-toggle>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button mat-stroked-button type="button" (click)="cancelEdit()" [disabled]="saving">
+            Cancel
+          </button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="saving" class="save-btn">
+            <mat-spinner *ngIf="saving" diameter="18" class="btn-spinner"></mat-spinner>
+            <mat-icon *ngIf="!saving">{{ form.get('isPublished')?.value ? 'publish' : 'save' }}</mat-icon>
+            {{ saving ? 'Saving…' : (form.get('isPublished')?.value ? 'Publish Notice' : 'Save as Draft') }}
+          </button>
+        </div>
+      </form>
+    </mat-card>
+  </ng-container>
+
+</div>

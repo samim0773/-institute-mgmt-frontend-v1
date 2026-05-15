@@ -1,0 +1,208 @@
+<!-- student-detail.component.html -->
+<div class="detail-page">
+
+  <!-- ── Loading ────────────────────────────────────────────────────────────── -->
+  <div class="loading-state" *ngIf="loading">
+    <mat-spinner diameter="48"></mat-spinner>
+    <p>Loading student details…</p>
+  </div>
+
+  <!-- ── Not found ──────────────────────────────────────────────────────────── -->
+  <div class="empty-state" *ngIf="!loading && notFound">
+    <mat-icon>person_off</mat-icon>
+    <h3>Student not found</h3>
+    <button mat-raised-button color="primary" (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon> Back to Students
+    </button>
+  </div>
+
+  <!-- ── Content ────────────────────────────────────────────────────────────── -->
+  <ng-container *ngIf="!loading && student">
+
+    <!-- Header -->
+    <div class="page-header">
+      <button mat-icon-button (click)="goBack()" aria-label="Back to students list">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="header-avatar" [class.avatar-inactive]="!student.isActive">
+        {{ student.name[0] }}
+      </div>
+      <div class="header-info">
+        <h2 class="student-name">{{ student.name }}</h2>
+        <div class="header-meta">
+          <span class="class-badge">Class {{ student.class }}-{{ student.section }}</span>
+          <span class="roll-badge">Roll {{ student.rollNo }}</span>
+          <span class="status-chip" [class.chip-active]="student.isActive" [class.chip-inactive]="!student.isActive">
+            <mat-icon>{{ student.isActive ? 'check_circle' : 'cancel' }}</mat-icon>
+            {{ student.isActive ? 'Active' : 'Inactive' }}
+          </span>
+        </div>
+      </div>
+      <span class="spacer"></span>
+      <button mat-raised-button color="primary" (click)="edit()">
+        <mat-icon>edit</mat-icon> Edit Student
+      </button>
+    </div>
+
+    <!-- Cards grid -->
+    <div class="cards-grid">
+
+      <!-- ── Academic Details ───────────────────────────────────────────────── -->
+      <mat-card class="detail-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="card-icon icon-indigo">school</mat-icon>
+          <mat-card-title>Academic Details</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-grid">
+            <div class="info-row">
+              <span class="info-label">Roll Number</span>
+              <span class="info-value">{{ student.rollNo || '—' }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Admission No</span>
+              <span class="info-value">{{ student.admissionNo || '—' }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Class</span>
+              <span class="info-value">{{ student.class }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Section</span>
+              <span class="info-value">{{ student.section }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Academic Year</span>
+              <span class="info-value">{{ student.academicYear || '—' }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- ── Personal Details ───────────────────────────────────────────────── -->
+      <mat-card class="detail-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="card-icon icon-teal">person</mat-icon>
+          <mat-card-title>Personal Details</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-grid">
+            <div class="info-row">
+              <span class="info-label">Full Name</span>
+              <span class="info-value">{{ student.name }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Date of Birth</span>
+              <span class="info-value">
+                {{ formatDate(student.dob) }}
+                <span class="age-tag" *ngIf="student.dob">{{ age(student.dob) }}</span>
+              </span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Gender</span>
+              <span class="info-value">{{ capitalize(student.gender) }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Blood Group</span>
+              <span class="info-value blood-badge" *ngIf="student.bloodGroup; else noBG">
+                {{ student.bloodGroup }}
+              </span>
+              <ng-template #noBG><span class="info-value">—</span></ng-template>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- ── Guardian Details ───────────────────────────────────────────────── -->
+      <mat-card class="detail-card" *ngIf="student.guardianName">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="card-icon icon-orange">supervisor_account</mat-icon>
+          <mat-card-title>Guardian Details</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-grid">
+            <div class="info-row">
+              <span class="info-label">Name</span>
+              <span class="info-value">{{ student.guardianName || '—' }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Relationship</span>
+              <span class="info-value">{{ student.guardianRelation || '—' }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Phone</span>
+              <a class="info-value phone-link" [href]="'tel:' + student.guardianPhone">
+                {{ student.guardianPhone || '—' }}
+              </a>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Email</span>
+              <a *ngIf="student.guardianEmail; else noEmail"
+                class="info-value phone-link"
+                [href]="'mailto:' + student.guardianEmail">
+                {{ student.guardianEmail }}
+              </a>
+              <ng-template #noEmail><span class="info-value">—</span></ng-template>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- ── Address ────────────────────────────────────────────────────────── -->
+      <mat-card class="detail-card" *ngIf="student.address?.street || student.address?.city">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="card-icon icon-purple">home</mat-icon>
+          <mat-card-title>Address</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-grid">
+            <div class="info-row" *ngIf="student.address?.street">
+              <span class="info-label">Street</span>
+              <span class="info-value">{{ student.address?.street }}</span>
+            </div>
+            <div class="info-row" *ngIf="student.address?.city">
+              <span class="info-label">City</span>
+              <span class="info-value">{{ student.address?.city }}</span>
+            </div>
+            <div class="info-row" *ngIf="student.address?.state">
+              <span class="info-label">State</span>
+              <span class="info-value">{{ student.address?.state }}</span>
+            </div>
+            <div class="info-row" *ngIf="student.address?.pincode">
+              <span class="info-label">Pincode</span>
+              <span class="info-value">{{ student.address?.pincode }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- ── Emergency Contact ──────────────────────────────────────────────── -->
+      <mat-card class="detail-card" *ngIf="student.emergencyContact?.name">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="card-icon icon-red">emergency</mat-icon>
+          <mat-card-title>Emergency Contact</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-grid">
+            <div class="info-row">
+              <span class="info-label">Name</span>
+              <span class="info-value">{{ student.emergencyContact?.name || '—' }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Relationship</span>
+              <span class="info-value">{{ student.emergencyContact?.relationship || '—' }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Phone</span>
+              <a class="info-value phone-link" [href]="'tel:' + student.emergencyContact?.phone">
+                {{ student.emergencyContact?.phone || '—' }}
+              </a>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+    </div><!-- /cards-grid -->
+
+  </ng-container>
+</div>

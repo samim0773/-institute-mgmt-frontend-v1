@@ -1,0 +1,85 @@
+// exam-list.component.scss
+.exams-page { max-width: 1200px; margin: 0 auto; }
+
+.page-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px; margin-bottom: 20px;
+  button mat-icon { margin-right: 6px; vertical-align: middle; }
+}
+.page-title { font-size: 1.4rem; font-weight: 700; color: #212121; margin: 0 0 2px; }
+.page-sub   { font-size: 0.85rem; color: #757575; margin: 0; }
+
+.filter-card { margin-bottom: 16px; padding: 16px 20px !important; }
+.filter-row  { display: flex; align-items: center; flex-wrap: wrap; gap: 12px;
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; } }
+.filter-class  { width: 160px; }
+.filter-status { width: 200px; }
+
+.list-progress { border-radius: 0; }
+
+// Empty state
+.empty-state {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 64px 24px; color: #9e9e9e; text-align: center; gap: 8px;
+  mat-icon { font-size: 64px; width: 64px; height: 64px; opacity: 0.35; }
+  h3 { margin: 8px 0 0; color: #616161; }
+  p  { margin: 0; font-size: 0.875rem; }
+  button { margin-top: 16px; }
+}
+
+// Exam card grid
+.exams-grid {
+  display: grid; gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+}
+.exam-card {
+  transition: box-shadow 0.2s, transform 0.15s;
+  &:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.12) !important; transform: translateY(-2px); }
+  &--draft { border-left: 4px solid #f57c00 !important; }
+
+  ::ng-deep .mat-mdc-card-header { position: relative; padding-right: 90px; }
+}
+.exam-avatar {
+  width: 40px !important; height: 40px !important; border-radius: 10px !important;
+  background: #e8eaf6 !important; display: flex !important;
+  align-items: center !important; justify-content: center !important;
+  mat-icon { color: #3949ab; font-size: 22px; }
+}
+.exam-name { font-size: 1rem !important; font-weight: 600 !important; }
+
+// Status chip (absolutely positioned top-right)
+.status-chip {
+  position: absolute; top: 12px; right: 16px;
+  font-size: 0.72rem; font-weight: 700; padding: 3px 10px;
+  border-radius: 12px; text-transform: capitalize; white-space: nowrap;
+  &.status-draft      { background: #fff8e1; color: #f57c00; }
+  &.status-upcoming   { background: #e3f2fd; color: #1565c0; }
+  &.status-ongoing    { background: #e8f5e9; color: #2e7d32; }
+  &.status-completed  { background: #f5f5f5; color: #616161; }
+  &.status-published  { background: #f3e5f5; color: #6a1b9a; }
+}
+
+// Content
+.exam-content { padding-top: 4px !important; }
+.subjects-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.subject-chip {
+  font-size: 0.75rem !important; height: 24px !important;
+  background: #e8eaf6 !important; color: #3949ab !important;
+  padding: 0 10px !important;
+  .chip-marks { color: #7986cb; margin-left: 3px; }
+}
+.exam-stats {
+  display: flex; flex-wrap: wrap; gap: 12px;
+  .stat-item {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 0.78rem; color: #757575;
+    mat-icon { font-size: 15px; width: 15px; height: 15px; }
+  }
+}
+.exam-actions {
+  border-top: 1px solid #e0e0e0; padding-top: 8px !important;
+  gap: 6px; flex-wrap: wrap;
+  button { font-size: 0.8rem !important; }
+}
+.btn-spinner { display: inline-block; margin-right: 6px;
+  ::ng-deep circle { stroke: currentColor !important; } }

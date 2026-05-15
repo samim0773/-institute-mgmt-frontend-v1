@@ -1,0 +1,248 @@
+<!-- institutes-list.component.html -->
+<div class="institutes-page">
+
+  <!-- ── Page header ──────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Institutes</h2>
+      <p class="page-sub">Manage all registered institutions on the platform</p>
+    </div>
+    <button mat-raised-button color="primary" (click)="addInstitute()">
+      <mat-icon>add_business</mat-icon> Register Institute
+    </button>
+  </div>
+
+  <!-- ── Platform stat cards ──────────────────────────────────────────────── -->
+  <div class="stat-row" *ngIf="stats || loadingStats">
+    <mat-card class="stat-card stat-blue">
+      <mat-card-content>
+        <mat-icon>domain</mat-icon>
+        <div class="stat-info">
+          <span class="stat-label">Total Institutes</span>
+          <span class="stat-value">{{ loadingStats ? '…' : stats?.totalInstitutes }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card stat-green">
+      <mat-card-content>
+        <mat-icon>check_circle</mat-icon>
+        <div class="stat-info">
+          <span class="stat-label">Active</span>
+          <span class="stat-value">{{ loadingStats ? '…' : stats?.activeInstitutes }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card stat-amber">
+      <mat-card-content>
+        <mat-icon>people</mat-icon>
+        <div class="stat-info">
+          <span class="stat-label">Total Students</span>
+          <span class="stat-value">{{ loadingStats ? '…' : stats?.totalStudents }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card stat-purple">
+      <mat-card-content>
+        <mat-icon>manage_accounts</mat-icon>
+        <div class="stat-info">
+          <span class="stat-label">Total Users</span>
+          <span class="stat-value">{{ loadingStats ? '…' : stats?.totalUsers }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- ── Plan breakdown chips ─────────────────────────────────────────────── -->
+  <div class="plan-chips" *ngIf="stats?.byPlan?.length">
+    <span class="plan-label">Plans: </span>
+    <span
+      *ngFor="let p of stats!.byPlan"
+      class="plan-chip"
+      [style.background]="planColor(p._id) + '22'"
+      [style.color]="planColor(p._id)"
+      [style.borderColor]="planColor(p._id)"
+    >
+      {{ planLabel(p._id) }}: {{ p.count }}
+    </span>
+  </div>
+
+  <!-- ── Filter bar ───────────────────────────────────────────────────────── -->
+  <mat-card class="filter-card">
+    <div class="filter-row">
+      <mat-form-field appearance="outline" class="filter-search">
+        <mat-label>Search institutes</mat-label>
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput [formControl]="searchCtrl" placeholder="Name or code…" />
+        <button *ngIf="searchCtrl.value" mat-icon-button matSuffix
+          (click)="searchCtrl.setValue('')" aria-label="Clear">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-sm">
+        <mat-label>Status</mat-label>
+        <mat-select [formControl]="statusFilter">
+          <mat-option *ngFor="let s of STATUS_OPTS" [value]="s.value">{{ s.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-sm">
+        <mat-label>Plan</mat-label>
+        <mat-select [formControl]="planFilter">
+          <mat-option value="">All Plans</mat-option>
+          <mat-option *ngFor="let p of plans" [value]="p.value">{{ p.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-stroked-button color="warn" *ngIf="hasFilter" (click)="clearFilters()">
+        <mat-icon>filter_alt_off</mat-icon> Clear
+      </button>
+    </div>
+  </mat-card>
+
+  <mat-progress-bar *ngIf="loading" mode="indeterminate" class="list-progress"></mat-progress-bar>
+
+  <!-- ── Empty state ──────────────────────────────────────────────────────── -->
+  <div *ngIf="!loading && institutes.length === 0" class="empty-state">
+    <mat-icon>domain_disabled</mat-icon>
+    <h3>{{ hasFilter ? 'No institutes match your filters' : 'No institutes registered yet' }}</h3>
+    <p *ngIf="!hasFilter">Register the first institute to get started.</p>
+    <button mat-raised-button color="primary" *ngIf="!hasFilter" (click)="addInstitute()">
+      <mat-icon>add_business</mat-icon> Register First Institute
+    </button>
+    <button mat-stroked-button *ngIf="hasFilter" (click)="clearFilters()">Clear Filters</button>
+  </div>
+
+  <!-- ── Institutes table ─────────────────────────────────────────────────── -->
+  <mat-card class="table-card" *ngIf="institutes.length > 0 || loading">
+    <div class="table-scroll">
+      <table mat-table [dataSource]="institutes" class="inst-table" aria-label="Institutes">
+
+        <!-- Name + Address -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Institute</th>
+          <td mat-cell *matCellDef="let inst">
+            <div class="inst-cell">
+              <div class="inst-avatar" [class.inst-avatar--inactive]="!inst.isActive">
+                {{ inst.name[0] }}
+              </div>
+              <div>
+                <div class="inst-name">{{ inst.name }}</div>
+                <div class="inst-address">{{ inst.address | slice:0:40 }}{{ inst.address?.length > 40 ? '…' : '' }}</div>
+                <div class="inst-email">{{ inst.contactEmail }}</div>
+              </div>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Code -->
+        <ng-container matColumnDef="code">
+          <th mat-header-cell *matHeaderCellDef>Code</th>
+          <td mat-cell *matCellDef="let inst">
+            <span class="code-badge">{{ inst.code }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Plan -->
+        <ng-container matColumnDef="plan">
+          <th mat-header-cell *matHeaderCellDef>Plan</th>
+          <td mat-cell *matCellDef="let inst">
+            <span
+              class="plan-badge"
+              [style.background]="planColor(inst.plan) + '22'"
+              [style.color]="planColor(inst.plan)"
+            >
+              {{ planLabel(inst.plan) }}
+            </span>
+            <div class="expired-label" *ngIf="inst.isPlanExpired">⚠ Expired</div>
+          </td>
+        </ng-container>
+
+        <!-- Students -->
+        <ng-container matColumnDef="students">
+          <th mat-header-cell *matHeaderCellDef>Students</th>
+          <td mat-cell *matCellDef="let inst">
+            <div class="stat-cell">
+              <span class="stat-primary">{{ inst.stats?.activeStudents ?? '—' }}</span>
+              <span class="stat-secondary">active</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Users -->
+        <ng-container matColumnDef="users">
+          <th mat-header-cell *matHeaderCellDef>Users</th>
+          <td mat-cell *matCellDef="let inst">
+            <div class="user-stat">
+              <span class="user-chip admin-chip" matTooltip="Admins">
+                <mat-icon>shield</mat-icon>{{ inst.stats?.totalAdmins ?? 0 }}
+              </span>
+              <span class="user-chip teacher-chip" matTooltip="Teachers">
+                <mat-icon>school</mat-icon>{{ inst.stats?.totalTeachers ?? 0 }}
+              </span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Fees -->
+        <ng-container matColumnDef="fees">
+          <th mat-header-cell *matHeaderCellDef>Pending Fees</th>
+          <td mat-cell *matCellDef="let inst">
+            <span
+              class="fee-count"
+              [class.fee-count--warn]="pendingFees(inst) > 0"
+            >
+              <mat-icon *ngIf="pendingFees(inst) > 0">warning_amber</mat-icon>
+              {{ pendingFees(inst) > 0 ? pendingFees(inst) + ' unpaid' : '—' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Status -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let inst">
+            <div class="status-cell" (click)="$event.stopPropagation()">
+              <mat-slide-toggle
+                [checked]="inst.isActive"
+                [disabled]="togglingId === inst._id"
+                (change)="toggleStatus(inst, $event)"
+                [color]="inst.isActive ? 'primary' : 'warn'"
+                [matTooltip]="inst.isActive ? 'Active — click to deactivate' : 'Inactive — click to activate'"
+              ></mat-slide-toggle>
+              <span class="status-text" [class.status-text--active]="inst.isActive">
+                {{ inst.isActive ? 'Active' : 'Inactive' }}
+              </span>
+              <mat-spinner *ngIf="togglingId === inst._id" diameter="16"></mat-spinner>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Actions -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let inst" class="actions-cell" (click)="$event.stopPropagation()">
+            <button mat-icon-button color="primary"
+              (click)="viewInstitute(inst._id)"
+              matTooltip="View details">
+              <mat-icon>visibility</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+        <tr mat-row *matRowDef="let inst; columns: displayedColumns;"
+          class="data-row"
+          [class.row-inactive]="!inst.isActive"
+          (click)="viewInstitute(inst._id)"
+          [attr.aria-label]="inst.name"
+        ></tr>
+
+      </table>
+    </div>
+  </mat-card>
+
+</div>

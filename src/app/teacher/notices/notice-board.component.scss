@@ -1,0 +1,40 @@
+.board-page { max-width: 800px; margin: 0 auto; }
+.page-header { margin-bottom: 16px; }
+.page-title { font-size: 1.3rem; font-weight: 700; color: #212121; margin: 0 0 2px; }
+.page-sub   { font-size: 0.85rem; color: #757575; margin: 0; }
+.empty-state {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 64px 24px; color: #9e9e9e; text-align: center; gap: 8px;
+  mat-icon { font-size: 64px; width: 64px; height: 64px; opacity: 0.3; }
+  h3 { margin: 8px 0 0; color: #616161; }
+}
+.notices-list { display: flex; flex-direction: column; gap: 10px; }
+.notice-card {
+  cursor: pointer; border-left: 4px solid #42a5f5 !important;
+  transition: box-shadow 0.15s; ::ng-deep mat-card-content { padding: 16px !important; }
+  &.notice-urgent { border-left-color: #ef5350 !important; }
+  &:hover { box-shadow: 0 3px 12px rgba(0,0,0,0.1) !important; }
+}
+.card-inner { display: flex; align-items: flex-start; gap: 8px; }
+.notice-left { display: flex; gap: 12px; flex: 1; min-width: 0; }
+.notice-emoji { font-size: 1.5rem; flex-shrink: 0; margin-top: 2px; }
+.notice-body  { flex: 1; min-width: 0; }
+.notice-title-row { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+.notice-title { font-size: 0.95rem; font-weight: 700; color: #212121; }
+.cat-badge {
+  font-size: 0.68rem; font-weight: 700; padding: 2px 8px; border-radius: 10px;
+  &.cat-general { background: #e3f2fd; color: #1565c0; }
+  &.cat-exam    { background: #f3e5f5; color: #6a1b9a; }
+  &.cat-holiday { background: #e8f5e9; color: #2e7d32; }
+  &.cat-fee     { background: #fff8e1; color: #f57f17; }
+  &.cat-event   { background: #fce4ec; color: #880e4f; }
+  &.cat-urgent  { background: #ffebee; color: #c62828; }
+}
+.class-badge { font-size: 0.68rem; background: #e8eaf6; color: #3949ab; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+.notice-preview { font-size: 0.85rem; color: #616161; margin: 0 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.notice-full    { font-size: 0.875rem; color: #424242; margin: 0 0 4px; white-space: pre-wrap; font-family: inherit; line-height: 1.6; }
+.notice-meta { font-size: 0.75rem; color: #9e9e9e; display: flex; gap: 12px; align-items: center; }
+.attachment-link { display: flex; align-items: center; gap: 3px; color: #1565c0; text-decoration: none; font-size: 0.78rem;
+  mat-icon { font-size: 14px; width: 14px; height: 14px; }
+  &:hover { text-decoration: underline; } }
+.expand-icon { color: #9e9e9e; flex-shrink: 0; margin-top: 2px; }

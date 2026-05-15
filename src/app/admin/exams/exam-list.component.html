@@ -1,0 +1,149 @@
+<!-- exam-list.component.html -->
+<div class="exams-page">
+
+  <!-- ── Page header ──────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Exams</h2>
+      <p class="page-sub">{{ exams.length }} exam(s) found</p>
+    </div>
+    <button mat-raised-button color="primary" (click)="addExam()">
+      <mat-icon>add_task</mat-icon> Create Exam
+    </button>
+  </div>
+
+  <!-- ── Filter bar ────────────────────────────────────────────────────────── -->
+  <mat-card class="filter-card">
+    <div class="filter-row">
+      <mat-form-field appearance="outline" class="filter-class">
+        <mat-label>Class</mat-label>
+        <mat-select [formControl]="classFilterCtrl">
+          <mat-option value="">All Classes</mat-option>
+          <mat-option *ngFor="let c of classNames" [value]="c">Class {{ c }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-status">
+        <mat-label>Status</mat-label>
+        <mat-select [formControl]="statusFilterCtrl">
+          <mat-option *ngFor="let s of STATUS_OPTIONS" [value]="s.value">{{ s.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-stroked-button color="warn" *ngIf="hasFilter" (click)="clearFilters()">
+        <mat-icon>filter_alt_off</mat-icon> Clear
+      </button>
+    </div>
+  </mat-card>
+
+  <!-- ── Loading bar ───────────────────────────────────────────────────────── -->
+  <mat-progress-bar *ngIf="loading" mode="indeterminate" class="list-progress"></mat-progress-bar>
+
+  <!-- ── Empty state ───────────────────────────────────────────────────────── -->
+  <div *ngIf="!loading && exams.length === 0" class="empty-state">
+    <mat-icon>assignment_late</mat-icon>
+    <h3>No exams found</h3>
+    <p>{{ hasFilter ? 'Try adjusting your filters.' : 'Create your first exam to get started.' }}</p>
+    <button mat-raised-button color="primary" *ngIf="!hasFilter" (click)="addExam()">
+      <mat-icon>add_task</mat-icon> Create Exam
+    </button>
+  </div>
+
+  <!-- ── Exam cards grid ───────────────────────────────────────────────────── -->
+  <div class="exams-grid" *ngIf="!loading && exams.length > 0">
+    <mat-card *ngFor="let exam of exams; trackBy: trackById" class="exam-card"
+      [class.exam-card--draft]="exam.status === 'draft'">
+      <!-- Card header: status + actions -->
+      <mat-card-header>
+        <div mat-card-avatar class="exam-avatar">
+          <mat-icon>{{ exam.status === 'draft' ? 'edit_note' : 'assignment' }}</mat-icon>
+        </div>
+        <mat-card-title class="exam-name">{{ exam.name }}</mat-card-title>
+        <mat-card-subtitle>
+          Class {{ exam.class }}<span *ngIf="exam.section && exam.section !== 'ALL'">-{{ exam.section }}</span>
+          &nbsp;·&nbsp;{{ formatRange(exam.startDate, exam.endDate) }}
+        </mat-card-subtitle>
+
+        <!-- Status chip top-right -->
+        <span class="status-chip" [ngClass]="statusColor(exam.status)">
+          {{ exam.status | titlecase | replace:'_':' ' }}
+        </span>
+      </mat-card-header>
+
+      <mat-card-content class="exam-content">
+        <!-- Subjects chips -->
+        <div class="subjects-wrap">
+          <mat-chip *ngFor="let sub of exam.subjects" class="subject-chip">
+            {{ sub.name }} <span class="chip-marks">({{ sub.maxMarks }})</span>
+          </mat-chip>
+        </div>
+
+        <!-- Stats row -->
+        <!-- <div class="exam-stats">
+          <div class="stat-item">
+            <mat-icon>book</mat-icon>
+            <span>{{ exam.subjects.length }} subjects</span>
+          </div>
+          <div class="stat-item" *ngIf="exam.center">
+            <mat-icon>location_on</mat-icon>
+            <span>{{ exam.center }}</span>
+          </div>
+          <div class="stat-item" *ngIf="(exam as any).admitCardCount >= 0">
+            <mat-icon>badge</mat-icon>
+            <span>{{ (exam as any).admitCardCount || 0 }} admit cards</span>
+          </div>
+        </div> -->
+        <!-- Stats row -->
+        <div class="exam-stats">
+          <div class="stat-item">
+            <mat-icon>book</mat-icon>
+            <span>{{ exam.subjects.length }} subjects</span>
+          </div>
+
+          <div class="stat-item" *ngIf="exam.center">
+            <mat-icon>location_on</mat-icon>
+            <span>{{ exam.center }}</span>
+          </div>
+
+          <!-- <div class="stat-item" *ngIf="exam['admitCardCount'] >= 0">
+            <mat-icon>badge</mat-icon>
+            <span>{{ exam['admitCardCount'] || 0 }} admit cards</span>
+          </div> -->
+          <div class="stat-item" *ngIf="(exam.admitCardCount ?? -1) >= 0">
+            <mat-icon>badge</mat-icon>
+            <span>{{ exam.admitCardCount ?? 0 }} admit cards</span>
+          </div>
+        </div>
+      </mat-card-content>
+
+      <!-- Card actions -->
+      <mat-card-actions class="exam-actions" align="end">
+        <!-- Draft: show Publish -->
+        <button mat-stroked-button color="primary" *ngIf="exam.status === 'draft'" (click)="publishExam(exam)"
+          matTooltip="Publish so teachers can see it">
+          <mat-icon>publish</mat-icon> Publish
+        </button>
+
+        <!-- Non-draft: show Generate Admit Cards -->
+        <button mat-stroked-button *ngIf="exam.status !== 'draft'" (click)="generateAdmitCards(exam)"
+          [disabled]="generatingId === exam._id" matTooltip="Generate admit cards for all students in this class">
+          <mat-spinner *ngIf="generatingId === exam._id" diameter="16" class="btn-spinner"></mat-spinner>
+          <mat-icon *ngIf="generatingId !== exam._id">badge</mat-icon>
+          {{ generatingId === exam._id ? 'Generating…' : 'Admit Cards' }}
+        </button>
+
+        <!-- View Admit Cards -->
+        <button mat-stroked-button color="accent" *ngIf="exam.status !== 'draft'" (click)="viewAdmitCards(exam._id)"
+          matTooltip="Browse & print admit cards">
+          <mat-icon>print</mat-icon> Print
+        </button>
+
+        <!-- Edit -->
+        <button mat-icon-button (click)="editExam(exam._id)" matTooltip="Edit exam">
+          <mat-icon>edit</mat-icon>
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+</div>

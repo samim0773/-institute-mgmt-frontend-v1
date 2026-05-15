@@ -1,0 +1,250 @@
+<!-- student-form.component.html -->
+<div class="form-page">
+
+  <!-- ── Page header ─────────────────────────────────────────────────────── -->
+  <div class="form-header">
+    <button mat-icon-button (click)="cancel()" matTooltip="Back to list" aria-label="Back">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h2 class="form-title">{{ pageTitle }}</h2>
+      <p class="form-sub" *ngIf="isEdit">Editing student record</p>
+    </div>
+  </div>
+
+  <!-- ── Loading skeleton ────────────────────────────────────────────────── -->
+  <div *ngIf="loading" class="loading-overlay">
+    <mat-spinner diameter="40"></mat-spinner>
+    <span>Loading student data…</span>
+  </div>
+
+  <!-- ── Form card ───────────────────────────────────────────────────────── -->
+  <mat-card class="form-card" [class.form-card--loading]="loading">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+      <!-- ── Tab navigation ────────────────────────────────────────────── -->
+      <mat-tab-group
+        [(selectedIndex)]="activeTab"
+        animationDuration="200ms"
+        class="form-tabs"
+      >
+
+        <!-- ═══ Tab 0: Academic + Personal ═══════════════════════════════ -->
+        <mat-tab label="Personal Details">
+          <div class="tab-content">
+
+            <p class="section-heading">Academic Placement</p>
+            <div class="field-row">
+
+              <!-- Class -->
+              <mat-form-field appearance="outline" class="field-sm">
+                <mat-label>Class *</mat-label>
+                <mat-select formControlName="class">
+                  <mat-option *ngFor="let c of classNames" [value]="c">
+                    Class {{ c }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>{{ getError('class') }}</mat-error>
+              </mat-form-field>
+
+              <!-- Section -->
+              <mat-form-field appearance="outline" class="field-sm">
+                <mat-label>Section *</mat-label>
+                <mat-select formControlName="section" [disabled]="sections.length === 0">
+                  <mat-option *ngFor="let s of sections" [value]="s">{{ s }}</mat-option>
+                </mat-select>
+                <mat-hint *ngIf="sections.length === 0 && g('class').value">
+                  No sections found for this class
+                </mat-hint>
+                <mat-error>{{ getError('section') }}</mat-error>
+              </mat-form-field>
+
+              <!-- Roll No -->
+              <mat-form-field appearance="outline" class="field-sm">
+                <mat-label>Roll No *</mat-label>
+                <input matInput formControlName="rollNo" placeholder="01" />
+                <mat-error>{{ getError('rollNo') }}</mat-error>
+              </mat-form-field>
+
+              <!-- Admission No -->
+              <mat-form-field appearance="outline" class="field-sm">
+                <mat-label>Admission No</mat-label>
+                <input matInput formControlName="admissionNo" placeholder="ADM001" />
+                <mat-error>{{ getError('admissionNo') }}</mat-error>
+              </mat-form-field>
+
+            </div><!-- /field-row -->
+
+            <mat-divider class="section-divider"></mat-divider>
+            <p class="section-heading">Personal Information</p>
+
+            <div class="field-row">
+              <!-- Full Name -->
+              <mat-form-field appearance="outline" class="field-lg">
+                <mat-label>Full Name *</mat-label>
+                <input matInput formControlName="name" placeholder="Arjun Sharma" />
+                <mat-error>{{ getError('name') }}</mat-error>
+              </mat-form-field>
+
+              <!-- Date of Birth -->
+              <mat-form-field appearance="outline" class="field-md">
+                <mat-label>Date of Birth</mat-label>
+                <input
+                  matInput
+                  [matDatepicker]="dobPicker"
+                  formControlName="dob"
+                  placeholder="DD/MM/YYYY"
+                />
+                <mat-datepicker-toggle matIconSuffix [for]="dobPicker"></mat-datepicker-toggle>
+                <mat-datepicker #dobPicker startView="multi-year"></mat-datepicker>
+                <mat-error>{{ getError('dob') }}</mat-error>
+              </mat-form-field>
+
+            </div>
+
+            <div class="field-row">
+              <!-- Gender -->
+              <mat-form-field appearance="outline" class="field-sm">
+                <mat-label>Gender</mat-label>
+                <mat-select formControlName="gender">
+                  <mat-option value="">Not specified</mat-option>
+                  <mat-option *ngFor="let g of genders" [value]="g.value">{{ g.label }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <!-- Blood Group -->
+              <mat-form-field appearance="outline" class="field-sm">
+                <mat-label>Blood Group</mat-label>
+                <mat-select formControlName="bloodGroup">
+                  <mat-option value="">Not specified</mat-option>
+                  <mat-option *ngFor="let bg of bloodGroups" [value]="bg">{{ bg }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <!-- Academic Year -->
+              <mat-form-field appearance="outline" class="field-sm">
+                <mat-label>Academic Year</mat-label>
+                <input matInput formControlName="academicYear" placeholder="2024-25" />
+                <mat-hint>Format: YYYY-YY</mat-hint>
+              </mat-form-field>
+            </div>
+
+          </div>
+        </mat-tab>
+
+        <!-- ═══ Tab 1: Guardian ══════════════════════════════════════════ -->
+        <mat-tab label="Guardian Details">
+          <div class="tab-content">
+
+            <p class="section-heading">Primary Guardian</p>
+            <div class="field-row">
+
+              <mat-form-field appearance="outline" class="field-lg">
+                <mat-label>Guardian Name *</mat-label>
+                <input matInput formControlName="guardianName" placeholder="Rajesh Sharma" />
+                <mat-error>{{ getError('guardianName') }}</mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="field-sm">
+                <mat-label>Relation</mat-label>
+                <mat-select formControlName="guardianRelation">
+                  <mat-option value="">Select</mat-option>
+                  <mat-option *ngFor="let r of guardianRels" [value]="r">{{ r }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+            </div>
+
+            <div class="field-row">
+
+              <mat-form-field appearance="outline" class="field-md">
+                <mat-label>Phone *</mat-label>
+                <mat-icon matPrefix class="prefix-icon">phone</mat-icon>
+                <input matInput formControlName="guardianPhone" placeholder="9876543210" type="tel" />
+                <mat-error>{{ getError('guardianPhone') }}</mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="field-lg">
+                <mat-label>Email</mat-label>
+                <mat-icon matPrefix class="prefix-icon">email</mat-icon>
+                <input matInput formControlName="guardianEmail" type="email" placeholder="guardian@email.com" />
+                <mat-error>{{ getError('guardianEmail') }}</mat-error>
+              </mat-form-field>
+
+            </div>
+
+            <mat-divider class="section-divider"></mat-divider>
+            <p class="section-heading">Emergency Contact <span class="optional-tag">(optional)</span></p>
+
+            <div class="field-row" formGroupName="emergencyContact">
+              <mat-form-field appearance="outline" class="field-md">
+                <mat-label>Contact Name</mat-label>
+                <input matInput formControlName="name" placeholder="Emergency contact name" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="field-sm">
+                <mat-label>Relationship</mat-label>
+                <input matInput formControlName="relationship" placeholder="Uncle, Aunt…" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="field-sm">
+                <mat-label>Phone</mat-label>
+                <input matInput formControlName="phone" type="tel" placeholder="9876543210" />
+              </mat-form-field>
+            </div>
+
+          </div>
+        </mat-tab>
+
+        <!-- ═══ Tab 2: Address ═══════════════════════════════════════════ -->
+        <mat-tab label="Address">
+          <div class="tab-content" formGroupName="address">
+
+            <p class="section-heading">Residential Address <span class="optional-tag">(optional)</span></p>
+
+            <mat-form-field appearance="outline" class="field-full">
+              <mat-label>Street / Locality</mat-label>
+              <input matInput formControlName="street" placeholder="12 Park Street" />
+            </mat-form-field>
+
+            <div class="field-row">
+              <mat-form-field appearance="outline" class="field-md">
+                <mat-label>City</mat-label>
+                <input matInput formControlName="city" placeholder="Kolkata" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="field-md">
+                <mat-label>State</mat-label>
+                <input matInput formControlName="state" placeholder="West Bengal" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="field-sm">
+                <mat-label>Pincode</mat-label>
+                <input matInput formControlName="pincode" placeholder="700016" maxlength="6" />
+                <mat-error>{{ getError('address.pincode') }}</mat-error>
+              </mat-form-field>
+            </div>
+
+          </div>
+        </mat-tab>
+
+      </mat-tab-group>
+
+      <!-- ── Form actions ───────────────────────────────────────────────── -->
+      <div class="form-actions">
+        <button mat-stroked-button type="button" (click)="cancel()" [disabled]="saving">
+          Cancel
+        </button>
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          [disabled]="saving || loading"
+          class="save-btn"
+        >
+          <mat-spinner *ngIf="saving" diameter="18" class="btn-spinner"></mat-spinner>
+          <mat-icon *ngIf="!saving">{{ isEdit ? 'save' : 'person_add' }}</mat-icon>
+          <span>{{ saving ? 'Saving…' : (isEdit ? 'Save Changes' : 'Add Student') }}</span>
+        </button>
+      </div>
+
+    </form>
+  </mat-card>
+
+</div>

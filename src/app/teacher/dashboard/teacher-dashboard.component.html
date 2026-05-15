@@ -1,0 +1,127 @@
+<!-- teacher-dashboard.component.html -->
+<div class="dashboard-page">
+
+  <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+
+  <ng-container *ngIf="!loading && profile">
+
+    <!-- ── Profile card ──────────────────────────────────────────────────────── -->
+    <mat-card class="profile-card">
+      <div class="profile-top">
+        <div class="avatar-wrap">
+          <div class="avatar-circle">{{ userInitial }}</div>
+          <span class="status-dot" [class.dot-active]="profile.isActive" [class.dot-inactive]="!profile.isActive"></span>
+        </div>
+
+        <div class="profile-info">
+          <h2 class="teacher-name">{{ profile.name }}</h2>
+
+          <div class="info-row">
+            <mat-icon class="info-icon">email</mat-icon>
+            <span>{{ profile.email }}</span>
+          </div>
+
+          <div class="info-row">
+            <mat-icon class="info-icon">book</mat-icon>
+            <span class="subject-text">{{ profile.subject || 'No subject assigned' }}</span>
+          </div>
+
+          <div class="info-row">
+            <mat-icon class="info-icon">access_time</mat-icon>
+            <span>Last login: {{ formatDate(profile.lastLoginAt) }}</span>
+          </div>
+
+          <span class="status-badge" [class.badge-active]="profile.isActive" [class.badge-inactive]="!profile.isActive">
+            <mat-icon>{{ profile.isActive ? 'check_circle' : 'cancel' }}</mat-icon>
+            {{ profile.isActive ? 'Active' : 'Inactive' }}
+          </span>
+        </div>
+      </div>
+    </mat-card>
+
+    <!-- ── Quick Actions ─────────────────────────────────────────────────────── -->
+    <div class="section-title">Quick Actions</div>
+    <div class="actions-row">
+
+      <mat-card class="action-card primary-action" (click)="goToMarks()">
+        <div class="action-icon-wrap teal">
+          <mat-icon>grading</mat-icon>
+        </div>
+        <div class="action-body">
+          <div class="action-label">Mark Entry</div>
+          <div class="action-sub">Enter marks for {{ profile.subject || 'your subject' }}</div>
+        </div>
+        <mat-icon class="action-arrow">chevron_right</mat-icon>
+      </mat-card>
+
+      <mat-card class="action-card" (click)="goToResults()">
+        <div class="action-icon-wrap purple">
+          <mat-icon>leaderboard</mat-icon>
+        </div>
+        <div class="action-body">
+          <div class="action-label">View Results</div>
+          <div class="action-sub">Published exam results</div>
+        </div>
+        <mat-icon class="action-arrow">chevron_right</mat-icon>
+      </mat-card>
+
+      <mat-card class="action-card" (click)="goToNotices()">
+        <div class="action-icon-wrap orange">
+          <mat-icon>notifications</mat-icon>
+        </div>
+        <div class="action-body">
+          <div class="action-label">Notice Board</div>
+          <div class="action-sub">School announcements</div>
+        </div>
+        <mat-icon class="action-arrow">chevron_right</mat-icon>
+      </mat-card>
+
+    </div>
+
+    <!-- ── Homeroom Classes ──────────────────────────────────────────────────── -->
+    <ng-container *ngIf="profile.homeroomClasses?.length">
+      <div class="section-title">
+        <mat-icon class="section-icon">home</mat-icon> Homeroom Classes
+      </div>
+      <div class="class-grid">
+        <mat-card class="class-card" *ngFor="let c of profile.homeroomClasses">
+          <div class="class-card-icon">
+            <mat-icon>class</mat-icon>
+          </div>
+          <div class="class-card-body">
+            <div class="class-display">{{ c.displayName }}</div>
+            <div class="class-meta">Academic Year {{ c.academicYear }}</div>
+          </div>
+          <span class="homeroom-badge">Homeroom</span>
+        </mat-card>
+      </div>
+    </ng-container>
+
+    <!-- ── Subject Assignments ───────────────────────────────────────────────── -->
+    <ng-container *ngIf="profile.subjectAssignments?.length">
+      <div class="section-title">
+        <mat-icon class="section-icon">menu_book</mat-icon>
+        Teaching Assignments
+        <span class="section-count">{{ profile.subjectAssignments!.length }}</span>
+      </div>
+      <mat-card class="assignments-card">
+        <div class="assign-row" *ngFor="let a of profile.subjectAssignments; let last = last">
+          <div class="assign-subject-chip">{{ a.subjectName }}</div>
+          <div class="assign-detail">
+            <span class="assign-class">{{ a.displayName }}</span>
+            <span class="assign-year">{{ a.academicYear }}</span>
+          </div>
+          <mat-divider *ngIf="!last"></mat-divider>
+        </div>
+      </mat-card>
+    </ng-container>
+
+    <!-- ── Empty assignments state ───────────────────────────────────────────── -->
+    <div class="no-assignments"
+      *ngIf="!profile.homeroomClasses?.length && !profile.subjectAssignments?.length">
+      <mat-icon>info_outline</mat-icon>
+      <p>No class or subject assignments yet. Contact your administrator.</p>
+    </div>
+
+  </ng-container>
+</div>

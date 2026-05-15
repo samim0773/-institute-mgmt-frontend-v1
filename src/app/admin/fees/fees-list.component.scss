@@ -1,0 +1,143 @@
+// fees-list.component.scss
+.fees-page { max-width: 1200px; margin: 0 auto; }
+
+.page-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px; margin-bottom: 20px;
+  button mat-icon { margin-right: 6px; vertical-align: middle; }
+}
+.page-title { font-size: 1.4rem; font-weight: 700; color: #212121; margin: 0 0 2px; }
+.page-sub   { font-size: 0.85rem; color: #757575; margin: 0; }
+
+// ── Stat cards ────────────────────────────────────────────────────────────────
+.stat-row {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px; margin-bottom: 20px;
+}
+.stat-card mat-card-content {
+  display: flex; align-items: center; gap: 14px; padding: 16px !important;
+  mat-icon { font-size: 32px; width: 32px; height: 32px; }
+}
+.stat-info { display: flex; flex-direction: column; }
+.stat-label { font-size: 0.72rem; color: #757575; text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-value { font-size: 1.2rem; font-weight: 700; }
+
+.stat-blue  { border-left: 4px solid #1565c0 !important;
+  mat-icon { color: #1565c0; } .stat-value { color: #1565c0; } }
+.stat-green { border-left: 4px solid #2e7d32 !important;
+  mat-icon { color: #2e7d32; } .stat-value { color: #2e7d32; } }
+.stat-red   { border-left: 4px solid #c62828 !important;
+  mat-icon { color: #c62828; } .stat-value { color: #c62828; } }
+.stat-amber { border-left: 4px solid #f57f17 !important;
+  mat-icon { color: #f57f17; } .stat-value { color: #f57f17; } }
+
+// ── View toggle ───────────────────────────────────────────────────────────────
+.view-toggle { margin-bottom: 16px;
+  mat-icon { vertical-align: middle; font-size: 18px; margin-right: 4px; } }
+
+// ── Filters ───────────────────────────────────────────────────────────────────
+.filter-card { margin-bottom: 12px; padding: 12px 16px !important; }
+.filter-row  {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 12px;
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
+}
+.filter-field { width: 180px; }
+.filter-hint {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 0.85rem; color: #757575;
+  mat-icon { font-size: 18px; width: 18px; height: 18px; color: #9e9e9e; }
+}
+
+// ── Grand total banner ────────────────────────────────────────────────────────
+.grand-total-banner {
+  background: #fff3e0; border: 1px solid #ffcc02;
+  border-radius: 8px; padding: 10px 16px; margin-bottom: 12px;
+  font-size: 0.9rem; color: #e65100;
+  .total-amount { font-size: 1.05rem; color: #bf360c; }
+}
+
+// ── Empty state ───────────────────────────────────────────────────────────────
+.empty-state {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 56px 24px; color: #9e9e9e; text-align: center; gap: 8px;
+  mat-icon { font-size: 56px; width: 56px; height: 56px; opacity: 0.35; }
+  h3 { margin: 8px 0 0; color: #616161; }
+  p  { margin: 0; font-size: 0.875rem; }
+  &--success { color: #2e7d32; mat-icon { color: #66bb6a; opacity: 0.7; } h3 { color: #2e7d32; } }
+}
+
+// ── Dues accordion ────────────────────────────────────────────────────────────
+.dues-accordion { display: flex; flex-direction: column; gap: 6px; }
+.dues-panel {
+  border-left: 4px solid transparent !important;
+  &--overdue { border-left-color: #ef5350 !important; }
+}
+.panel-title { display: flex; align-items: center; gap: 0; }
+.panel-student { display: flex; align-items: center; gap: 12px; }
+.student-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(135deg, #42a5f5, #1565c0);
+  color: #fff; font-size: 0.9rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.student-name { font-weight: 600; font-size: 0.9rem; display: block; }
+.student-meta { font-size: 0.75rem; color: #757575; }
+.panel-desc { display: flex; align-items: center; gap: 8px; }
+.panel-balance { font-weight: 700; font-size: 1rem; color: #424242;
+  &.balance-overdue { color: #c62828; } }
+.overdue-icon { font-size: 18px; width: 18px; height: 18px; color: #ef5350; }
+
+// Fee rows inside panel
+.fee-rows { display: flex; flex-direction: column; gap: 8px; padding: 4px 0; }
+.fee-row {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 12px;
+  padding: 10px 12px; background: #fafafa; border-radius: 6px;
+  border: 1px solid #e0e0e0;
+  &--overdue { background: #fff8f8; border-color: #ffcdd2; }
+}
+.fee-row-left { flex: 1; min-width: 140px; }
+.fee-type     { font-weight: 600; font-size: 0.875rem; display: block; }
+.fee-due-date { font-size: 0.75rem; color: #757575; }
+.fee-row-mid  { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.fee-billed   { font-size: 0.85rem; color: #424242; }
+.fee-paid-label { font-size: 0.8rem; color: #2e7d32; }
+.fee-fine     { font-size: 0.78rem; color: #c62828; font-weight: 600; }
+.fee-row-right { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.pay-btn mat-icon { font-size: 16px; width: 16px; height: 16px; margin-right: 4px; }
+
+// Panel footer
+.panel-footer {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
+  gap: 8px; padding-top: 12px; border-top: 1px solid #e0e0e0; margin-top: 8px;
+}
+.panel-summary { font-size: 0.875rem; color: #616161; }
+.fine-note     { color: #c62828; margin-left: 8px; font-weight: 600; }
+
+// ── All-fees table ────────────────────────────────────────────────────────────
+.table-card { overflow: hidden; }
+.table-scroll { overflow-x: auto; }
+.fees-table {
+  width: 100%; min-width: 750px;
+  ::ng-deep th.mat-header-cell {
+    background: #f5f5f5; font-weight: 700;
+    font-size: 0.78rem; color: #616161; text-transform: uppercase; letter-spacing: 0.4px;
+  }
+}
+.data-row { cursor: default; &:hover { background: #fafafa !important; } }
+.student-cell { display: flex; flex-direction: column; }
+.s-name { font-weight: 600; font-size: 0.875rem; }
+.s-class { font-size: 0.75rem; color: #757575; }
+.col-paid { color: #2e7d32 !important; font-weight: 600; }
+.col-due  { .due-red { color: #c62828; font-weight: 700; } }
+.overdue-text { color: #c62828; font-weight: 600; }
+.actions-cell { white-space: nowrap; }
+
+// ── Status badges ─────────────────────────────────────────────────────────────
+.status-badge {
+  font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 12px;
+  display: inline-block;
+}
+.badge-pending { background: #fff8e1; color: #f57f17; }
+.badge-partial { background: #e3f2fd; color: #1565c0; }
+.badge-paid    { background: #e8f5e9; color: #2e7d32; }
+.badge-waived  { background: #f3e5f5; color: #6a1b9a; }

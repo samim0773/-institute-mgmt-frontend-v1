@@ -1,0 +1,155 @@
+<!-- subjects-list.component.html -->
+<div class="subjects-page">
+
+  <!-- ── Header ─────────────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Subjects</h2>
+      <p class="page-sub">
+        {{ subjects.length }} assignment{{ subjects.length !== 1 ? 's' : '' }}
+        <span class="inactive-badge" *ngIf="showInactive">· Showing inactive</span>
+      </p>
+    </div>
+    <button mat-raised-button color="primary" (click)="addSubject()">
+      <mat-icon>add</mat-icon> Assign Subject
+    </button>
+  </div>
+
+  <!-- ── Filters ────────────────────────────────────────────────────────────── -->
+  <mat-card class="filter-card">
+    <div class="filter-row">
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Class</mat-label>
+        <mat-icon matPrefix>class</mat-icon>
+        <mat-select [formControl]="classFilter">
+          <mat-option value="">All Classes</mat-option>
+          <mat-option *ngFor="let c of classNames" [value]="c">Class {{ c }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field" *ngIf="sections.length > 0">
+        <mat-label>Section</mat-label>
+        <mat-select [formControl]="sectionFilter">
+          <mat-option value="">All Sections</mat-option>
+          <mat-option *ngFor="let s of sections" [value]="s">{{ s }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-stroked-button color="warn" *ngIf="hasFilter" (click)="clearFilters()">
+        <mat-icon>filter_alt_off</mat-icon> Clear
+      </button>
+
+      <span class="spacer"></span>
+
+      <button mat-stroked-button (click)="toggleInactive()"
+        [color]="showInactive ? 'warn' : ''">
+        <mat-icon>{{ showInactive ? 'visibility_off' : 'visibility' }}</mat-icon>
+        {{ showInactive ? 'Hide Inactive' : 'Show Inactive' }}
+      </button>
+
+    </div>
+  </mat-card>
+
+  <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+
+  <!-- ── Empty state ────────────────────────────────────────────────────────── -->
+  <div class="empty-state" *ngIf="!loading && subjects.length === 0">
+    <mat-icon>menu_book</mat-icon>
+    <h3>{{ hasFilter ? 'No subjects match your filter' : 'No subject assignments yet' }}</h3>
+    <p *ngIf="!hasFilter">Assign subjects to classes to get started.</p>
+    <button mat-raised-button color="primary" *ngIf="!hasFilter" (click)="addSubject()">
+      <mat-icon>add</mat-icon> Assign First Subject
+    </button>
+    <button mat-stroked-button *ngIf="hasFilter" (click)="clearFilters()">
+      Clear Filters
+    </button>
+  </div>
+
+  <!-- ── Table ──────────────────────────────────────────────────────────────── -->
+  <mat-card class="table-card" *ngIf="subjects.length > 0 || loading">
+    <div class="table-scroll">
+      <table mat-table [dataSource]="subjects" class="subjects-table" aria-label="Subject assignments">
+
+        <!-- Subject Name -->
+        <ng-container matColumnDef="subject">
+          <th mat-header-cell *matHeaderCellDef>Subject</th>
+          <td mat-cell *matCellDef="let s">
+            <div class="subject-cell">
+              <div class="subject-icon">
+                <mat-icon>menu_book</mat-icon>
+              </div>
+              <span class="subject-name">{{ s.subjectName }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Class -->
+        <ng-container matColumnDef="class">
+          <th mat-header-cell *matHeaderCellDef>Class</th>
+          <td mat-cell *matCellDef="let s">
+            <span class="class-badge">Class {{ s.className }}-{{ s.section }}</span>
+            <div class="year-hint">{{ s.academicYear }}</div>
+          </td>
+        </ng-container>
+
+        <!-- Teacher -->
+        <ng-container matColumnDef="teacher">
+          <th mat-header-cell *matHeaderCellDef>Teacher</th>
+          <td mat-cell *matCellDef="let s">
+            <div *ngIf="s.teacherId; else noTeacher" class="teacher-cell">
+              <div class="teacher-avatar">{{ s.teacherId.name[0] }}</div>
+              <div>
+                <div class="teacher-name">{{ s.teacherId.name }}</div>
+                <div class="teacher-email">{{ s.teacherId.email }}</div>
+              </div>
+            </div>
+            <ng-template #noTeacher>
+              <span class="unassigned-badge">
+                <mat-icon>person_off</mat-icon> Unassigned
+              </span>
+            </ng-template>
+          </td>
+        </ng-container>
+
+        <!-- Status -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let s">
+            <span class="status-chip"
+              [class.chip-active]="s.isActive"
+              [class.chip-inactive]="!s.isActive">
+              <mat-icon>{{ s.isActive ? 'check_circle' : 'cancel' }}</mat-icon>
+              {{ s.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Actions -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let s" class="actions-cell">
+            <button mat-icon-button (click)="editSubject(s._id); $event.stopPropagation()"
+              matTooltip="Change teacher / deactivate">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn"
+              (click)="deleteSubject(s); $event.stopPropagation()"
+              [disabled]="deletingId === s._id"
+              matTooltip="Remove subject">
+              <mat-spinner *ngIf="deletingId === s._id" diameter="18"></mat-spinner>
+              <mat-icon *ngIf="deletingId !== s._id">delete_outline</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+        <tr mat-row *matRowDef="let s; columns: displayedColumns;"
+          class="data-row" [class.row-inactive]="!s.isActive"
+          (click)="editSubject(s._id)"></tr>
+
+      </table>
+    </div>
+  </mat-card>
+
+</div>

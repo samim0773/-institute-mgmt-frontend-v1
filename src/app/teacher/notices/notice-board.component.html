@@ -1,0 +1,51 @@
+<!-- notice-board.component.html -->
+<div class="board-page">
+  <div class="page-header">
+    <h2 class="page-title">Notice Board</h2>
+    <p class="page-sub">{{ notices.length }} active notice(s)</p>
+  </div>
+
+  <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+
+  <div class="empty-state" *ngIf="!loading && notices.length === 0">
+    <mat-icon>notifications_none</mat-icon>
+    <h3>No notices right now</h3>
+    <p>Check back later for announcements from your admin.</p>
+  </div>
+
+  <div class="notices-list" *ngIf="!loading && notices.length > 0">
+    <mat-card
+      *ngFor="let n of notices; trackBy: trackById"
+      class="notice-card"
+      [class.notice-urgent]="(n | noticeCategory) === 'urgent'"
+      (click)="toggle(n._id)"
+    >
+      <mat-card-content class="card-inner">
+        <div class="notice-left">
+          <span class="notice-emoji">{{ emoji((n | noticeCategory) || 'general') }}</span>
+          <div class="notice-body">
+            <div class="notice-title-row">
+              <span class="notice-title">{{ n.title }}</span>
+              <span class="cat-badge cat-{{ (n | noticeCategory) || 'general' }}">
+                {{ cLabel((n | noticeCategory) || 'general') }}
+              </span>
+              <span *ngIf="n.targetClass" class="class-badge">Class {{ n.targetClass }}</span>
+            </div>
+            <!-- Collapsed preview -->
+            <p class="notice-preview" *ngIf="!isExpanded(n._id)">{{ n.content }}</p>
+            <!-- Expanded full content -->
+            <pre class="notice-full" *ngIf="isExpanded(n._id)">{{ n.content }}</pre>
+            <div class="notice-meta">
+              <span>{{ fmt((n | noticePublishedAt) || n.createdAt) }}</span>
+              <a *ngIf="(n | noticeAttachment)" [href]="(n | noticeAttachment)" target="_blank" class="attachment-link"
+                (click)="$event.stopPropagation()">
+                <mat-icon>attach_file</mat-icon> Attachment
+              </a>
+            </div>
+          </div>
+        </div>
+        <mat-icon class="expand-icon">{{ isExpanded(n._id) ? 'expand_less' : 'expand_more' }}</mat-icon>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

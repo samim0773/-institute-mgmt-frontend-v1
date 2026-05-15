@@ -1,0 +1,40 @@
+<!-- admit-card.component.html  — preview + print wrapper -->
+<div class="admit-page no-print">
+
+  <!-- ── Screen-only toolbar ──────────────────────────────────────────────── -->
+  <div class="admit-toolbar no-print">
+    <button mat-icon-button (click)="goBack()" aria-label="Back"><mat-icon>arrow_back</mat-icon></button>
+    <span class="toolbar-title">
+      {{ admitCard?.student?.name || 'Admit Card' }}
+    </span>
+    <span class="spacer"></span>
+
+    <!-- Print button — the key feature -->
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="printAdmitCard()"
+      [disabled]="loading || !admitCard"
+      class="print-btn no-print"
+    >
+      <mat-icon>print</mat-icon> Print Admit Card
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-center no-print">
+    <mat-spinner diameter="48"></mat-spinner>
+    <p>Loading admit card…</p>
+  </div>
+
+  <!-- Preview container -->
+  <div *ngIf="!loading && admitCard" class="preview-container no-print">
+    <p class="preview-label no-print">
+      <mat-icon>visibility</mat-icon> Print preview — this is how the admit card will look on paper
+    </p>
+
+    <!-- The actual printable component -->
+    <app-admit-card-print [card]="admitCard"></app-admit-card-print>
+  </div>
+
+</div>

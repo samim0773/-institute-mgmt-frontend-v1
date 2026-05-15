@@ -1,0 +1,140 @@
+<!-- login.component.html -->
+<div class="login-page">
+
+  <!-- ── Left panel: branding ───────────────────────────────────────────── -->
+  <div class="login-brand" aria-hidden="true">
+    <div class="brand-content">
+      <div class="brand-icon">
+        <mat-icon>school</mat-icon>
+      </div>
+      <h1 class="brand-title">Institute<br>Management</h1>
+      <p class="brand-tagline">Streamline exams, results, fees & notices — all in one place.</p>
+
+      <ul class="brand-features">
+        <li>
+          <mat-icon>check_circle</mat-icon>
+          <span>Multi-institute support</span>
+        </li>
+        <li>
+          <mat-icon>check_circle</mat-icon>
+          <span>Printable admit cards &amp; marksheets</span>
+        </li>
+        <li>
+          <mat-icon>check_circle</mat-icon>
+          <span>Fee management &amp; payment history</span>
+        </li>
+        <li>
+          <mat-icon>check_circle</mat-icon>
+          <span>Role-based access for admins &amp; teachers</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── Right panel: form ──────────────────────────────────────────────── -->
+  <div class="login-form-panel">
+    <div class="login-card" role="main">
+
+      <!-- Header -->
+      <div class="login-header">
+        <mat-icon class="login-logo-icon">lock_open</mat-icon>
+        <h2 class="login-title">Welcome Back</h2>
+        <p class="login-subtitle">Sign in to your account</p>
+      </div>
+
+      <!-- Server-level error (wrong password, deactivated account, etc.) -->
+      <div
+        *ngIf="serverError"
+        class="server-error-alert"
+        role="alert"
+        aria-live="assertive"
+      >
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ serverError }}</span>
+      </div>
+
+      <!-- Login form -->
+      <form
+        [formGroup]="form"
+        (ngSubmit)="onSubmit()"
+        novalidate
+        autocomplete="on"
+      >
+        <!-- Email -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email address</mat-label>
+          <mat-icon matPrefix class="field-prefix-icon">email</mat-icon>
+          <input
+            matInput
+            type="email"
+            formControlName="email"
+            placeholder="admin@institute.com"
+            autocomplete="email"
+            [attr.aria-describedby]="emailError ? 'email-error' : null"
+          />
+          <mat-error id="email-error" *ngIf="emailControl.touched">
+            {{ emailError }}
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Password -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Password</mat-label>
+          <mat-icon matPrefix class="field-prefix-icon">lock</mat-icon>
+          <input
+            matInput
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="password"
+            autocomplete="current-password"
+            [attr.aria-describedby]="passwordError ? 'pwd-error' : null"
+          />
+          <!-- Toggle visibility -->
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="showPassword = !showPassword"
+            [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+            [attr.aria-pressed]="showPassword"
+            tabindex="-1"
+          >
+            <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          <mat-error id="pwd-error" *ngIf="passwordControl.touched">
+            {{ passwordError }}
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Submit -->
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          class="login-btn full-width"
+          [disabled]="loading"
+          [attr.aria-busy]="loading"
+        >
+          <mat-spinner
+            *ngIf="loading"
+            diameter="20"
+            class="btn-spinner"
+          ></mat-spinner>
+          <span *ngIf="!loading">Sign In</span>
+          <span *ngIf="loading" aria-live="polite">Signing in…</span>
+        </button>
+      </form>
+
+      <!-- Role hint chips -->
+      <div class="role-hints">
+        <span class="role-hint-label">Login as:</span>
+        <div class="role-chips">
+          <span class="role-chip role-admin">Admin</span>
+          <span class="role-chip role-teacher">Teacher</span>
+          <span class="role-chip role-super">Super Admin</span>
+        </div>
+      </div>
+
+    </div><!-- /login-card -->
+  </div><!-- /login-form-panel -->
+
+</div><!-- /login-page -->
