@@ -1,0 +1,179 @@
+<!-- super-admin-dashboard.component.html -->
+<div class="dashboard-page">
+
+  <!-- ── Page header ──────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Dashboard</h2>
+      <p class="page-sub">Platform overview — all institutes at a glance</p>
+    </div>
+    <button mat-raised-button color="primary" (click)="addInstitute()">
+      <mat-icon>add_business</mat-icon> Register Institute
+    </button>
+  </div>
+
+  <!-- ── Platform stat cards ──────────────────────────────────────────────── -->
+  <div class="stat-row">
+
+    <mat-card class="stat-card stat-blue">
+      <mat-card-content>
+        <mat-icon>domain</mat-icon>
+        <div class="stat-info">
+          <span class="stat-label">Total Institutes</span>
+          <span class="stat-value">{{ loadingStats ? '…' : (stats?.totalInstitutes ?? 0) }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card stat-green">
+      <mat-card-content>
+        <mat-icon>check_circle</mat-icon>
+        <div class="stat-info">
+          <span class="stat-label">Active</span>
+          <span class="stat-value">{{ loadingStats ? '…' : (stats?.activeInstitutes ?? 0) }}</span>
+          <span class="stat-sub" *ngIf="!loadingStats && stats">
+            {{ stats.inactiveInstitutes }} inactive
+          </span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card stat-purple">
+      <mat-card-content>
+        <mat-icon>manage_accounts</mat-icon>
+        <div class="stat-info">
+          <span class="stat-label">Total Users</span>
+          <span class="stat-value">{{ loadingStats ? '…' : (stats?.totalUsers ?? 0) }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card stat-amber">
+      <mat-card-content>
+        <mat-icon>people</mat-icon>
+        <div class="stat-info">
+          <span class="stat-label">Total Students</span>
+          <span class="stat-value">{{ loadingStats ? '…' : (stats?.totalStudents ?? 0) }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+  </div>
+
+  <!-- ── Plan distribution ────────────────────────────────────────────────── -->
+  <mat-card class="plan-card" *ngIf="!loadingStats && stats?.byPlan?.length">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>bar_chart</mat-icon>
+      <mat-card-title>Plan Distribution</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="plan-grid">
+        <div
+          *ngFor="let p of stats!.byPlan"
+          class="plan-item"
+          [style.borderColor]="planColor(p._id)"
+        >
+          <span
+            class="plan-dot"
+            [style.background]="planColor(p._id)"
+          ></span>
+          <span class="plan-name">{{ planLabel(p._id) }}</span>
+          <span class="plan-count" [style.color]="planColor(p._id)">{{ p.count }}</span>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- ── Recent institutes ────────────────────────────────────────────────── -->
+  <mat-card class="institutes-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>business</mat-icon>
+      <mat-card-title>Recent Institutes</mat-card-title>
+      <div class="header-action">
+        <button mat-stroked-button (click)="viewAll()">
+          View All <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+    </mat-card-header>
+
+    <mat-progress-bar *ngIf="loadingInstitutes" mode="indeterminate"></mat-progress-bar>
+
+    <mat-card-content>
+
+      <!-- Empty state -->
+      <div *ngIf="!loadingInstitutes && institutes.length === 0" class="empty-state">
+        <mat-icon>domain_disabled</mat-icon>
+        <p>No institutes registered yet.</p>
+        <button mat-raised-button color="primary" (click)="addInstitute()">
+          <mat-icon>add_business</mat-icon> Register First Institute
+        </button>
+      </div>
+
+      <!-- Institutes list -->
+      <div class="inst-list" *ngIf="institutes.length > 0">
+        <div
+          *ngFor="let inst of institutes"
+          class="inst-row"
+          (click)="viewInstitute(inst._id)"
+          [class.inst-row--inactive]="!inst.isActive"
+        >
+          <div class="inst-avatar" [class.inst-avatar--inactive]="!inst.isActive">
+            {{ inst.name[0] }}
+          </div>
+
+          <div class="inst-main">
+            <div class="inst-name">{{ inst.name }}</div>
+            <div class="inst-meta">
+              <span class="code-badge">{{ inst.code }}</span>
+              <span
+                class="plan-badge"
+                [style.background]="planColor(inst.plan) + '22'"
+                [style.color]="planColor(inst.plan)"
+              >{{ planLabel(inst.plan) }}</span>
+              <span class="inst-email">{{ inst.contactEmail }}</span>
+            </div>
+          </div>
+
+          <div class="inst-stats">
+            <div class="mini-stat">
+              <mat-icon>people</mat-icon>
+              <span>{{ inst.stats.activeStudents }} students</span>
+            </div>
+            <div class="mini-stat" *ngIf="pendingFees(inst) > 0">
+              <mat-icon class="warn-icon">warning_amber</mat-icon>
+              <span class="warn-text">{{ pendingFees(inst) }} pending fees</span>
+            </div>
+          </div>
+
+          <div class="inst-status">
+            <span class="status-chip" [class.status-active]="inst.isActive">
+              {{ inst.isActive ? 'Active' : 'Inactive' }}
+            </span>
+            <span class="inst-date">{{ fmt(inst.createdAt) }}</span>
+          </div>
+
+          <button
+            mat-icon-button
+            color="primary"
+            (click)="viewInstitute(inst._id); $event.stopPropagation()"
+            matTooltip="View details"
+          >
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+      </div>
+
+    </mat-card-content>
+  </mat-card>
+
+  <!-- ── Quick actions ────────────────────────────────────────────────────── -->
+  <div class="quick-actions">
+    <button mat-stroked-button color="primary" (click)="addInstitute()">
+      <mat-icon>add_business</mat-icon> Register New Institute
+    </button>
+    <button mat-stroked-button (click)="viewAll()">
+      <mat-icon>list</mat-icon> View All Institutes
+    </button>
+  </div>
+
+</div>

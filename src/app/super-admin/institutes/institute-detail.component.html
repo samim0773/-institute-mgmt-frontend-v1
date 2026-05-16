@@ -1,0 +1,199 @@
+<!-- institute-detail.component.html -->
+<div class="detail-page">
+
+  <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+
+  <!-- ── Not found ─────────────────────────────────────────────────────────── -->
+  <div *ngIf="!loading && !institute" class="empty-state">
+    <mat-icon>search_off</mat-icon>
+    <h3>Institute not found</h3>
+    <button mat-raised-button color="primary" (click)="goBack()">Back to List</button>
+  </div>
+
+  <ng-container *ngIf="institute">
+
+    <!-- ── Page header ──────────────────────────────────────────────────────── -->
+    <div class="page-header">
+      <div class="header-left">
+        <button mat-icon-button (click)="goBack()" matTooltip="Back to institutes">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div class="header-info">
+          <div class="header-name-row">
+            <div class="inst-avatar">{{ institute.name[0] }}</div>
+            <h2 class="page-title">{{ institute.name }}</h2>
+          </div>
+          <div class="header-badges">
+            <span class="code-badge">{{ institute.code }}</span>
+            <span
+              class="plan-badge"
+              [style.background]="planColor(institute.plan) + '22'"
+              [style.color]="planColor(institute.plan)"
+            >
+              {{ planLabel(institute.plan) }}
+            </span>
+            <span class="status-chip" [class.status-active]="institute.isActive">
+              <mat-icon>{{ institute.isActive ? 'check_circle' : 'cancel' }}</mat-icon>
+              {{ institute.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Stat cards ───────────────────────────────────────────────────────── -->
+    <div class="stat-row">
+
+      <mat-card class="stat-card stat-green">
+        <mat-card-content>
+          <mat-icon>manage_accounts</mat-icon>
+          <div class="stat-info">
+            <span class="stat-label">Total Users</span>
+            <span class="stat-value">{{ totalUsers }}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card stat-blue">
+        <mat-card-content>
+          <mat-icon>people</mat-icon>
+          <div class="stat-info">
+            <span class="stat-label">Students</span>
+            <span class="stat-value">{{ institute.stats.totalStudents }}</span>
+            <span class="stat-sub">{{ institute.stats.activeStudents }} active</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card stat-purple">
+        <mat-card-content>
+          <mat-icon>shield</mat-icon>
+          <div class="stat-info">
+            <span class="stat-label">Admins</span>
+            <span class="stat-value">{{ admins.length }}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card stat-amber">
+        <mat-card-content>
+          <mat-icon>school</mat-icon>
+          <div class="stat-info">
+            <span class="stat-label">Teachers</span>
+            <span class="stat-value">{{ teachers.length }}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+    </div>
+
+    <!-- ── Details grid ─────────────────────────────────────────────────────── -->
+    <div class="detail-grid">
+
+      <!-- Institute Info -->
+      <mat-card class="info-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>info</mat-icon>
+          <mat-card-title>Institute Info</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+
+          <div class="info-row">
+            <mat-icon>location_on</mat-icon>
+            <div>
+              <span class="info-label">Address</span>
+              <span class="info-value">{{ institute.address || '—' }}</span>
+            </div>
+          </div>
+          <mat-divider></mat-divider>
+
+          <div class="info-row">
+            <mat-icon>email</mat-icon>
+            <div>
+              <span class="info-label">Email</span>
+              <a class="info-value info-link" [href]="'mailto:' + institute.contactEmail">
+                {{ institute.contactEmail }}
+              </a>
+            </div>
+          </div>
+          <mat-divider></mat-divider>
+
+          <div class="info-row">
+            <mat-icon>phone</mat-icon>
+            <div>
+              <span class="info-label">Phone</span>
+              <a class="info-value info-link" [href]="'tel:' + institute.contactPhone">
+                {{ institute.contactPhone || '—' }}
+              </a>
+            </div>
+          </div>
+          <mat-divider></mat-divider>
+
+          <div class="info-row">
+            <mat-icon>calendar_today</mat-icon>
+            <div>
+              <span class="info-label">Registered On</span>
+              <span class="info-value">{{ fmt(institute.createdAt) }}</span>
+            </div>
+          </div>
+          <mat-divider></mat-divider>
+
+          <div class="info-row">
+            <mat-icon>update</mat-icon>
+            <div>
+              <span class="info-label">Last Updated</span>
+              <span class="info-value">{{ fmt(institute.updatedAt) }}</span>
+            </div>
+          </div>
+
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Users List -->
+      <mat-card class="users-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>group</mat-icon>
+          <mat-card-title>Users ({{ totalUsers }})</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+
+          <div *ngIf="institute.users.length === 0" class="no-users">
+            <mat-icon>people_outline</mat-icon>
+            <p>No users yet</p>
+          </div>
+
+          <div class="user-list" *ngIf="institute.users.length > 0">
+            <div *ngFor="let u of institute.users" class="user-row">
+
+              <div class="user-avatar" [style.background]="roleColor(u) + '22'" [style.color]="roleColor(u)">
+                {{ u.name[0] }}
+              </div>
+
+              <div class="user-info">
+                <div class="user-name">{{ u.name }}</div>
+                <div class="user-email">{{ u.email }}</div>
+                <div class="user-meta" *ngIf="u.subject">
+                  <mat-icon>book</mat-icon> {{ u.subject }}
+                </div>
+              </div>
+
+              <div class="user-right">
+                <span class="role-chip" [style.background]="roleColor(u) + '18'" [style.color]="roleColor(u)">
+                  <mat-icon>{{ roleIcon(u) }}</mat-icon>
+                  {{ roleLabel(u) }}
+                </span>
+                <span class="last-login">
+                  {{ u.lastLoginAt ? fmt(u.lastLoginAt) : 'Never logged in' }}
+                </span>
+              </div>
+
+            </div>
+          </div>
+
+        </mat-card-content>
+      </mat-card>
+
+    </div>
+
+  </ng-container>
+</div>

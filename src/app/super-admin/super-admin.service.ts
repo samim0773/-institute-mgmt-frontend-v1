@@ -5,6 +5,8 @@ import { environment }            from '../../environments/environment';
 import { Institute, ApiResponse } from '../core/models';
 
 export interface InstituteWithStats extends Institute {
+  plan:      string;
+  updatedAt: string;
   stats: {
     totalUsers:     number;
     totalStudents:  number;
@@ -16,6 +18,26 @@ export interface InstituteWithStats extends Institute {
       partial: { count: number; total: number };
       paid:    { count: number; total: number };
     };
+  };
+}
+
+export interface InstituteUser {
+  _id:         string;
+  name:        string;
+  email:       string;
+  role:        'admin' | 'teacher';
+  subject:     string | null;
+  isActive:    boolean;
+  lastLoginAt: string | null;
+}
+
+export interface InstituteDetail extends Institute {
+  plan:      string;
+  updatedAt: string;
+  users:     InstituteUser[];
+  stats: {
+    totalStudents:  number;
+    activeStudents: number;
   };
 }
 
@@ -75,8 +97,8 @@ export class SuperAdminService {
     return this.http.get<ApiResponse<InstituteWithStats[]>>(`${this.base}/institutes`, { params: p });
   }
 
-  getInstitute(id: string): Observable<ApiResponse<any>> {
-    return this.http.get<ApiResponse<any>>(`${this.base}/institutes/${id}`);
+  getInstitute(id: string): Observable<ApiResponse<InstituteDetail>> {
+    return this.http.get<ApiResponse<InstituteDetail>>(`${this.base}/institutes/${id}`);
   }
 
   createInstitute(payload: CreateInstitutePayload): Observable<ApiResponse<any>> {

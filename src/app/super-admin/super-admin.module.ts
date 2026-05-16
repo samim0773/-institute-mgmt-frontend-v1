@@ -31,15 +31,19 @@ import { MatNativeDateModule }      from '@angular/material/core';
 import { SuperAdminLayoutComponent }      from './layout/super-admin-layout.component';
 import { InstitutesListComponent }        from './institutes/institutes-list.component';
 import { RegisterInstituteComponent }     from './institutes/register-institute.component';
+import { InstituteDetailComponent }       from './institutes/institute-detail.component';
+import { SuperAdminDashboardComponent }   from './dashboard/super-admin-dashboard.component';
 
 const routes: Routes = [
   {
     path:      '',
     component: SuperAdminLayoutComponent,
     children:  [
-      { path: '',              redirectTo: 'institutes', pathMatch: 'full' },
-      { path: 'institutes',    component: InstitutesListComponent,    title: 'All Institutes' },
-      { path: 'institutes/new', component: RegisterInstituteComponent, title: 'Register Institute' },
+      { path: '',                  redirectTo: 'dashboard',   pathMatch: 'full' },
+      { path: 'dashboard',         component: SuperAdminDashboardComponent, title: 'Dashboard' },
+      { path: 'institutes',        component: InstitutesListComponent,      title: 'All Institutes' },
+      { path: 'institutes/new',    component: RegisterInstituteComponent,   title: 'Register Institute' },
+      { path: 'institutes/:id',    component: InstituteDetailComponent,     title: 'Institute Details' },
     ],
   },
 ];
@@ -49,6 +53,8 @@ const routes: Routes = [
     SuperAdminLayoutComponent,
     InstitutesListComponent,
     RegisterInstituteComponent,
+    InstituteDetailComponent,
+    SuperAdminDashboardComponent,
   ],
   imports: [
     CommonModule,
