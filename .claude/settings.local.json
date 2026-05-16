@@ -5,7 +5,9 @@
       "Bash(Select-Object FullName)",
       "Bash(Sort-Object FullName)",
       "Bash(dir \"e:\\\\Projects\\\\institute-management-version-1\\\\files 6.1.1 missing\\\\frontend-complete-v2\\\\src\\\\app\\\\teacher\" /s /b)",
-      "PowerShell(Get-ChildItem \"e:\\\\Projects\\\\institute-management-version-1\\\\files 6.1.1 missing\\\\frontend-complete-v2\\\\src\\\\app\\\\teacher\" -Recurse -File | ForEach-Object { $_.FullName })"
+      "PowerShell(Get-ChildItem \"e:\\\\Projects\\\\institute-management-version-1\\\\files 6.1.1 missing\\\\frontend-complete-v2\\\\src\\\\app\\\\teacher\" -Recurse -File | ForEach-Object { $_.FullName })",
+      "Bash(Get-ChildItem -Path \"e:\\\\Projects\\\\institute-management-version-1\\\\-institute-mgmt-frontend-v1\" -Force)",
+      "Bash(Select-Object Name, FullName)"
     ]
   }
 }

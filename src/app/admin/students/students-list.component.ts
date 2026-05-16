@@ -61,7 +61,7 @@ export class StudentsListComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.loadClassNames();
+    this.loadClasses();
     this.watchClassFilter();
   }
 
@@ -75,13 +75,15 @@ export class StudentsListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // ── Load class names for filter dropdown ──────────────────────────────────
-  private loadClassNames(): void {
-    this.studentSvc.getClassNames()
+  // ── Load classes (populates cache so getSectionsForClass works) ───────────
+  private loadClasses(): void {
+    this.studentSvc.getClasses()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: res => {
-          this.classNames = res.data || [];
+          const all = res.data || [];
+          this.classNames = [...new Set(all.map(c => c.className))]
+            .sort((a, b) => Number(a) - Number(b) || a.localeCompare(b));
         },
       });
   }
