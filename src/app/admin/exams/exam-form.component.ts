@@ -8,7 +8,8 @@ import { Subject }                from 'rxjs';
 import { takeUntil, finalize }    from 'rxjs/operators';
 
 import { ExamService }         from './exam.service';
-import { StudentService }      from '../students/student.service';
+import { ClassService, ClassRecord } from '../classes/class.service';
+import { SubjectService }      from '../subjects/subject.service';
 import { NotificationService } from '../../core/services/notification.service';
 
 @Component({
@@ -24,8 +25,12 @@ export class ExamFormComponent implements OnInit, OnDestroy {
   saving    = false;
   loading   = false;
 
-  classNames: string[] = [];
+  classNames:        string[]       = [];
+  sections:          string[]       = [];
+  availableSubjects: string[]       = [];
+  loadingSubjects    = false;
 
+  private allClasses: ClassRecord[] = [];
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -33,15 +38,18 @@ export class ExamFormComponent implements OnInit, OnDestroy {
     private route:      ActivatedRoute,
     private router:     Router,
     private examSvc:    ExamService,
-    private studentSvc: StudentService,
+    private classSvc:   ClassService,
+    private subjectSvc: SubjectService,
     private notify:     NotificationService,
   ) {}
 
   ngOnInit(): void {
     this.buildForm();
-    this.loadClassNames();
-    this.route.params.pipe(takeUntil(this.destroy$)).subscribe(p => {
-      if (p['id']) { this.isEdit = true; this.examId = p['id']; this.loadExam(p['id']); }
+    this.loadClasses(() => {
+      this.setupClassSectionWatchers();
+      this.route.params.pipe(takeUntil(this.destroy$)).subscribe(p => {
+        if (p['id']) { this.isEdit = true; this.examId = p['id']; this.loadExam(p['id']); }
+      });
     });
   }
 
@@ -63,7 +71,6 @@ export class ExamFormComponent implements OnInit, OnDestroy {
     }, { validators: this.endAfterStart });
   }
 
-  // ─── End date must be after start ─────────────────────────────────────────
   private endAfterStart(group: AbstractControl) {
     const start = group.get('startDate')?.value;
     const end   = group.get('endDate')?.value;
@@ -78,25 +85,90 @@ export class ExamFormComponent implements OnInit, OnDestroy {
 
   newSubjectRow(): FormGroup {
     return this.fb.group({
-      name:         ['', [Validators.required, Validators.maxLength(100)]],
-      maxMarks:     [100, [Validators.required, Validators.min(1), Validators.max(1000)]],
-      passingMarks: [35,  [Validators.required, Validators.min(0)]],
-      examDate:     [null],
-      examTime:     ['', Validators.maxLength(50)],
+      name:             ['', [Validators.required, Validators.maxLength(100)]],
+      maxMarks:         [100, [Validators.required, Validators.min(1), Validators.max(1000)]],
+      passingMarks:     [35,  [Validators.required, Validators.min(0)]],
+      hasOral:          [false],
+      writtenMaxMarks:  [null],
+      oralMaxMarks:     [null],
+      oralPassingMarks: [null],
+      teacherSubject:   [''],
+      examDate:         [null],
+      examTime:         ['', Validators.maxLength(50)],
     });
   }
 
-  addSubject():         void { this.subjects.push(this.newSubjectRow()); }
+  addSubject(): void { this.subjects.push(this.newSubjectRow()); }
+
   removeSubject(i: number): void {
     if (this.subjects.length > 1) this.subjects.removeAt(i);
     else this.notify.warn('An exam must have at least one subject.');
   }
 
-  // ─── Load class names ──────────────────────────────────────────────────────
-  private loadClassNames(): void {
-    this.studentSvc.getClassNames()
+  toggleOral(i: number): void {
+    const row    = this.subjects.at(i) as FormGroup;
+    const hasOral = row.get('hasOral')!.value;
+    if (!hasOral) {
+      row.patchValue({ writtenMaxMarks: null, oralMaxMarks: null, oralPassingMarks: null });
+    }
+  }
+
+  // ─── Load classes (once, used for both classNames and sections) ─────────
+  private loadClasses(callback?: () => void): void {
+    this.classSvc.getClasses()
       .pipe(takeUntil(this.destroy$))
-      .subscribe(res => this.classNames = res.data || []);
+      .subscribe({
+        next: res => {
+          this.allClasses = res.data || [];
+          const seen = new Set<string>();
+          this.classNames = this.allClasses
+            .map((c: ClassRecord) => c.className)
+            .filter(n => seen.has(n) ? false : (seen.add(n), true));
+          callback?.();
+        },
+        error: () => callback?.(),
+      });
+  }
+
+  // ─── Watch class/section to populate sections & subjects ────────────────
+  private setupClassSectionWatchers(): void {
+    this.form.get('class')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(cls => {
+        this.form.get('section')!.setValue('ALL', { emitEvent: false });
+        this.availableSubjects = [];
+        if (cls) {
+          const matched = this.allClasses.filter(c => c.className === cls);
+          const seen    = new Set<string>();
+          this.sections = matched
+            .map(c => c.section)
+            .filter(s => seen.has(s) ? false : (seen.add(s), true));
+        } else {
+          this.sections = [];
+        }
+      });
+
+    this.form.get('section')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(sec => {
+        this.availableSubjects = [];
+        const cls = this.form.get('class')!.value;
+        if (cls && sec && sec !== 'ALL') {
+          this.loadSubjectsForClass(cls, sec);
+        }
+      });
+  }
+
+  private loadSubjectsForClass(className: string, section: string): void {
+    this.loadingSubjects = true;
+    this.subjectSvc.getSubjects({ className, section, isActive: true })
+      .pipe(takeUntil(this.destroy$), finalize(() => this.loadingSubjects = false))
+      .subscribe({
+        next: res => {
+          this.availableSubjects = (res.data || []).map((s: any) => s.subjectName as string);
+        },
+        error: () => { this.availableSubjects = []; },
+      });
   }
 
   // ─── Load exam for edit ────────────────────────────────────────────────────
@@ -107,28 +179,53 @@ export class ExamFormComponent implements OnInit, OnDestroy {
       .subscribe({
         next: res => {
           const e = res.data;
-          // Rebuild subjects FormArray
-          while (this.subjects.length) this.subjects.removeAt(0);
-          (e.subjects || []).forEach(() => this.subjects.push(this.newSubjectRow()));
 
+          // Set class+section without triggering watchers
+          this.form.get('class')!.setValue(e.class, { emitEvent: false });
+          this.form.get('section')!.setValue(e.section || 'ALL', { emitEvent: false });
+
+          // Derive sections from already-loaded class list
+          if (e.class) {
+            const matched = this.allClasses.filter(c => c.className === e.class);
+            const seen    = new Set<string>();
+            this.sections = matched
+              .map(c => c.section)
+              .filter(s => seen.has(s) ? false : (seen.add(s), true));
+          }
+
+          // Load available subjects for the exam's class-section
+          if (e.class && e.section && e.section !== 'ALL') {
+            this.loadSubjectsForClass(e.class, e.section);
+          }
+
+          // Rebuild subjects array
+          while (this.subjects.length) this.subjects.removeAt(0);
+          (e.subjects || []).forEach((s: any) => {
+            const hasOral = !!(s.oralMaxMarks && s.oralMaxMarks > 0);
+            this.subjects.push(this.fb.group({
+              name:             [s.name,                    [Validators.required, Validators.maxLength(100)]],
+              maxMarks:         [s.maxMarks,                [Validators.required, Validators.min(1), Validators.max(1000)]],
+              passingMarks:     [s.passingMarks,            [Validators.required, Validators.min(0)]],
+              hasOral:          [hasOral],
+              writtenMaxMarks:  [hasOral ? s.writtenMaxMarks ?? null : null],
+              oralMaxMarks:     [hasOral ? s.oralMaxMarks   ?? null : null],
+              oralPassingMarks: [hasOral ? s.oralPassingMarks ?? null : null],
+              teacherSubject:   [s.teacherSubject || ''],
+              examDate:         [s.examDate ? new Date(s.examDate) : null],
+              examTime:         [s.examTime || '', Validators.maxLength(50)],
+            }));
+          });
+
+          // Patch the remaining scalar fields (no emitEvent needed — no watcher on these)
           this.form.patchValue({
             name:               e.name,
-            class:              e.class,
-            section:            e.section || 'ALL',
-            startDate:          e.startDate ? new Date(e.startDate) : null,
-            endDate:            e.endDate   ? new Date(e.endDate)   : null,
-            academicYear:       e.academicYear  || '',
-            center:             e.center        || '',
-            instructions:       e.instructions  || '',
+            startDate:          e.startDate          ? new Date(e.startDate)          : null,
+            endDate:            e.endDate            ? new Date(e.endDate)            : null,
+            academicYear:       e.academicYear        || '',
+            center:             e.center             || '',
+            instructions:       e.instructions       || '',
             admitCardIssueDate: e.admitCardIssueDate ? new Date(e.admitCardIssueDate) : null,
-            subjects: (e.subjects || []).map((s: any) => ({
-              name:         s.name,
-              maxMarks:     s.maxMarks,
-              passingMarks: s.passingMarks,
-              examDate:     s.examDate ? new Date(s.examDate) : null,
-              examTime:     s.examTime || '',
-            })),
-          });
+          }, { emitEvent: false });
         },
         error: () => {
           this.notify.error('Could not load exam.');
@@ -144,10 +241,21 @@ export class ExamFormComponent implements OnInit, OnDestroy {
       this.notify.warn('Please fix the highlighted errors.');
       return;
     }
+
+    // Client-side: written + oral must equal maxMarks when both provided
+    const subs = this.form.getRawValue().subjects as any[];
+    for (const s of subs) {
+      if (s.hasOral && s.writtenMaxMarks != null && s.oralMaxMarks != null) {
+        if (Number(s.writtenMaxMarks) + Number(s.oralMaxMarks) !== Number(s.maxMarks)) {
+          this.notify.warn(`"${s.name}": Written (${s.writtenMaxMarks}) + Oral (${s.oralMaxMarks}) must equal Max Marks (${s.maxMarks}).`);
+          return;
+        }
+      }
+    }
+
     this.saving = true;
     const payload = this.buildPayload();
-
-    const call = this.isEdit
+    const call    = this.isEdit
       ? this.examSvc.updateExam(this.examId, payload)
       : this.examSvc.createExam(payload);
 
@@ -175,21 +283,44 @@ export class ExamFormComponent implements OnInit, OnDestroy {
       ...(v.instructions       && { instructions:       v.instructions.trim() }),
       ...(v.admitCardIssueDate && { admitCardIssueDate: v.admitCardIssueDate instanceof Date
         ? v.admitCardIssueDate.toISOString() : v.admitCardIssueDate }),
-      subjects: v.subjects.map((s: any) => ({
-        name:         s.name.trim(),
-        maxMarks:     Number(s.maxMarks),
-        passingMarks: Number(s.passingMarks),
-        ...(s.examDate && { examDate: s.examDate instanceof Date ? s.examDate.toISOString() : s.examDate }),
-        ...(s.examTime && { examTime: s.examTime.trim() }),
-      })),
+      subjects: v.subjects.map((s: any) => {
+        const sub: Record<string, any> = {
+          name:         s.name.trim(),
+          maxMarks:     Number(s.maxMarks),
+          passingMarks: Number(s.passingMarks),
+          ...(s.examDate      && { examDate:      s.examDate instanceof Date ? s.examDate.toISOString() : s.examDate }),
+          ...(s.examTime      && { examTime:      s.examTime.trim() }),
+          ...(s.teacherSubject && { teacherSubject: s.teacherSubject.trim() }),
+        };
+        if (s.hasOral) {
+          if (s.writtenMaxMarks  != null) sub['writtenMaxMarks']  = Number(s.writtenMaxMarks);
+          if (s.oralMaxMarks     != null) sub['oralMaxMarks']     = Number(s.oralMaxMarks);
+          if (s.oralPassingMarks != null) sub['oralPassingMarks'] = Number(s.oralPassingMarks);
+        }
+        return sub;
+      }),
     };
   }
 
-  // ─── Helpers ───────────────────────────────────────────────────────────────
+  // ─── Template helpers ─────────────────────────────────────────────────────
   g(path: string): AbstractControl { return this.form.get(path)!; }
 
   sg(i: number, field: string): AbstractControl {
     return (this.subjects.at(i) as FormGroup).get(field)!;
+  }
+
+  isOral(i: number): boolean {
+    return !!(this.subjects.at(i) as FormGroup).get('hasOral')?.value;
+  }
+
+  writtenOralMismatch(i: number): boolean {
+    const row     = this.subjects.at(i) as FormGroup;
+    if (!row.get('hasOral')?.value) return false;
+    const written = row.get('writtenMaxMarks')?.value;
+    const oral    = row.get('oralMaxMarks')?.value;
+    const max     = row.get('maxMarks')?.value;
+    if (written == null || oral == null || !max) return false;
+    return Number(written) + Number(oral) !== Number(max);
   }
 
   getError(path: string): string {

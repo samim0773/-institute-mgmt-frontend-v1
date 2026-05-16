@@ -18,6 +18,30 @@ export interface AdmitCardGenerateSummary {
   errors:  { studentId: string; reason: string }[];
 }
 
+export interface AdmitCardEntry {
+  id:         string;
+  rollNo:     string;
+  center:     string;
+  seatNo:     string | null;
+  issuedDate: string;
+  isActive:   boolean;
+  studentId: {
+    _id:     string;
+    name:    string;
+    rollNo:  string;
+    class:   string;
+    section: string;
+    photo?:  string;
+  };
+}
+
+export interface AdmitCardListApiResponse {
+  success: boolean;
+  count?:  number;
+  exam?:   { id: string; name: string; class: string; section: string };
+  data:    AdmitCardEntry[];
+}
+
 // The flat print payload built by the backend controller
 export interface AdmitCardPrintPayload {
   admitCardId: string;
@@ -107,8 +131,8 @@ export class ExamService {
     );
   }
 
-  getAdmitCardsByExam(examId: string): Observable<ApiResponse<AdmitCard[]>> {
-    return this.http.get<ApiResponse<AdmitCard[]>>(
+  getAdmitCardsByExam(examId: string): Observable<AdmitCardListApiResponse> {
+    return this.http.get<AdmitCardListApiResponse>(
       `${this.base}/exams/admit-cards/exam/${examId}`,
     );
   }

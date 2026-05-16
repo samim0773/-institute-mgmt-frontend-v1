@@ -1,8 +1,6 @@
-// admit-card.component.scss
-// This file styles the SCREEN wrapper only.
-// Print layout lives entirely in admit-card-print.component.scss.
+// admit-card.component.scss  — screen wrapper only; print is in global styles + print component
 
-.admit-page { max-width: 920px; margin: 0 auto; }
+.admit-page { max-width: 820px; margin: 0 auto; padding: 0 0 40px; }
 
 .admit-toolbar {
   display: flex; align-items: center; gap: 8px;
@@ -10,8 +8,7 @@
 }
 .toolbar-title { font-size: 1.1rem; font-weight: 600; color: #212121; }
 .spacer { flex: 1; }
-
-.print-btn mat-icon { margin-right: 6px; vertical-align: middle; }
+.print-btn { gap: 6px; }
 
 .loading-center {
   display: flex; flex-direction: column; align-items: center;
@@ -19,10 +16,50 @@
   p { margin: 0; }
 }
 
-.preview-container { background: #e0e0e0; padding: 24px; border-radius: 8px; }
+// ── Print sheet wrapper (screen view) ─────────────────────────────────────────
+.admit-print-sheet {
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 4px 28px rgba(0, 0, 0, 0.14);
+  padding: 20px 20px 24px;
+}
 
-.preview-label {
+.preview-hint {
   display: flex; align-items: center; gap: 6px;
   font-size: 0.8rem; color: #757575; margin: 0 0 16px;
   mat-icon { font-size: 16px; width: 16px; height: 16px; }
+}
+
+// ── Cut line between the two copies ──────────────────────────────────────────
+.ac-cut-line {
+  display: flex; align-items: center; justify-content: center;
+  margin: 10px 0;
+  border-top: 1px dashed #aaa;
+  border-bottom: 1px dashed #aaa;
+  padding: 4px 0;
+
+  .cut-text {
+    font-size: 0.75rem; color: #999; letter-spacing: 2px;
+    background: #fff; padding: 0 12px; white-space: nowrap;
+  }
+}
+
+// ── Print overrides ───────────────────────────────────────────────────────────
+@media print {
+  .admit-page { max-width: 100%; margin: 0; padding: 0; }
+
+  .admit-print-sheet {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+  }
+
+  .ac-cut-line {
+    margin: 0;
+    border-top: 1px dashed #888;
+    border-bottom: 1px dashed #888;
+    padding: 2px 0;
+
+    .cut-text { font-size: 8pt; color: #888; background: white; }
+  }
 }

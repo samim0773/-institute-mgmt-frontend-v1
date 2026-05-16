@@ -21,12 +21,28 @@ html, body {
   .mdc-snackbar__label, .mat-mdc-snack-bar-action { color: #fff !important; }
 }
 
-// ─── Print helper — hide everything except .print-area ───────────────────────
+// ─── Print helper ────────────────────────────────────────────────────────────
+// The visibility trick works in Angular's nested component tree:
+//   - `display: none` on a parent hides children even if child has `display: block`
+//   - `visibility: hidden` on a parent does NOT hide children that have `visibility: visible`
+// So we hide everything with visibility:hidden, then restore .print-area + its children.
+// .no-print still uses display:none to also remove its space from the print layout.
 @media print {
-  body > * { display: none !important; }
-  .print-area { display: block !important; }
-  .print-area * { display: revert !important; }
+  body * { visibility: hidden !important; }
+  .print-area,
+  .print-area * { visibility: visible !important; }
+  .print-area {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+  }
   .no-print { display: none !important; }
+}
+
+@page {
+  size: A4 portrait;
+  margin: 8mm 10mm;
 }
 
 // ─── Layout helpers ──────────────────────────────────────────────────────────

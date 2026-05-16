@@ -1,0 +1,228 @@
+<!-- admit-card-list.component.html -->
+<div class="acl-page">
+
+  <!-- ── Page header (screen only) ──────────────────────────────────────── -->
+  <div class="acl-header no-print">
+    <button mat-icon-button (click)="goBack()" aria-label="Back">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+
+    <div class="acl-header-text">
+      <h2 class="acl-title">Admit Cards</h2>
+      <p class="acl-sub" *ngIf="examInfo">
+        {{ examInfo.name }} — Class {{ examInfo.class }}<span *ngIf="examInfo.section !== 'ALL'">-{{ examInfo.section }}</span>
+      </p>
+    </div>
+
+    <span class="spacer"></span>
+
+    <div class="acl-actions">
+      <!-- Generate / Regenerate -->
+      <button
+        mat-stroked-button
+        (click)="generateCards()"
+        [disabled]="generating || bulkPrinting"
+        matTooltip="Create admit cards for all active students in this exam's class"
+      >
+        <mat-spinner *ngIf="generating" diameter="16" class="btn-spin"></mat-spinner>
+        <mat-icon *ngIf="!generating">badge</mat-icon>
+        {{ generating ? 'Generating…' : 'Generate Cards' }}
+      </button>
+
+      <!-- Print Selected -->
+      <button
+        mat-stroked-button
+        color="primary"
+        (click)="printSelected()"
+        [disabled]="selectedCount === 0 || bulkPrinting"
+        matTooltip="Print admit cards for selected students"
+      >
+        <mat-icon>print</mat-icon>
+        Print Selected
+        <span class="sel-badge" *ngIf="selectedCount > 0">({{ selectedCount }})</span>
+      </button>
+
+      <!-- Print All -->
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="printAll()"
+        [disabled]="activeCards.length === 0 || bulkPrinting"
+      >
+        <mat-spinner *ngIf="bulkPrinting" diameter="16" class="btn-spin"></mat-spinner>
+        <mat-icon *ngIf="!bulkPrinting">print</mat-icon>
+        {{ bulkPrinting ? 'Preparing…' : 'Print All' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Loading bar ─────────────────────────────────────────────────────── -->
+  <mat-progress-bar *ngIf="loading" mode="indeterminate" class="no-print"></mat-progress-bar>
+
+  <!-- ── Empty state ─────────────────────────────────────────────────────── -->
+  <div *ngIf="!loading && cards.length === 0" class="empty-state no-print">
+    <mat-icon>badge</mat-icon>
+    <h3>No admit cards yet</h3>
+    <p>Click <strong>Generate Cards</strong> to create admit cards for all active students in this exam's class.</p>
+    <button mat-raised-button color="primary" (click)="generateCards()" [disabled]="generating">
+      <mat-icon>badge</mat-icon> Generate Cards
+    </button>
+  </div>
+
+  <!-- ── Student table ────────────────────────────────────────────────────── -->
+  <mat-card class="acl-table-card no-print" *ngIf="!loading && cards.length > 0">
+
+    <!-- Selection summary bar -->
+    <div class="sel-bar" *ngIf="selectedCount > 0">
+      <mat-icon>check_circle</mat-icon>
+      {{ selectedCount }} student(s) selected
+      <button mat-button color="primary" (click)="printSelected()" [disabled]="bulkPrinting">
+        <mat-icon>print</mat-icon> Print Selected
+      </button>
+      <button mat-button (click)="selected.clear()">Clear</button>
+    </div>
+
+    <mat-table [dataSource]="cards" class="acl-table">
+
+      <!-- ○ Select ─────────────────────────────────────────────────────── -->
+      <ng-container matColumnDef="select">
+        <mat-header-cell *matHeaderCellDef class="col-check">
+          <mat-checkbox
+            color="primary"
+            [checked]="isAllSelected()"
+            [indeterminate]="isIndeterminate()"
+            (change)="toggleAll()"
+            matTooltip="Select all active"
+          ></mat-checkbox>
+        </mat-header-cell>
+        <mat-cell *matCellDef="let card" class="col-check">
+          <mat-checkbox
+            *ngIf="card.isActive"
+            color="primary"
+            [checked]="selected.has(card.id)"
+            (change)="toggleOne(card)"
+          ></mat-checkbox>
+        </mat-cell>
+      </ng-container>
+
+      <!-- ○ Student ─────────────────────────────────────────────────── -->
+      <ng-container matColumnDef="student">
+        <mat-header-cell *matHeaderCellDef>Student</mat-header-cell>
+        <mat-cell *matCellDef="let card">
+          <div class="student-cell">
+            <div class="thumb-wrap">
+              <img *ngIf="card.studentId.photo" [src]="card.studentId.photo" class="student-thumb" />
+              <div *ngIf="!card.studentId.photo" class="thumb-placeholder">
+                <mat-icon>person</mat-icon>
+              </div>
+            </div>
+            <div>
+              <div class="student-name">{{ card.studentId.name }}</div>
+              <div class="student-meta">
+                Class Roll: {{ card.studentId.rollNo }}
+              </div>
+            </div>
+          </div>
+        </mat-cell>
+      </ng-container>
+
+      <!-- ○ Exam Roll No. ──────────────────────────────────────────── -->
+      <ng-container matColumnDef="rollNo">
+        <mat-header-cell *matHeaderCellDef>Exam Roll No.</mat-header-cell>
+        <mat-cell *matCellDef="let card">
+          <code class="roll-chip">{{ card.rollNo }}</code>
+        </mat-cell>
+      </ng-container>
+
+      <!-- ○ Centre ────────────────────────────────────────────────── -->
+      <ng-container matColumnDef="center">
+        <mat-header-cell *matHeaderCellDef>Centre</mat-header-cell>
+        <mat-cell *matCellDef="let card">{{ card.center }}</mat-cell>
+      </ng-container>
+
+      <!-- ○ Issue Date ─────────────────────────────────────────────── -->
+      <ng-container matColumnDef="issued">
+        <mat-header-cell *matHeaderCellDef>Issued</mat-header-cell>
+        <mat-cell *matCellDef="let card">{{ formatDate(card.issuedDate) }}</mat-cell>
+      </ng-container>
+
+      <!-- ○ Status ────────────────────────────────────────────────── -->
+      <ng-container matColumnDef="status">
+        <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
+        <mat-cell *matCellDef="let card">
+          <span class="status-chip" [class.active]="card.isActive" [class.revoked]="!card.isActive">
+            <mat-icon>{{ card.isActive ? 'check_circle' : 'block' }}</mat-icon>
+            {{ card.isActive ? 'Active' : 'Revoked' }}
+          </span>
+        </mat-cell>
+      </ng-container>
+
+      <!-- ○ Actions ───────────────────────────────────────────────── -->
+      <ng-container matColumnDef="actions">
+        <mat-header-cell *matHeaderCellDef></mat-header-cell>
+        <mat-cell *matCellDef="let card" class="actions-cell">
+          <!-- Print single: navigates to preview page -->
+          <button
+            mat-icon-button
+            color="primary"
+            (click)="printSingle(card)"
+            [disabled]="!card.isActive"
+            matTooltip="Preview & Print"
+          >
+            <mat-icon>print</mat-icon>
+          </button>
+          <!-- Revoke -->
+          <button
+            mat-icon-button
+            color="warn"
+            (click)="revokeCard(card)"
+            [disabled]="!card.isActive || revokingId === card.id"
+            matTooltip="Revoke admit card"
+          >
+            <mat-spinner *ngIf="revokingId === card.id" diameter="18"></mat-spinner>
+            <mat-icon *ngIf="revokingId !== card.id">block</mat-icon>
+          </button>
+        </mat-cell>
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
+      <mat-row
+        *matRowDef="let row; columns: displayedColumns;"
+        [class.row-revoked]="!row.isActive"
+      ></mat-row>
+    </mat-table>
+
+    <div class="table-footer no-print">
+      {{ cards.length }} card(s) total · {{ activeCards.length }} active
+    </div>
+  </mat-card>
+
+  <!--
+    ── Bulk print area ──────────────────────────────────────────────────────
+    Rendered only while bulk printing is in progress (*ngIf).
+    Positioned off-screen on screen via CSS (.bulk-print-root).
+    The global @media print rule (position:absolute top:0 left:0 width:100%)
+    brings it to the top of the printed page when window.print() is called.
+    Each student gets one A4 page: Office Copy on top, Student Copy on bottom.
+  -->
+  <div class="bulk-print-root print-area" *ngIf="bulkPrintCards.length > 0">
+    <ng-container *ngFor="let card of bulkPrintCards; let last = last">
+
+      <!-- Office Copy (top half of A4) -->
+      <app-admit-card-print [card]="card" copyLabel="Office Copy"></app-admit-card-print>
+
+      <!-- Scissor cut line -->
+      <div class="ac-cut-line">
+        <span class="cut-text">✂&nbsp;&nbsp; CUT HERE &nbsp;&nbsp;✂</span>
+      </div>
+
+      <!-- Student Copy (bottom half of A4) -->
+      <app-admit-card-print [card]="card" copyLabel="Student Copy"></app-admit-card-print>
+
+      <!-- Page break after each student (except the last) -->
+      <div class="bulk-page-break" *ngIf="!last"></div>
+
+    </ng-container>
+  </div>
+
+</div>

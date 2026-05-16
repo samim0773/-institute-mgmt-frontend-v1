@@ -27,6 +27,19 @@
 .field-xl  { flex: 1; min-width: 300px; }
 .field-full { width: 100%; margin-bottom: 16px; }
 
+// Subjects section header
+.section-header-actions {
+  display: flex; align-items: center; gap: 12px;
+}
+.subjects-loading-hint {
+  display: flex; align-items: center; gap: 6px; color: #757575; font-size: 0.82rem;
+  mat-spinner { display: inline-block; }
+}
+.subjects-ready-hint {
+  display: flex; align-items: center; gap: 4px; color: #388e3c; font-size: 0.82rem;
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+}
+
 // Subjects array
 .subject-row {
   display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px;
@@ -40,16 +53,29 @@
   flex-shrink: 0; margin-top: 12px;
 }
 .subject-fields {
-  flex: 1; display: flex; flex-wrap: wrap; gap: 12px;
+  flex: 1; display: flex; flex-direction: column; gap: 8px;
   ::ng-deep .mat-mdc-form-field-subscript-wrapper { min-height: 16px; }
 }
-.subfield-name { flex: 2; min-width: 160px; }
-.subfield-num  { flex: 1; min-width: 90px; max-width: 120px; }
-.subfield-date { flex: 1; min-width: 140px; }
-.subfield-time { flex: 1; min-width: 160px; }
+.subrow {
+  display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start;
+}
+.subfield-name    { flex: 2; min-width: 160px; }
+.subfield-teacher { flex: 2; min-width: 140px; }
+.subfield-num     { flex: 1; min-width: 90px; max-width: 120px; }
+.subfield-date    { flex: 1; min-width: 140px; }
+.subfield-time    { flex: 1; min-width: 160px; }
 .remove-subject-btn { flex-shrink: 0; margin-top: 6px; }
 
-.subject-hint, .no-subjects-hint {
+.oral-toggle-wrap {
+  display: flex; align-items: center; padding-top: 14px;
+}
+.oral-mismatch-hint {
+  display: flex; align-items: center; gap: 6px;
+  color: #d32f2f; font-size: 0.82rem; margin-top: 2px;
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+}
+
+.subject-hint {
   display: flex; align-items: center; gap: 6px;
   color: #f57c00; font-size: 0.85rem; margin: 8px 0;
   mat-icon { font-size: 18px; width: 18px; height: 18px; }

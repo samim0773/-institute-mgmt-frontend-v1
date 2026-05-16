@@ -18,6 +18,7 @@ import { MatTooltipModule }         from '@angular/material/tooltip';
 import { MatDividerModule }         from '@angular/material/divider';
 import { MatDatepickerModule }      from '@angular/material/datepicker';
 import { MatNativeDateModule }      from '@angular/material/core';
+import { MatCheckboxModule }        from '@angular/material/checkbox';
 
 // Pipes
 import { ReplacePipe } from './replace.pipe';
@@ -25,25 +26,23 @@ import { ReplacePipe } from './replace.pipe';
 // Components
 import { ExamListComponent }        from './exam-list.component';
 import { ExamFormComponent }        from './exam-form.component';
+import { AdmitCardListComponent }   from './admit-card-list.component';
 import { AdmitCardComponent }       from './admit-card.component';
 import { AdmitCardPrintComponent }  from './admit-card-print.component';
 
 const routes: Routes = [
-  { path: '',                          component: ExamListComponent,       title: 'Exams'       },
-  { path: 'new',                       component: ExamFormComponent,       title: 'Create Exam' },
-  { path: ':id/edit',                  component: ExamFormComponent,       title: 'Edit Exam'   },
-  { path: ':examId/admit-cards',       component: ExamListComponent,       title: 'Admit Cards' },
-  {
-    path:      ':examId/admit-cards/:studentId',
-    component: AdmitCardComponent,
-    title:     'Print Admit Card',
-  },
+  { path: '',                          component: ExamListComponent,      title: 'Exams'             },
+  { path: 'new',                       component: ExamFormComponent,      title: 'Create Exam'       },
+  { path: ':id/edit',                  component: ExamFormComponent,      title: 'Edit Exam'         },
+  { path: ':examId/admit-cards',       component: AdmitCardListComponent, title: 'Admit Cards'       },
+  { path: ':examId/admit-cards/:studentId', component: AdmitCardComponent, title: 'Print Admit Card' },
 ];
 
 @NgModule({
   declarations: [
     ExamListComponent,
     ExamFormComponent,
+    AdmitCardListComponent,
     AdmitCardComponent,
     AdmitCardPrintComponent,
     ReplacePipe,
@@ -55,7 +54,7 @@ const routes: Routes = [
     MatTableModule, MatCardModule, MatButtonModule, MatIconModule,
     MatFormFieldModule, MatInputModule, MatSelectModule,
     MatChipsModule, MatProgressSpinnerModule, MatProgressBarModule,
-    MatTooltipModule, MatDividerModule,
+    MatTooltipModule, MatDividerModule, MatCheckboxModule,
     MatDatepickerModule, MatNativeDateModule,
   ],
 })

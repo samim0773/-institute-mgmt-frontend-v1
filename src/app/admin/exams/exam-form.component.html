@@ -29,6 +29,7 @@
         </div>
 
         <div class="field-row">
+          <!-- Class — dynamic from API -->
           <mat-form-field appearance="outline" class="field-sm">
             <mat-label>Class *</mat-label>
             <mat-select formControlName="class">
@@ -37,15 +38,14 @@
             <mat-error>{{ getError('class') }}</mat-error>
           </mat-form-field>
 
+          <!-- Section — populated once a class is selected -->
           <mat-form-field appearance="outline" class="field-sm">
             <mat-label>Section</mat-label>
             <mat-select formControlName="section">
               <mat-option value="ALL">All Sections</mat-option>
-              <mat-option value="A">A</mat-option>
-              <mat-option value="B">B</mat-option>
-              <mat-option value="C">C</mat-option>
-              <mat-option value="D">D</mat-option>
+              <mat-option *ngFor="let s of sections" [value]="s">{{ s }}</mat-option>
             </mat-select>
+            <mat-hint *ngIf="!g('class').value">Select a class first</mat-hint>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="field-sm">
@@ -105,9 +105,17 @@
       <section class="form-section">
         <div class="section-header-row">
           <h3 class="section-title"><mat-icon>book</mat-icon> Subjects</h3>
-          <button mat-stroked-button color="primary" type="button" (click)="addSubject()">
-            <mat-icon>add</mat-icon> Add Subject
-          </button>
+          <div class="section-header-actions">
+            <span *ngIf="loadingSubjects" class="subjects-loading-hint">
+              <mat-spinner diameter="14"></mat-spinner> Loading subjects…
+            </span>
+            <span *ngIf="!loadingSubjects && availableSubjects.length > 0" class="subjects-ready-hint">
+              <mat-icon>check_circle</mat-icon> {{ availableSubjects.length }} subject(s) available
+            </span>
+            <button mat-stroked-button color="primary" type="button" (click)="addSubject()">
+              <mat-icon>add</mat-icon> Add Subject
+            </button>
+          </div>
         </div>
 
         <div formArrayName="subjects">
@@ -116,43 +124,102 @@
             [formGroupName]="i"
             class="subject-row"
           >
-            <!-- Subject index label -->
+            <!-- Index badge -->
             <div class="subject-index">{{ i + 1 }}</div>
 
-            <!-- Subject fields -->
             <div class="subject-fields">
-              <mat-form-field appearance="outline" class="subfield-name">
-                <mat-label>Subject Name *</mat-label>
-                <input matInput formControlName="name" placeholder="Mathematics" />
-                <mat-error *ngIf="sg(i,'name').touched && sg(i,'name').invalid">Required</mat-error>
-              </mat-form-field>
 
-              <mat-form-field appearance="outline" class="subfield-num">
-                <mat-label>Max Marks *</mat-label>
-                <input matInput formControlName="maxMarks" type="number" min="1" max="1000" />
-                <mat-error *ngIf="sg(i,'maxMarks').touched && sg(i,'maxMarks').invalid">1–1000</mat-error>
-              </mat-form-field>
+              <!-- Row 1: name / teacher / date / time -->
+              <div class="subrow">
 
-              <mat-form-field appearance="outline" class="subfield-num">
-                <mat-label>Pass Marks *</mat-label>
-                <input matInput formControlName="passingMarks" type="number" min="0" />
-                <mat-error *ngIf="sg(i,'passingMarks').touched && sg(i,'passingMarks').invalid">≥0</mat-error>
-              </mat-form-field>
+                <!-- Subject Name — select from available list or free-type -->
+                <mat-form-field appearance="outline" class="subfield-name">
+                  <mat-label>Subject *</mat-label>
+                  <mat-select
+                    *ngIf="availableSubjects.length > 0; else freeText"
+                    formControlName="name"
+                  >
+                    <mat-option *ngFor="let s of availableSubjects" [value]="s">{{ s }}</mat-option>
+                  </mat-select>
+                  <ng-template #freeText>
+                    <input matInput formControlName="name" placeholder="Mathematics" />
+                  </ng-template>
+                  <mat-error *ngIf="sg(i,'name').touched && sg(i,'name').invalid">Required</mat-error>
+                </mat-form-field>
 
-              <mat-form-field appearance="outline" class="subfield-date">
-                <mat-label>Exam Date</mat-label>
-                <input matInput [matDatepicker]="subDatePicker" formControlName="examDate" />
-                <mat-datepicker-toggle matIconSuffix [for]="subDatePicker"></mat-datepicker-toggle>
-                <mat-datepicker #subDatePicker></mat-datepicker>
-              </mat-form-field>
+                <mat-form-field appearance="outline" class="subfield-teacher">
+                  <mat-label>Teacher Subject</mat-label>
+                  <input matInput formControlName="teacherSubject" placeholder="e.g. Mathematics" />
+                </mat-form-field>
 
-              <mat-form-field appearance="outline" class="subfield-time">
-                <mat-label>Time Slot</mat-label>
-                <input matInput formControlName="examTime" placeholder="10:00 AM – 1:00 PM" />
-              </mat-form-field>
+                <mat-form-field appearance="outline" class="subfield-date">
+                  <mat-label>Exam Date</mat-label>
+                  <input matInput [matDatepicker]="subDatePicker" formControlName="examDate" />
+                  <mat-datepicker-toggle matIconSuffix [for]="subDatePicker"></mat-datepicker-toggle>
+                  <mat-datepicker #subDatePicker></mat-datepicker>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="subfield-time">
+                  <mat-label>Time Slot</mat-label>
+                  <input matInput formControlName="examTime" placeholder="10:00 AM – 1:00 PM" />
+                </mat-form-field>
+              </div>
+
+              <!-- Row 2: marks + oral toggle -->
+              <div class="subrow">
+
+                <mat-form-field appearance="outline" class="subfield-num">
+                  <mat-label>Max Marks *</mat-label>
+                  <input matInput formControlName="maxMarks" type="number" min="1" max="1000" />
+                  <mat-error *ngIf="sg(i,'maxMarks').touched && sg(i,'maxMarks').invalid">1–1000</mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="subfield-num">
+                  <mat-label>Pass Marks *</mat-label>
+                  <input matInput formControlName="passingMarks" type="number" min="0" />
+                  <mat-error *ngIf="sg(i,'passingMarks').touched && sg(i,'passingMarks').invalid">≥ 0</mat-error>
+                </mat-form-field>
+
+                <!-- Oral toggle -->
+                <div class="oral-toggle-wrap">
+                  <mat-checkbox
+                    formControlName="hasOral"
+                    (change)="toggleOral(i)"
+                    color="primary"
+                  >
+                    Has Oral
+                  </mat-checkbox>
+                </div>
+
+                <!-- Oral fields — visible only when hasOral is true -->
+                <ng-container *ngIf="isOral(i)">
+                  <mat-form-field appearance="outline" class="subfield-num">
+                    <mat-label>Written Max</mat-label>
+                    <input matInput formControlName="writtenMaxMarks" type="number" min="0" />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="subfield-num">
+                    <mat-label>Oral Max</mat-label>
+                    <input matInput formControlName="oralMaxMarks" type="number" min="0" />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="subfield-num">
+                    <mat-label>Oral Pass</mat-label>
+                    <input matInput formControlName="oralPassingMarks" type="number" min="0" />
+                  </mat-form-field>
+                </ng-container>
+
+              </div>
+
+              <!-- Mismatch warning -->
+              <div *ngIf="writtenOralMismatch(i)" class="oral-mismatch-hint">
+                <mat-icon>warning</mat-icon>
+                Written + Oral must equal Max Marks ({{ sg(i,'maxMarks').value }}).
+              </div>
+
             </div>
 
-            <!-- Remove -->
+            <!-- Remove button -->
             <button
               mat-icon-button color="warn"
               type="button"
@@ -166,7 +233,7 @@
           </div>
         </div>
 
-        <p class="subject-hint" *ngIf="subjects.length === 0" class="no-subjects-hint">
+        <p class="subject-hint" *ngIf="subjects.length === 0">
           <mat-icon>warning</mat-icon> Add at least one subject before saving.
         </p>
       </section>
