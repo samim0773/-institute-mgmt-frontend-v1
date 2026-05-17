@@ -7,13 +7,59 @@
       <h2 class="page-title">Fee Management</h2>
       <p class="page-sub">Track and record student fee payments</p>
     </div>
-    <button mat-raised-button color="primary" routerLink="/admin/fees/generate">
-      <mat-icon>receipt_long</mat-icon> Generate Fees
-    </button>
+    <div class="header-actions">
+      <button mat-stroked-button routerLink="/admin/fees/bulk-print">
+        <mat-icon>print</mat-icon> Bulk Print
+      </button>
+      <button mat-raised-button color="primary" routerLink="/admin/fees/generate">
+        <mat-icon>receipt_long</mat-icon> Generate Fees
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Period selector ─────────────────────────────────────────────────── -->
+  <div class="period-bar">
+    <mat-button-toggle-group [value]="periodType"
+      (change)="onPeriodChange($event.value)" class="period-toggle">
+      <mat-button-toggle value="this-month">This Month</mat-button-toggle>
+      <mat-button-toggle value="month">Custom Month</mat-button-toggle>
+      <mat-button-toggle value="this-year">This Year</mat-button-toggle>
+      <mat-button-toggle value="prev-year">Last Year</mat-button-toggle>
+      <mat-button-toggle value="all">All Time</mat-button-toggle>
+    </mat-button-toggle-group>
+
+    <div class="period-pickers" *ngIf="periodType === 'month'">
+      <mat-form-field appearance="outline" class="period-field">
+        <mat-label>Month</mat-label>
+        <mat-select [(value)]="selectedMonth" (selectionChange)="onMonthYearChange()">
+          <mat-option *ngFor="let mo of MONTHS" [value]="mo.v">{{ mo.l }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="period-field period-field--yr">
+        <mat-label>Year</mat-label>
+        <mat-select [(value)]="selectedYear" (selectionChange)="onMonthYearChange()">
+          <mat-option *ngFor="let yr of YEARS" [value]="yr">{{ yr }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <span class="period-label">
+      <mat-icon>event_note</mat-icon> {{ periodLabel }}
+    </span>
   </div>
 
   <!-- ── Summary stat cards ────────────────────────────────────────────────── -->
   <div class="stat-row">
+    <mat-card class="stat-card stat-indigo">
+      <mat-card-content>
+        <mat-icon>receipt_long</mat-icon>
+        <div class="stat-info">
+          <span class="stat-label">Bills Generated</span>
+          <span class="stat-value">{{ loadingStats ? '…' : billCount }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
     <mat-card class="stat-card stat-blue">
       <mat-card-content>
         <mat-icon>account_balance_wallet</mat-icon>
@@ -49,7 +95,7 @@
         <mat-icon>warning_amber</mat-icon>
         <div class="stat-info">
           <span class="stat-label">Overdue</span>
-          <span class="stat-value">{{ loadingStats ? '…' : overdueCount + ' fee(s)' }}</span>
+          <span class="stat-value">{{ loadingStats ? '…' : overdueCount + ' bill(s)' }}</span>
         </div>
       </mat-card-content>
     </mat-card>
@@ -62,7 +108,7 @@
         <mat-icon>assignment_late</mat-icon> Dues by Class
       </mat-button-toggle>
       <mat-button-toggle value="all">
-        <mat-icon>list_alt</mat-icon> All Fee Records
+        <mat-icon>list_alt</mat-icon> All Bills
       </mat-button-toggle>
     </mat-button-toggle-group>
   </div>
@@ -98,14 +144,12 @@
 
     <mat-progress-bar *ngIf="loadingDues" mode="indeterminate"></mat-progress-bar>
 
-    <!-- No class selected -->
     <div class="empty-state" *ngIf="!classFilter.value && !loadingDues">
       <mat-icon>payments</mat-icon>
       <h3>Select a class and section</h3>
       <p>Choose a class above to see all outstanding fees for that section.</p>
     </div>
 
-    <!-- All paid -->
     <div class="empty-state empty-state--success"
       *ngIf="classFilter.value && sectionFilter.value && !loadingDues && duesData.length === 0">
       <mat-icon>check_circle</mat-icon>
@@ -125,7 +169,7 @@
     <!-- Student dues accordion -->
     <mat-accordion class="dues-accordion" *ngIf="duesData.length > 0">
       <mat-expansion-panel
-        *ngFor="let d of duesData; trackBy: trackById"
+        *ngFor="let d of duesData; trackBy: trackByStudId"
         class="dues-panel"
         [class.dues-panel--overdue]="d.hasOverdue"
       >
@@ -144,16 +188,14 @@
             <span class="panel-balance" [class.balance-overdue]="d.hasOverdue">
               {{ fmt(d.balance) }}
             </span>
-            <mat-icon *ngIf="d.hasOverdue" class="overdue-icon" matTooltip="Has overdue fees">
-              schedule
-            </mat-icon>
+            <mat-icon *ngIf="d.hasOverdue" class="overdue-icon" matTooltip="Has overdue fees">schedule</mat-icon>
           </mat-panel-description>
         </mat-expansion-panel-header>
 
         <!-- Fee rows inside expansion -->
         <div class="fee-rows">
           <div
-            *ngFor="let f of d.fees; trackBy: trackById"
+            *ngFor="let f of d.fees; trackBy: trackByFeeId"
             class="fee-row"
             [class.fee-row--overdue]="f.isOverdue"
           >
@@ -162,16 +204,12 @@
               <span class="fee-due-date">Due {{ formatDate(f.dueDate) }}</span>
             </div>
             <div class="fee-row-mid">
-              <span class="fee-billed">₹{{ f.amount }}</span>
-              <span class="fee-paid-label">Paid: {{ fmt(f.amountPaid) }}</span>
-              <span *ngIf="f.lateFine > 0" class="fee-fine">
-                Fine: {{ fmt(f.lateFine) }}
-              </span>
+              <span class="fee-billed">{{ fmt(f.amount) }}</span>
+              <span class="fee-paid-label">Paid: {{ fmt(f.amountPaid ?? 0) }}</span>
+              <span *ngIf="(f.lateFine ?? 0) > 0" class="fee-fine">Fine: {{ fmt(f.lateFine!) }}</span>
             </div>
             <div class="fee-row-right">
-              <span class="status-badge" [ngClass]="statusClass(f.status)">
-                {{ statusLabel(f.status) }}
-              </span>
+              <span class="status-badge" [ngClass]="statusClass(f.status)">{{ statusLabel(f.status) }}</span>
               <button
                 mat-raised-button color="primary" class="pay-btn"
                 *ngIf="f.status !== 'paid' && f.status !== 'waived'"
@@ -188,9 +226,7 @@
           <span class="panel-summary">
             Paid: {{ fmt(d.totalPaid) }} ·
             Balance: <strong>{{ fmt(d.balance) }}</strong>
-            <span *ngIf="d.lateFine > 0" class="fine-note">
-              + {{ fmt(d.lateFine) }} late fine
-            </span>
+            <span *ngIf="d.lateFine > 0" class="fine-note">+ {{ fmt(d.lateFine) }} late fine</span>
           </span>
           <button mat-stroked-button (click)="viewStudentHistory(d.student._id)">
             <mat-icon>history</mat-icon> Full History
@@ -200,13 +236,15 @@
     </mat-accordion>
   </div><!-- /dues view -->
 
-  <!-- ══════════════ ALL FEES VIEW ══════════════════════════════════════════ -->
+  <!-- ══════════════ ALL BILLS VIEW ═════════════════════════════════════════ -->
   <div *ngIf="viewMode === 'all'">
+
+    <!-- Status filter -->
     <mat-card class="filter-card">
       <div class="filter-row">
         <mat-form-field appearance="outline" class="filter-field">
           <mat-label>Status</mat-label>
-          <mat-select [formControl]="statusFilter" (selectionChange)="loadAllFees()">
+          <mat-select [formControl]="statusFilter" (selectionChange)="page=1; loadAllFees()">
             <mat-option *ngFor="let s of STATUS_OPTS" [value]="s.value">{{ s.label }}</mat-option>
           </mat-select>
         </mat-form-field>
@@ -215,96 +253,113 @@
 
     <mat-progress-bar *ngIf="loadingFees" mode="indeterminate"></mat-progress-bar>
 
-    <mat-card class="table-card">
-      <div class="empty-state" *ngIf="!loadingFees && fees.length === 0">
-        <mat-icon>receipt_long</mat-icon>
-        <h3>No fee records found</h3>
-        <p>Generate fees first to see them here.</p>
-      </div>
+    <!-- Empty state -->
+    <div class="empty-state" *ngIf="!loadingFees && bills.length === 0">
+      <mat-icon>receipt_long</mat-icon>
+      <h3>No fee records found</h3>
+      <p>Generate fees first to see them here.</p>
+    </div>
 
-      <div class="table-scroll" *ngIf="fees.length > 0 || loadingFees">
-        <table mat-table [dataSource]="fees" class="fees-table">
-
-          <ng-container matColumnDef="student">
-            <th mat-header-cell *matHeaderCellDef>Student</th>
-            <td mat-cell *matCellDef="let f">
-              <div class="student-cell">
-                <span class="s-name">{{ studentName(f) }}</span>
-                <span class="s-class">{{ studentClass(f) }}</span>
+    <!-- Bills accordion -->
+    <mat-accordion class="dues-accordion" *ngIf="bills.length > 0">
+      <mat-expansion-panel
+        *ngFor="let b of bills; trackBy: trackByBillId"
+        class="dues-panel bill-panel"
+        [class.dues-panel--overdue]="b.isOverdue"
+      >
+        <!-- Panel header: student + overall totals -->
+        <mat-expansion-panel-header>
+          <mat-panel-title class="panel-title">
+            <div class="panel-student">
+              <div class="student-avatar">{{ b.student.name[0] }}</div>
+              <div>
+                <span class="student-name">{{ b.student.name }}</span>
+                <span class="student-meta">
+                  {{ b.student.class }}-{{ b.student.section }} · Roll {{ b.student.rollNo }}
+                </span>
               </div>
-            </td>
-          </ng-container>
+            </div>
+          </mat-panel-title>
 
-          <ng-container matColumnDef="feeType">
-            <th mat-header-cell *matHeaderCellDef>Fee Type</th>
-            <td mat-cell *matCellDef="let f">{{ f.feeType }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="amount">
-            <th mat-header-cell *matHeaderCellDef>Billed</th>
-            <td mat-cell *matCellDef="let f">{{ fmt(f.amount) }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="amountPaid">
-            <th mat-header-cell *matHeaderCellDef>Paid</th>
-            <td mat-cell *matCellDef="let f" class="col-paid">{{ fmt(f.amountPaid) }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="amountDue">
-            <th mat-header-cell *matHeaderCellDef>Balance</th>
-            <td mat-cell *matCellDef="let f" class="col-due">
-              <span [class.due-red]="f.amountDue > 0">{{ fmt(f.amountDue) }}</span>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="dueDate">
-            <th mat-header-cell *matHeaderCellDef>Due Date</th>
-            <td mat-cell *matCellDef="let f">
-              <span [class.overdue-text]="f.isOverdue">{{ formatDate(f.dueDate) }}</span>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef>Status</th>
-            <td mat-cell *matCellDef="let f">
-              <span class="status-badge" [ngClass]="statusClass(f.status)">
-                {{ statusLabel(f.status) }}
+          <mat-panel-description class="panel-desc">
+            <span class="bill-meta-chips">
+              <span class="status-badge" [ngClass]="statusClass(b.overallStatus)">
+                {{ statusLabel(b.overallStatus) }}
               </span>
-            </td>
-          </ng-container>
+              <span class="bill-due-chip" [class.chip-overdue]="b.isOverdue">
+                Due {{ formatDate(b.dueDate) }}
+              </span>
+              <span *ngIf="b.academicYear" class="bill-year-chip">{{ b.academicYear }}</span>
+            </span>
+            <span class="panel-balance" [class.balance-overdue]="b.totalDue > 0">
+              {{ fmt(b.totalDue) }}
+            </span>
+          </mat-panel-description>
+        </mat-expansion-panel-header>
 
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef></th>
-            <td mat-cell *matCellDef="let f" class="actions-cell">
+        <!-- Fee breakdown inside expansion -->
+        <div class="fee-rows">
+          <div
+            *ngFor="let item of b.feeBreakdown; trackBy: trackByFeeId"
+            class="fee-row"
+          >
+            <div class="fee-row-left">
+              <span class="fee-type">{{ item.feeType }}</span>
+            </div>
+            <div class="fee-row-mid">
+              <span class="fee-billed">{{ fmt(item.amount) }}</span>
+              <span class="fee-paid-label">Paid: {{ fmt(item.amountPaid) }}</span>
+              <span *ngIf="item.amountDue > 0" class="fee-due-chip">Due: {{ fmt(item.amountDue) }}</span>
+              <span *ngIf="(item.lateFine ?? 0) > 0" class="fee-fine">Fine: {{ fmt(item.lateFine!) }}</span>
+            </div>
+            <div class="fee-row-right">
+              <span class="status-badge" [ngClass]="statusClass(item.status)">{{ statusLabel(item.status) }}</span>
               <button
-                mat-icon-button color="primary"
-                *ngIf="f.status !== 'paid' && f.status !== 'waived'"
-                (click)="openPaymentDialog(f._id, f.feeType, f.amountDue)"
-                matTooltip="Record payment"
+                mat-raised-button color="primary" class="pay-btn"
+                *ngIf="item.status !== 'paid' && item.status !== 'waived'"
+                (click)="openPaymentDialog(item.id, item.feeType, item.amountDue)"
               >
-                <mat-icon>payment</mat-icon>
+                <mat-icon>payment</mat-icon> Pay
               </button>
-              <button
-                mat-icon-button
-                (click)="viewStudentHistory((f.studentId)?._id || f.studentId)"
-                matTooltip="Payment history"
-              >
-                <mat-icon>history</mat-icon>
-              </button>
-            </td>
-          </ng-container>
+            </div>
+          </div>
+        </div>
 
-          <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-          <tr mat-row *matRowDef="let f; columns: displayedColumns;" class="data-row"></tr>
-        </table>
-      </div>
+        <!-- Bill notes -->
+        <div class="bill-notes-row" *ngIf="b.notes">
+          <mat-icon>sticky_note_2</mat-icon> {{ b.notes }}
+        </div>
 
-      <mat-paginator
-        *ngIf="totalFees > 0"
-        [length]="totalFees" [pageSize]="pageSize" [pageSizeOptions]="[10,20,50]"
-        (page)="onPageChange($event)" showFirstLastButtons
-      ></mat-paginator>
-    </mat-card>
-  </div><!-- /all fees view -->
+        <!-- Bill footer: totals + view history -->
+        <div class="panel-footer">
+          <span class="panel-summary">
+            Billed: {{ fmt(b.totalAmount) }} ·
+            Paid: <strong class="paid-text">{{ fmt(b.totalPaid) }}</strong>
+            <span *ngIf="b.totalDue > 0"> · Balance: <strong class="due-text">{{ fmt(b.totalDue) }}</strong></span>
+          </span>
+          <div class="panel-footer-actions">
+            <button mat-raised-button color="primary"
+              *ngIf="b.totalDue > 0 && b.billId"
+              (click)="openBillPaymentDialog(b)">
+              <mat-icon>payments</mat-icon> Pay Bill
+            </button>
+            <button mat-stroked-button color="accent" [routerLink]="['/admin/fees/bill', b.billId]">
+              <mat-icon>print</mat-icon> Print Slip
+            </button>
+            <button mat-stroked-button (click)="viewStudentHistory(b.student._id)">
+              <mat-icon>history</mat-icon> Full History
+            </button>
+          </div>
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion>
+
+    <!-- Paginator -->
+    <mat-paginator
+      *ngIf="totalBills > pageSize"
+      [length]="totalBills" [pageSize]="pageSize" [pageSizeOptions]="[10,20,50]"
+      (page)="onPageChange($event)" showFirstLastButtons
+    ></mat-paginator>
+  </div><!-- /all bills view -->
 
 </div>

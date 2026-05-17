@@ -8,9 +8,14 @@ import { FeeService, PAYMENT_MODES }  from './fee.service';
 import { NotificationService }        from '../../core/services/notification.service';
 
 export interface PaymentDialogData {
-  feeId:     string;
-  feeType:   string;
-  amountDue: number;
+  // Single-fee mode
+  feeId?:     string;
+  feeType?:   string;
+  // Bill mode
+  billId?:    string;
+  billLabel?: string;   // e.g. "Tuition Fee + Exam Fee"
+  // Common
+  amountDue:  number;
 }
 
 @Component({
@@ -25,8 +30,8 @@ export interface PaymentDialogData {
 
   <!-- Fee context info -->
   <div class="fee-context">
-    <span class="context-label">Fee Type</span>
-    <span class="context-value">{{ data.feeType }}</span>
+    <span class="context-label">{{ data.billId ? 'Bill' : 'Fee Type' }}</span>
+    <span class="context-value">{{ data.billId ? (data.billLabel || 'Full Bill') : data.feeType }}</span>
     <span class="context-label">Outstanding</span>
     <span class="context-value context-value--amount">{{ fmt(data.amountDue) }}</span>
   </div>
@@ -191,7 +196,11 @@ export class RecordPaymentDialogComponent implements OnDestroy {
       note:        v.note?.trim()        || undefined,
     };
 
-    this.feeSvc.recordPayment(this.data.feeId, payload)
+    const call$ = this.data.billId
+      ? this.feeSvc.recordBillPayment(this.data.billId!, payload)
+      : this.feeSvc.recordPayment(this.data.feeId!, payload);
+
+    call$
       .pipe(finalize(() => this.saving = false), takeUntil(this.destroy$))
       .subscribe({
         next:  () => this.dialogRef.close(true),

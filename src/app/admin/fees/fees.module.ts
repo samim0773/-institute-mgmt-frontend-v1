@@ -28,11 +28,15 @@ import { FeesListComponent }             from './fees-list.component';
 import { RecordPaymentDialogComponent }  from './record-payment.component';
 import { PaymentHistoryComponent }       from './payment-history.component';
 import { GenerateFeeComponent }          from './generate-fee.component';
+import { FeeSlipComponent }              from './fee-slip.component';
+import { FeeBulkPrintComponent }         from './fee-bulk-print.component';
 
 const routes: Routes = [
-  { path: '',                   component: FeesListComponent,      title: 'Fees'            },
-  { path: 'generate',           component: GenerateFeeComponent,   title: 'Generate Fees'   },
-  { path: 'student/:studentId', component: PaymentHistoryComponent, title: 'Payment History' },
+  { path: '',                   component: FeesListComponent,      title: 'Fees'                },
+  { path: 'generate',           component: GenerateFeeComponent,   title: 'Generate Fees'       },
+  { path: 'bulk-print',         component: FeeBulkPrintComponent,  title: 'Bulk Print Fee Slips'},
+  { path: 'student/:studentId', component: PaymentHistoryComponent, title: 'Payment History'    },
+  { path: 'bill/:billId',       component: FeeSlipComponent,       title: 'Fee Receipt'         },
 ];
 
 @NgModule({
@@ -41,6 +45,8 @@ const routes: Routes = [
     RecordPaymentDialogComponent,
     PaymentHistoryComponent,
     GenerateFeeComponent,
+    FeeSlipComponent,
+    FeeBulkPrintComponent,
   ],
   imports: [
     CommonModule,

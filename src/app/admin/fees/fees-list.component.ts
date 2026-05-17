@@ -4,13 +4,13 @@ import { Router }                       from '@angular/router';
 import { MatDialog }                    from '@angular/material/dialog';
 import { Subject, combineLatest }       from 'rxjs';
 import {
-  takeUntil, finalize, startWith, switchMap, debounceTime, distinctUntilChanged,
+  takeUntil, finalize, startWith,
 } from 'rxjs/operators';
 
-import { FeeService, FeeWithVirtuals, StudentDues } from './fee.service';
-import { StudentService }                            from '../students/student.service';
-import { NotificationService }                       from '../../core/services/notification.service';
-import { RecordPaymentDialogComponent }              from './record-payment.component';
+import { FeeService, Bill, StudentDues, SummaryPeriod } from './fee.service';
+import { StudentService }                from '../students/student.service';
+import { NotificationService }           from '../../core/services/notification.service';
+import { RecordPaymentDialogComponent }  from './record-payment.component';
 
 type ViewMode = 'all' | 'dues';
 
@@ -21,34 +21,52 @@ type ViewMode = 'all' | 'dues';
 })
 export class FeesListComponent implements OnInit, OnDestroy {
 
-  // ── View toggle: all fees OR dues-by-class ─────────────────────────────────
+  // ── View toggle ────────────────────────────────────────────────────────────
   viewMode: ViewMode = 'dues';
 
-  // ── All-fees view ──────────────────────────────────────────────────────────
-  fees:         FeeWithVirtuals[] = [];
-  totalFees     = 0;
+  // ── All-fees (bills) view ──────────────────────────────────────────────────
+  bills:        Bill[] = [];
+  totalBills    = 0;
+  totalPages    = 1;
   page          = 1;
   pageSize      = 20;
   statusFilter  = new FormControl('');
   loadingFees   = false;
 
   // ── Dues-by-class view ─────────────────────────────────────────────────────
-  duesData:      StudentDues[] = [];
-  grandTotalDue  = 0;
-  loadingDues    = false;
-  classFilter    = new FormControl('');
-  sectionFilter  = new FormControl('');
-  classNames:    string[] = [];
-  sections:      string[] = [];
+  duesData:     StudentDues[] = [];
+  grandTotalDue = 0;
+  loadingDues   = false;
+  classFilter   = new FormControl('');
+  sectionFilter = new FormControl('');
+  classNames:   string[] = [];
+  sections:     string[] = [];
 
   // ── Summary stats ──────────────────────────────────────────────────────────
   totalBilled    = 0;
   totalCollected = 0;
   totalPending   = 0;
   overdueCount   = 0;
+  billCount      = 0;
   loadingStats   = true;
 
-  // ── Status filter options ──────────────────────────────────────────────────
+  // ── Period selector ────────────────────────────────────────────────────────
+  periodType:    SummaryPeriod = 'this-month';
+  selectedMonth  = new Date().getMonth() + 1;   // 1–12
+  selectedYear   = new Date().getFullYear();
+
+  readonly MONTHS = [
+    { v: 1,  l: 'January'  }, { v: 2,  l: 'February' }, { v: 3,  l: 'March'    },
+    { v: 4,  l: 'April'    }, { v: 5,  l: 'May'       }, { v: 6,  l: 'June'     },
+    { v: 7,  l: 'July'     }, { v: 8,  l: 'August'    }, { v: 9,  l: 'September'},
+    { v: 10, l: 'October'  }, { v: 11, l: 'November'  }, { v: 12, l: 'December' },
+  ];
+
+  readonly YEARS: number[] = (() => {
+    const y = new Date().getFullYear();
+    return [y + 1, y, y - 1, y - 2, y - 3];
+  })();
+
   readonly STATUS_OPTS = [
     { value: '',        label: 'All Statuses' },
     { value: 'pending', label: 'Pending'      },
@@ -56,9 +74,6 @@ export class FeesListComponent implements OnInit, OnDestroy {
     { value: 'paid',    label: 'Paid'         },
     { value: 'waived',  label: 'Waived'       },
   ];
-
-  // Table columns for "all fees" view
-  displayedColumns = ['student', 'feeType', 'amount', 'amountPaid', 'amountDue', 'dueDate', 'status', 'actions'];
 
   private destroy$ = new Subject<void>();
 
@@ -79,10 +94,17 @@ export class FeesListComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
 
-  // ── Dashboard stat cards ───────────────────────────────────────────────────
-  private loadStats(): void {
+  // ── Summary stat cards ─────────────────────────────────────────────────────
+  loadStats(): void {
     this.loadingStats = true;
-    this.feeSvc.getFeeSummary()
+    const opts: { period: SummaryPeriod; month?: number; year?: number } = {
+      period: this.periodType,
+    };
+    if (this.periodType === 'month') {
+      opts.month = this.selectedMonth;
+      opts.year  = this.selectedYear;
+    }
+    this.feeSvc.getFeeSummary(opts)
       .pipe(finalize(() => this.loadingStats = false), takeUntil(this.destroy$))
       .subscribe({
         next: res => {
@@ -91,25 +113,42 @@ export class FeesListComponent implements OnInit, OnDestroy {
             this.totalCollected = res.data.totalCollected;
             this.totalPending   = res.data.totalPending;
             this.overdueCount   = res.data.overdueCount;
+            this.billCount      = res.data.billCount ?? 0;
           }
         },
       });
   }
 
+  onPeriodChange(p: SummaryPeriod): void {
+    this.periodType = p;
+    if (p !== 'month') this.loadStats();
+  }
+
+  onMonthYearChange(): void {
+    if (this.periodType === 'month') this.loadStats();
+  }
+
+  get periodLabel(): string {
+    const now = new Date();
+    switch (this.periodType) {
+      case 'this-month': return now.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+      case 'month':      return `${this.MONTHS[this.selectedMonth - 1]?.l ?? ''} ${this.selectedYear}`;
+      case 'this-year':  return String(now.getFullYear());
+      case 'prev-year':  return String(now.getFullYear() - 1);
+      case 'all':        return 'All Time';
+      default:           return '';
+    }
+  }
+
   // ── Dropdown data ──────────────────────────────────────────────────────────
   private loadClassNames(): void {
-    this.studentSvc.getClassNames()
-      .pipe(takeUntil(this.destroy$))
+    this.studentSvc.getClassNames().pipe(takeUntil(this.destroy$))
       .subscribe(res => { this.classNames = res.data || []; });
-
-    this.studentSvc.getClasses()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe();
+    this.studentSvc.getClasses().pipe(takeUntil(this.destroy$)).subscribe();
   }
 
   private watchSectionReset(): void {
-    this.classFilter.valueChanges
-      .pipe(takeUntil(this.destroy$))
+    this.classFilter.valueChanges.pipe(takeUntil(this.destroy$))
       .subscribe(cls => {
         this.sectionFilter.setValue('', { emitEvent: false });
         this.sections = cls ? this.studentSvc.getSectionsForClass(cls) : [];
@@ -138,24 +177,25 @@ export class FeesListComponent implements OnInit, OnDestroy {
       .pipe(finalize(() => this.loadingDues = false), takeUntil(this.destroy$))
       .subscribe({
         next: res => {
-          this.duesData     = res.data || [];
-          this.grandTotalDue = this.duesData.reduce((t, d) => t + d.balance, 0);
+          this.duesData      = res.data || [];
+          this.grandTotalDue = res.grandTotalDue ?? 0;
         },
       });
   }
 
-  // ── All-fees view ──────────────────────────────────────────────────────────
+  // ── All-bills view ─────────────────────────────────────────────────────────
   loadAllFees(): void {
     this.loadingFees = true;
     this.feeSvc.getAllFees({
-      status:  this.statusFilter.value || undefined,
-      page:    this.page,
-      limit:   this.pageSize,
+      status: this.statusFilter.value || undefined,
+      page:   this.page,
+      limit:  this.pageSize,
     }).pipe(finalize(() => this.loadingFees = false), takeUntil(this.destroy$))
       .subscribe({
         next: res => {
-          this.fees      = res.data || [];
-          this.totalFees = res.count ?? 0;
+          this.bills      = res.data || [];
+          this.totalBills = res.total ?? 0;
+          this.totalPages = res.totalPages ?? 1;
         },
       });
   }
@@ -171,7 +211,7 @@ export class FeesListComponent implements OnInit, OnDestroy {
     if (mode === 'all') this.loadAllFees();
   }
 
-  // ── Open record-payment dialog ─────────────────────────────────────────────
+  // ── Record payment dialog ──────────────────────────────────────────────────
   openPaymentDialog(feeId: string, feeType: string, amountDue: number): void {
     const ref = this.dialog.open(RecordPaymentDialogComponent, {
       width:        '440px',
@@ -179,19 +219,32 @@ export class FeesListComponent implements OnInit, OnDestroy {
       data:         { feeId, feeType, amountDue },
     });
 
-    ref.afterClosed()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(success => {
-        if (success) {
-          this.notify.success('Payment recorded successfully.');
-          this.loadStats();
-          if (this.viewMode === 'dues') {
-            this.loadDues();
-          } else {
-            this.loadAllFees();
-          }
-        }
-      });
+    ref.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(success => {
+      if (success) {
+        this.notify.success('Payment recorded successfully.');
+        this.loadStats();
+        if (this.viewMode === 'dues') { this.loadDues(); }
+        else                          { this.loadAllFees(); }
+      }
+    });
+  }
+
+  openBillPaymentDialog(bill: Bill): void {
+    const unpaid = bill.feeBreakdown.filter(f => f.status !== 'paid' && f.status !== 'waived');
+    const billLabel = unpaid.map(f => f.feeType).join(' + ') || 'All Fees';
+    const ref = this.dialog.open(RecordPaymentDialogComponent, {
+      width:        '440px',
+      disableClose: true,
+      data:         { billId: bill.billId, billLabel, amountDue: bill.totalDue },
+    });
+
+    ref.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(success => {
+      if (success) {
+        this.notify.success('Bill payment recorded successfully.');
+        this.loadStats();
+        this.loadAllFees();
+      }
+    });
   }
 
   // ── Navigate to student payment history ───────────────────────────────────
@@ -200,23 +253,16 @@ export class FeesListComponent implements OnInit, OnDestroy {
   }
 
   // ── Helpers ────────────────────────────────────────────────────────────────
-  statusClass(s: string): string  { return this.feeSvc.statusClass(s); }
-  statusLabel(s: string): string  { return this.feeSvc.statusLabel(s); }
-  fmt(n: number):         string  { return this.feeSvc.formatCurrency(n); }
+  statusClass(s: string): string { return this.feeSvc.statusClass(s); }
+  statusLabel(s: string): string { return this.feeSvc.statusLabel(s); }
+  fmt(n: number):         string { return this.feeSvc.formatCurrency(n); }
 
   formatDate(d: string): string {
     if (!d) return '—';
     return new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
   }
 
-  studentName(fee: FeeWithVirtuals): string {
-    const s = fee.studentId as any;
-    return s?.name ?? '—';
-  }
-  studentClass(fee: FeeWithVirtuals): string {
-    const s = fee.studentId as any;
-    return s ? `${s.class}-${s.section}` : '—';
-  }
-
-  trackById(_: number, item: any): string { return item._id || item.feeId; }
+  trackByBillId(_: number, b: Bill):       string { return b.billId; }
+  trackByStudId(_: number, d: StudentDues): string { return d.student._id; }
+  trackByFeeId (_: number, f: any):        string { return f.feeId || f.id; }
 }

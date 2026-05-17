@@ -4,7 +4,7 @@ import { MatDialog }                    from '@angular/material/dialog';
 import { Subject }                      from 'rxjs';
 import { takeUntil, finalize }          from 'rxjs/operators';
 
-import { FeeService, StudentFeeHistory, FeeWithVirtuals } from './fee.service';
+import { FeeService, StudentFeeHistory, Bill, BillFeeItem } from './fee.service';
 import { NotificationService }           from '../../core/services/notification.service';
 import { RecordPaymentDialogComponent }  from './record-payment.component';
 
@@ -15,10 +15,10 @@ import { RecordPaymentDialogComponent }  from './record-payment.component';
 })
 export class PaymentHistoryComponent implements OnInit, OnDestroy {
 
-  studentId     = '';
-  history:      StudentFeeHistory | null = null;
-  loading       = true;
-  deletingId    = '';
+  studentId  = '';
+  history:   StudentFeeHistory | null = null;
+  loading    = true;
+  deletingId = '';
 
   private destroy$ = new Subject<void>();
 
@@ -49,18 +49,31 @@ export class PaymentHistoryComponent implements OnInit, OnDestroy {
       });
   }
 
-  openPaymentDialog(fee: FeeWithVirtuals): void {
+  openPaymentDialog(item: BillFeeItem): void {
     const ref = this.dialog.open(RecordPaymentDialogComponent, {
       width:        '440px',
       disableClose: true,
       data: {
-        feeId:     fee._id,
-        feeType:   fee.feeType,
-        amountDue: fee.amountDue,
+        feeId:     item.id,
+        feeType:   item.feeType,
+        amountDue: item.amountDue,
       },
     });
     ref.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(ok => {
       if (ok) { this.notify.success('Payment recorded.'); this.load(); }
+    });
+  }
+
+  openBillPaymentDialog(bill: Bill): void {
+    const unpaid = bill.feeBreakdown.filter(f => f.status !== 'paid' && f.status !== 'waived');
+    const billLabel = unpaid.map(f => f.feeType).join(' + ') || 'All Fees';
+    const ref = this.dialog.open(RecordPaymentDialogComponent, {
+      width:        '440px',
+      disableClose: true,
+      data:         { billId: bill.billId, billLabel, amountDue: bill.totalDue },
+    });
+    ref.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(ok => {
+      if (ok) { this.notify.success('Bill payment recorded.'); this.load(); }
     });
   }
 
@@ -87,29 +100,23 @@ export class PaymentHistoryComponent implements OnInit, OnDestroy {
     return new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
   }
 
-  trackByFeeId(_: number, f: FeeWithVirtuals):  string { return f._id; }
-  trackByPayId(_: number, p: any):              string { return p._id; }
+  overallIcon(bill: Bill): string {
+    if (bill.overallStatus === 'paid')   return 'check_circle';
+    if (bill.overallStatus === 'waived') return 'do_not_disturb_on';
+    if (bill.isOverdue)                  return 'warning';
+    return 'receipt_long';
+  }
 
   modeIcon(mode: string): string {
-  switch (mode) {
-    case 'cash':
-      return 'payments';
-
-    case 'upi':
-      return 'qr_code';
-
-    case 'card':
-      return 'credit_card';
-
-    case 'bank':
-    case 'bank_transfer':
-      return 'account_balance';
-
-    case 'cheque':
-      return 'receipt';
-
-    default:
-      return 'payment';
+    const map: Record<string, string> = {
+      cash: 'payments', cheque: 'receipt_long',
+      upi: 'phone_android', bank_transfer: 'account_balance',
+      dd: 'description', other: 'more_horiz',
+    };
+    return map[mode] ?? 'payment';
   }
-}
+
+  trackByBillId(_: number, b: Bill):    string { return b.billId; }
+  trackByFeeId (_: number, f: BillFeeItem): string { return f.id; }
+  trackByPayId (_: number, p: any):     string { return p._id; }
 }

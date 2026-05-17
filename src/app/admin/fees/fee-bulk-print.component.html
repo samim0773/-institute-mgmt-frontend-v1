@@ -1,0 +1,212 @@
+<!-- fee-bulk-print.component.html -->
+<div class="bulk-page">
+
+  <!-- ── Screen toolbar ─────────────────────────────────────────────────────── -->
+  <div class="bulk-toolbar no-print">
+    <button mat-icon-button (click)="goBack()" aria-label="Back">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <span class="toolbar-title">Bulk Fee Slip Print</span>
+    <span class="toolbar-spacer"></span>
+
+    <!-- Filters -->
+    <mat-form-field appearance="outline" class="toolbar-field">
+      <mat-label>Class</mat-label>
+      <mat-select [formControl]="classFilter">
+        <mat-option value="">Select…</mat-option>
+        <mat-option *ngFor="let c of classNames" [value]="c">Class {{ c }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="toolbar-field" *ngIf="sections.length">
+      <mat-label>Section</mat-label>
+      <mat-select [formControl]="sectionFilter">
+        <mat-option value="">Select…</mat-option>
+        <mat-option *ngFor="let s of sections" [value]="s">{{ s }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="toolbar-field toolbar-field--sm">
+      <mat-label>Status</mat-label>
+      <mat-select [formControl]="statusFilter">
+        <mat-option *ngFor="let o of STATUS_OPTS" [value]="o.value">{{ o.label }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <button mat-stroked-button (click)="load()"
+      [disabled]="!classFilter.value || !sectionFilter.value || loading">
+      <mat-spinner *ngIf="loading" diameter="16" class="btn-spinner"></mat-spinner>
+      <mat-icon *ngIf="!loading">search</mat-icon>
+      {{ loading ? 'Loading…' : 'Load' }}
+    </button>
+
+    <button mat-raised-button color="primary" (click)="print()"
+      [disabled]="bills.length === 0 || printing" class="print-btn">
+      <mat-spinner *ngIf="printing" diameter="16" class="btn-spinner"></mat-spinner>
+      <mat-icon *ngIf="!printing">print</mat-icon>
+      {{ printing ? 'Preparing…' : 'Print All (' + bills.length + ')' }}
+    </button>
+  </div>
+
+  <!-- ── Empty / hint states (screen only) ─────────────────────────────────── -->
+  <div class="hint-state no-print" *ngIf="!loading && bills.length === 0">
+    <mat-icon>class</mat-icon>
+    <p>Select class and section, then click Load to preview fee slips.</p>
+  </div>
+
+  <!-- ── Preview count banner (screen only) ────────────────────────────────── -->
+  <div class="preview-banner no-print" *ngIf="bills.length > 0">
+    <mat-icon>visibility</mat-icon>
+    {{ bills.length }} slip(s) ready — one per page when printed
+  </div>
+
+  <!-- ══ PRINT AREA ═══════════════════════════════════════════════════════════ -->
+  <div class="print-area" *ngIf="bills.length > 0">
+
+    <div *ngFor="let bill of bills; trackBy: trackByBillId" class="slip-wrapper">
+
+      <div class="slip-doc">
+
+        <!-- ── Institute header ──────────────────────────────────────────────── -->
+        <div class="slip-header">
+          <img *ngIf="institute?.logoUrl"
+            [src]="institute!.logoUrl" alt="Logo" class="slip-logo" />
+          <div class="slip-inst-text">
+            <h1 class="slip-inst-name">{{ institute?.name || 'Institute' }}</h1>
+            <p *ngIf="institute?.address" class="slip-inst-addr">{{ institute!.address }}</p>
+            <p *ngIf="institute?.phone"   class="slip-inst-phone">Tel: {{ institute!.phone }}</p>
+          </div>
+        </div>
+
+        <!-- ── Title bar ─────────────────────────────────────────────────────── -->
+        <div class="slip-title-bar">
+          <span class="slip-title">FEE RECEIPT</span>
+          <span class="slip-ref">Ref: #{{ shortId(bill) }}</span>
+        </div>
+
+        <!-- ── Student & bill info grid ──────────────────────────────────────── -->
+        <div class="slip-info-grid">
+          <table class="info-table">
+            <tbody>
+              <tr>
+                <td class="info-lbl">Student Name</td>
+                <td class="info-val info-val--name">{{ bill.student.name }}</td>
+                <td class="info-lbl">Roll No.</td>
+                <td class="info-val info-val--roll">{{ bill.student.rollNo }}</td>
+              </tr>
+              <tr>
+                <td class="info-lbl">Class / Section</td>
+                <td class="info-val">{{ bill.student.class }}-{{ bill.student.section }}</td>
+                <td class="info-lbl">Admission No.</td>
+                <td class="info-val">{{ bill.student.admissionNo || '—' }}</td>
+              </tr>
+              <tr>
+                <td class="info-lbl">Academic Year</td>
+                <td class="info-val">{{ bill.academicYear || '—' }}</td>
+                <td class="info-lbl">Due Date</td>
+                <td class="info-val" [class.info-val--overdue]="bill.isOverdue">
+                  {{ formatDate(bill.dueDate) }}
+                  <span *ngIf="bill.isOverdue" class="overdue-tag">OVERDUE</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="info-lbl">Issue Date</td>
+                <td class="info-val">{{ formatDatetime(printedAt) }}</td>
+                <td class="info-lbl">Bill ID</td>
+                <td class="info-val info-val--mono">#{{ shortId(bill) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ── Fee breakdown table ────────────────────────────────────────────── -->
+        <table class="fee-table">
+          <thead>
+            <tr>
+              <th class="col-no">#</th>
+              <th class="col-type">Fee Type</th>
+              <th class="col-amt">Amount</th>
+              <th class="col-paid">Paid</th>
+              <th class="col-waived" *ngIf="hasWaiver(bill)">Waived</th>
+              <th class="col-bal">Balance</th>
+              <th class="col-status">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of bill.feeBreakdown; let i = index"
+              [class.row-paid]="item.status === 'paid'"
+              [class.row-waived]="item.status === 'waived'">
+              <td class="col-no">{{ i + 1 }}</td>
+              <td class="col-type">{{ item.feeType }}</td>
+              <td class="col-amt">{{ fmt(item.amount) }}</td>
+              <td class="col-paid">{{ fmt(item.amountPaid) }}</td>
+              <td class="col-waived" *ngIf="hasWaiver(bill)">{{ fmt(item.waivedAmount ?? 0) }}</td>
+              <td class="col-bal" [class.bal-due]="item.amountDue > 0">{{ fmt(item.amountDue) }}</td>
+              <td class="col-status">
+                <span class="status-chip" [ngClass]="'chip-' + item.status">
+                  {{ statusLabel(item.status) }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td colspan="2" class="total-label">TOTAL</td>
+              <td class="col-amt total-cell">{{ fmt(bill.totalAmount) }}</td>
+              <td class="col-paid total-cell">{{ fmt(bill.totalPaid) }}</td>
+              <td class="col-waived total-cell" *ngIf="hasWaiver(bill)">{{ fmt(totalWaived(bill)) }}</td>
+              <td class="col-bal total-cell" [class.bal-due]="bill.totalDue > 0">
+                {{ fmt(bill.totalDue) }}
+              </td>
+              <td class="col-status">
+                <span class="status-chip chip-overall" [ngClass]="'chip-' + bill.overallStatus">
+                  {{ statusLabel(bill.overallStatus) }}
+                </span>
+              </td>
+            </tr>
+            <tr *ngIf="(bill.totalLateFine ?? 0) > 0" class="fine-row">
+              <td colspan="4" class="fine-label">
+                Late Fine ({{ bill.lateFinePerDay }}/day)
+              </td>
+              <td class="col-bal fine-amt">{{ fmt(bill.totalLateFine!) }}</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <!-- ── Notes ────────────────────────────────────────────────────────── -->
+        <div class="slip-notes" *ngIf="bill.notes">
+          <span class="notes-label">Note:</span> {{ bill.notes }}
+        </div>
+
+        <!-- ── Status stamp ──────────────────────────────────────────────────── -->
+        <div class="stamp-area">
+          <div class="stamp"
+            [class.stamp-paid]="bill.overallStatus === 'paid'"
+            [class.stamp-partial]="bill.overallStatus === 'partial'"
+            [class.stamp-waived]="bill.overallStatus === 'waived'"
+            *ngIf="bill.overallStatus === 'paid' || bill.overallStatus === 'partial' || bill.overallStatus === 'waived'">
+            {{ bill.overallStatus === 'paid' ? 'PAID' :
+               bill.overallStatus === 'waived' ? 'WAIVED' : 'PARTIAL' }}
+          </div>
+        </div>
+
+        <!-- ── Signature lines ───────────────────────────────────────────────── -->
+        <div class="sig-row">
+          <div class="sig-block">
+            <div class="sig-line"></div>
+            <span class="sig-label">Parent / Guardian Signature</span>
+          </div>
+          <div class="sig-block">
+            <div class="sig-line"></div>
+            <span class="sig-label">Authorised Signatory</span>
+          </div>
+        </div>
+
+      </div><!-- /slip-doc -->
+
+    </div><!-- /slip-wrapper -->
+
+  </div><!-- /print-area -->
+
+</div>

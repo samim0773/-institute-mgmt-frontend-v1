@@ -118,6 +118,56 @@
   }
 }
 
+.fee-items-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+
+.fee-item-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 4px;
+
+  .field-type {
+    flex: 2;
+    min-width: 0;
+  }
+
+  .field-amount {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .remove-item-btn {
+    margin-top: 8px;
+    flex-shrink: 0;
+  }
+}
+
+.add-item-btn {
+  width: 100%;
+  margin-top: 4px;
+  margin-bottom: 8px;
+  border-style: dashed !important;
+  color: #3f51b5;
+  border-color: #9fa8da !important;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.section-divider {
+  margin: 12px 0 16px;
+}
+
 .form-actions {
   display: flex;
   justify-content: flex-end;

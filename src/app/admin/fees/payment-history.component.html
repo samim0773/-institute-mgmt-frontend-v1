@@ -7,9 +7,7 @@
       <mat-icon>arrow_back</mat-icon>
     </button>
     <div>
-      <h2 class="page-title">
-        {{ history?.student?.name || 'Payment History' }}
-      </h2>
+      <h2 class="page-title">{{ history?.student?.name || 'Payment History' }}</h2>
       <p class="page-sub">
         Class {{ history?.student?.class }}-{{ history?.student?.section }}
         · Roll {{ history?.student?.rollNo }}
@@ -30,7 +28,7 @@
       <mat-card class="summary-card">
         <mat-card-content>
           <span class="sum-label">Total Billed</span>
-          <span class="sum-value">{{ fmt(history.summary.totalDue) }}</span>
+          <span class="sum-value">{{ fmt(history.summary.totalAmount) }}</span>
         </mat-card-content>
       </mat-card>
       <mat-card class="summary-card summary-card--green">
@@ -47,144 +45,170 @@
       </mat-card>
       <mat-card class="summary-card" [class.summary-card--amber]="history.summary.overdueCount > 0">
         <mat-card-content>
-          <span class="sum-label">Overdue</span>
-          <span class="sum-value">{{ history.summary.overdueCount }} fee(s)</span>
+          <span class="sum-label">Overdue Bills</span>
+          <span class="sum-value">{{ history.summary.overdueCount }}</span>
         </mat-card-content>
       </mat-card>
     </div>
 
-    <!-- ── Fee timeline ────────────────────────────────────────────────────── -->
+    <!-- ── Empty state ───────────────────────────────────────────────────── -->
     <div *ngIf="history.data.length === 0" class="empty-state">
       <mat-icon>receipt_long</mat-icon>
       <h3>No fee records found</h3>
       <p>No fees have been generated for this student yet.</p>
     </div>
 
+    <!-- ── Bill cards ─────────────────────────────────────────────────────── -->
     <div class="fee-list" *ngIf="history.data.length > 0">
       <mat-card
-        *ngFor="let fee of history.data; trackBy: trackByFeeId"
+        *ngFor="let bill of history.data; trackBy: trackByBillId"
         class="fee-card"
-        [class.fee-card--paid]="fee.status === 'paid'"
-        [class.fee-card--overdue]="fee.isOverdue"
-        [class.fee-card--waived]="fee.status === 'waived'"
+        [class.fee-card--paid]="bill.overallStatus === 'paid'"
+        [class.fee-card--overdue]="bill.isOverdue"
+        [class.fee-card--waived]="bill.overallStatus === 'waived'"
       >
 
-        <!-- Fee header -->
+        <!-- Bill header -->
         <div class="fee-header">
           <div class="fee-header-left">
-            <div class="fee-type-icon" [ngClass]="'fee-icon-' + fee.status">
-              <mat-icon>{{ fee.status === 'paid' ? 'check_circle' :
-                            fee.status === 'waived' ? 'do_not_disturb_on' :
-                            fee.isOverdue ? 'warning' : 'receipt_long' }}</mat-icon>
+            <div class="fee-type-icon" [ngClass]="'fee-icon-' + bill.overallStatus">
+              <mat-icon>{{ overallIcon(bill) }}</mat-icon>
             </div>
             <div>
-              <span class="fee-type-label">{{ fee.feeType }}</span>
-              <span class="fee-year">{{ fee.academicYear || '' }}</span>
+              <span class="fee-type-label">Due {{ formatDate(bill.dueDate) }}</span>
+              <span class="fee-year">{{ bill.academicYear || '' }}</span>
             </div>
           </div>
           <div class="fee-header-right">
-            <span class="status-badge" [ngClass]="statusClass(fee.status)">
-              {{ statusLabel(fee.status) }}
+            <span class="status-badge" [ngClass]="statusClass(bill.overallStatus)">
+              {{ statusLabel(bill.overallStatus) }}
             </span>
-            <button
-              mat-raised-button color="primary" class="pay-now-btn"
-              *ngIf="fee.status !== 'paid' && fee.status !== 'waived'"
-              (click)="openPaymentDialog(fee)"
-            >
-              <mat-icon>payment</mat-icon> Pay Now
+            <span *ngIf="bill.isOverdue" class="overdue-chip">
+              <mat-icon>schedule</mat-icon> Overdue
+            </span>
+            <button mat-raised-button color="primary" class="pay-bill-btn"
+              *ngIf="bill.totalDue > 0 && bill.billId"
+              (click)="openBillPaymentDialog(bill)">
+              <mat-icon>payments</mat-icon> Pay Bill
+            </button>
+            <button mat-icon-button color="primary"
+              [routerLink]="['/admin/fees/bill', bill.billId]"
+              matTooltip="Print Fee Slip">
+              <mat-icon>print</mat-icon>
             </button>
           </div>
         </div>
 
-        <!-- Fee amounts row -->
+        <!-- Bill total amounts row -->
         <div class="fee-amounts">
           <div class="amount-block">
-            <span class="amount-label">Total Amount</span>
-            <span class="amount-value">{{ fmt(fee.amount) }}</span>
+            <span class="amount-label">Total Billed</span>
+            <span class="amount-value">{{ fmt(bill.totalAmount) }}</span>
           </div>
           <div class="amount-block">
             <span class="amount-label">Paid</span>
-            <span class="amount-value amount-paid">{{ fmt(fee.amountPaid) }}</span>
+            <span class="amount-value amount-paid">{{ fmt(bill.totalPaid) }}</span>
           </div>
-          <div class="amount-block">
+          <div class="amount-block" *ngIf="bill.totalDue > 0">
             <span class="amount-label">Balance</span>
-            <span class="amount-value" [class.amount-due]="fee.amountDue > 0">
-              {{ fmt(fee.amountDue) }}
-            </span>
+            <span class="amount-value amount-due">{{ fmt(bill.totalDue) }}</span>
           </div>
-          <div class="amount-block" *ngIf="fee.lateFine > 0">
-            <span class="amount-label">Late Fine</span>
-            <span class="amount-value amount-fine">{{ fmt(fee.lateFine) }}</span>
-          </div>
-          <div class="amount-block">
-            <span class="amount-label">Due Date</span>
-            <span class="amount-value" [class.date-overdue]="fee.isOverdue">
-              {{ formatDate(fee.dueDate) }}
-            </span>
+          <div class="amount-block" *ngIf="bill.lateFinePerDay && bill.lateFinePerDay > 0">
+            <span class="amount-label">Fine / Day</span>
+            <span class="amount-value amount-fine">{{ fmt(bill.lateFinePerDay) }}</span>
           </div>
         </div>
 
-        <!-- Waiver info -->
-        <div class="waiver-row" *ngIf="fee.waivedAmount && fee.waivedAmount > 0">
-          <mat-icon>info</mat-icon>
-          <span>Waiver of {{ fmt(fee.waivedAmount) }} applied
-            <ng-container *ngIf="fee.waivedReason"> — {{ fee.waivedReason }}</ng-container>
-          </span>
-        </div>
-
-        <!-- Notes -->
-        <div class="notes-row" *ngIf="fee.notes">
+        <!-- Bill notes -->
+        <div class="notes-row" *ngIf="bill.notes">
           <mat-icon>sticky_note_2</mat-icon>
-          <span>{{ fee.notes }}</span>
+          <span>{{ bill.notes }}</span>
         </div>
 
-        <!-- ── Payment timeline ─────────────────────────────────────────── -->
-        <div class="payments-section" *ngIf="fee.payments && fee.payments.length > 0">
-          <p class="payments-title">Payment History</p>
-          <div class="timeline">
-            <div
-              *ngFor="let p of fee.payments; let last = last; trackBy: trackByPayId"
-              class="timeline-item"
-              [class.timeline-item--last]="last"
-            >
-              <!-- Connector line -->
-              <div class="timeline-line"></div>
-              <div class="timeline-dot"></div>
+        <!-- ── Fee breakdown items ──────────────────────────────────────── -->
+        <div class="breakdown-section">
+          <p class="breakdown-title">Fee Breakdown</p>
 
-              <!-- Payment entry -->
-              <div class="timeline-content">
-                <div class="timeline-header">
-                  <span class="payment-amount">{{ fmt(p.amount) }}</span>
-                  <span class="payment-mode">
-                    <mat-icon class="mode-icon">{{ modeIcon(p.mode) }}</mat-icon>
-                    {{ modeLabel(p.mode) }}
-                  </span>
-                  <span class="payment-date">{{ formatDate(p.date) }}</span>
-                </div>
-                <div class="timeline-meta" *ngIf="p.referenceNo || p.note">
-                  <span *ngIf="p.referenceNo" class="ref-no">Ref: {{ p.referenceNo }}</span>
-                  <span *ngIf="p.note" class="pay-note">{{ p.note }}</span>
-                </div>
-                <!-- Delete payment entry (bounced cheque) -->
-                <button
-                  mat-icon-button class="delete-payment-btn"
-                  color="warn"
-                  (click)="deletePayment(fee._id, p._id!, p.amount)"
-                  [disabled]="deletingId === p._id"
-                  matTooltip="Remove payment entry (e.g. bounced cheque)"
-                >
-                  <mat-spinner *ngIf="deletingId === p._id" diameter="16"></mat-spinner>
-                  <mat-icon *ngIf="deletingId !== p._id">delete_outline</mat-icon>
-                </button>
-              </div>
+          <div
+            *ngFor="let item of bill.feeBreakdown; trackBy: trackByFeeId"
+            class="breakdown-row"
+          >
+            <div class="breakdown-left">
+              <span class="breakdown-type">{{ item.feeType }}</span>
+              <span class="status-badge" [ngClass]="statusClass(item.status)">
+                {{ statusLabel(item.status) }}
+              </span>
+            </div>
+
+            <div class="breakdown-amounts">
+              <span>{{ fmt(item.amount) }}</span>
+              <span class="paid-chip">Paid {{ fmt(item.amountPaid) }}</span>
+              <span *ngIf="item.amountDue > 0" class="due-chip">Due {{ fmt(item.amountDue) }}</span>
+              <span *ngIf="(item.waivedAmount ?? 0) > 0" class="waived-chip">
+                Waived {{ fmt(item.waivedAmount!) }}
+              </span>
+            </div>
+
+            <div class="breakdown-actions">
+              <button
+                mat-raised-button color="primary" class="pay-now-btn"
+                *ngIf="item.status !== 'paid' && item.status !== 'waived'"
+                (click)="openPaymentDialog(item)"
+              >
+                <mat-icon>payment</mat-icon> Pay
+              </button>
             </div>
           </div>
         </div>
 
-        <!-- No payments yet -->
-        <div class="no-payments" *ngIf="!fee.payments || fee.payments.length === 0">
-          <mat-icon>hourglass_empty</mat-icon>
-          <span>No payments recorded yet</span>
+        <!-- ── Payment timeline ──────────────────────────────────────────── -->
+        <div class="payments-section">
+          <p class="payments-title">Payment History</p>
+
+          <ng-container *ngFor="let item of bill.feeBreakdown; trackBy: trackByFeeId">
+            <div *ngIf="item.payments && item.payments.length > 0" class="fee-payments-group">
+              <p class="fee-payment-label">{{ item.feeType }}</p>
+              <div class="timeline">
+                <div
+                  *ngFor="let p of item.payments; let last = last; trackBy: trackByPayId"
+                  class="timeline-item"
+                  [class.timeline-item--last]="last"
+                >
+                  <div class="timeline-line"></div>
+                  <div class="timeline-dot"></div>
+                  <div class="timeline-content">
+                    <div class="timeline-header">
+                      <span class="payment-amount">{{ fmt(p.amount) }}</span>
+                      <span class="payment-mode">
+                        <mat-icon class="mode-icon">{{ modeIcon(p.mode) }}</mat-icon>
+                        {{ modeLabel(p.mode) }}
+                      </span>
+                      <span class="payment-date">{{ formatDate(p.date) }}</span>
+                    </div>
+                    <div class="timeline-meta" *ngIf="p.referenceNo || p.note">
+                      <span *ngIf="p.referenceNo" class="ref-no">Ref: {{ p.referenceNo }}</span>
+                      <span *ngIf="p.note" class="pay-note">{{ p.note }}</span>
+                    </div>
+                    <button
+                      mat-icon-button class="delete-payment-btn"
+                      color="warn"
+                      (click)="deletePayment(item.id, p._id, p.amount)"
+                      [disabled]="deletingId === p._id"
+                      matTooltip="Remove payment entry (e.g. bounced cheque)"
+                    >
+                      <mat-spinner *ngIf="deletingId === p._id" diameter="16"></mat-spinner>
+                      <mat-icon *ngIf="deletingId !== p._id">delete_outline</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+
+          <div class="no-payments" *ngIf="bill.totalPaid === 0">
+            <mat-icon>hourglass_empty</mat-icon>
+            <span>No payments recorded yet</span>
+          </div>
         </div>
 
       </mat-card>

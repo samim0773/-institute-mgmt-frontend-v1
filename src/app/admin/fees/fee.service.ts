@@ -2,25 +2,56 @@ import { Injectable }                 from '@angular/core';
 import { HttpClient, HttpParams }     from '@angular/common/http';
 import { Observable }                 from 'rxjs';
 import { environment }                from '../../../environments/environment';
-import { Fee, ApiResponse }           from '../../core/models';
+import { ApiResponse }                from '../../core/models';
 
-// ─── Extended types beyond core models ────────────────────────────────────────
+// ─── Bill-level types (new API) ───────────────────────────────────────────────
 
-/** Fee as returned by the API — includes computed virtuals */
-export interface FeeWithVirtuals extends Fee {
-  amountPaid:   number;
-  amountDue:    number;
-  lateFine:     number;
-  isOverdue:    boolean;
+/** Individual fee type entry inside a bill */
+export interface BillFeeItem {
+  id:            string;
+  feeType:       string;
+  amount:        number;
+  status:        string;
+  amountPaid:    number;
+  amountDue:     number;
   waivedAmount?: number;
-  waivedReason?: string;
-  lateFinePerDay?: number;
-  academicYear?: string;
-  notes?: string;
-  studentId: any;   // populated Student or string
+  lateFine?:     number;
+  payments?:     any[];
 }
 
-/** Per-student grouping returned by GET /fees/dues/:class */
+/** A bill — groups all fee types generated together for one student */
+export interface Bill {
+  billId:          string;
+  institute?:      { name: string; code?: string; address?: string; phone?: string; logoUrl?: string };
+  student:         { _id: string; name: string; rollNo: string; class: string; section: string; admissionNo?: string };
+  academicYear?:   string;
+  dueDate:         string;
+  notes?:          string;
+  lateFinePerDay?: number;
+  feeBreakdown:    BillFeeItem[];
+  totalAmount:     number;
+  totalPaid:       number;
+  totalDue:        number;
+  totalLateFine?:  number;
+  overallStatus:   string;
+  isOverdue:       boolean;
+  createdAt?:      string;
+}
+
+// ─── Dues-by-class types ──────────────────────────────────────────────────────
+
+export interface DueFeeItem {
+  feeId:      string;
+  feeType:    string;
+  amount:     number;
+  amountPaid?: number;
+  amountDue:  number;
+  lateFine?:  number;
+  dueDate:    string;
+  status:     string;
+  isOverdue:  boolean;
+}
+
 export interface StudentDues {
   student:    { _id: string; name: string; rollNo: string; class: string; section: string };
   fees:       DueFeeItem[];
@@ -31,57 +62,90 @@ export interface StudentDues {
   hasOverdue: boolean;
 }
 
-export interface DueFeeItem {
-  feeId:      string;
-  feeType:    string;
-  amount:     number;
-  amountPaid: number;
-  amountDue:  number;
-  lateFine:   number;
-  dueDate:    string;
-  status:     string;
-  isOverdue:  boolean;
+// ─── Class bills (bulk print) ─────────────────────────────────────────────────
+
+export interface ClassBillsResponse {
+  success:   boolean;
+  class:     string;
+  section:   string;
+  count:     number;
+  institute: { name: string; code?: string; address?: string; phone?: string; logoUrl?: string } | null;
+  data:      Bill[];
 }
 
-/** Dashboard summary */
+// ─── Dashboard summary ────────────────────────────────────────────────────────
+
+export type SummaryPeriod = 'this-month' | 'month' | 'this-year' | 'prev-year' | 'all';
+
 export interface FeeSummary {
   totalBilled:    number;
   totalCollected: number;
   totalPending:   number;
   overdueCount:   number;
-  byStatus:       { _id: string; count: number; totalAmount: number }[];
+  billCount:      number;
 }
 
-/** Student payment history response */
+// ─── Student fee history ──────────────────────────────────────────────────────
+
 export interface StudentFeeHistory {
-  student: any;
+  success:  boolean;
+  student:  { _id: string; name: string; rollNo: string; class: string; section: string };
   summary: {
-    totalRecords:  number;
-    totalDue:      number;
+    totalBills:    number;
+    totalAmount:   number;
     totalPaid:     number;
     totalBalance:  number;
     totalLateFine: number;
     overdueCount:  number;
   };
-  data: FeeWithVirtuals[];
+  data: Bill[];
 }
 
-/** Generate fee request payload */
+// ─── Generate fee payload / response ─────────────────────────────────────────
+
+export interface FeeItem {
+  feeType: string;
+  amount:  number;
+}
+
 export interface GenerateFeePayload {
-  feeType:        string;
-  amount:         number;
-  dueDate:        string;
-  studentId?:     string;          // single mode
-  class?:         string;          // bulk mode
-  section?:       string;          // bulk mode
-  academicYear?:  string;
+  feeItems?:       FeeItem[];
+  feeType?:        string;
+  amount?:         number;
+  dueDate:         string;
+  studentId?:      string;
+  class?:          string;
+  section?:        string;
+  academicYear?:   string;
   lateFinePerDay?: number;
-  notes?:         string;
-  waivedAmount?:  number;
-  waivedReason?:  string;
+  notes?:          string;
 }
 
-/** Record payment request payload */
+export interface FeeBreakdownItem {
+  id:      string;
+  feeType: string;
+  amount:  number;
+}
+
+export interface GenerateFeeResponse {
+  // single student mode
+  billId?:          string;
+  student?:         { id: string; name: string; rollNo: string };
+  feeBreakdown?:    FeeBreakdownItem[];
+  totalAmount?:     number;
+  skipped?:         string[];
+  // bulk mode
+  studentCount?:    number;
+  feeTypes?:        number;
+  totalPerStudent?: number;
+  created?:         number;
+  bills?:           { billId: string; studentName: string; rollNo: string }[];
+  errors?:          any[];
+  count?:           number;
+}
+
+// ─── Record payment ───────────────────────────────────────────────────────────
+
 export interface RecordPaymentPayload {
   amount:       number;
   mode:         string;
@@ -106,94 +170,97 @@ export class FeeService {
 
   constructor(private http: HttpClient) {}
 
-  // ══ FEE GENERATION ═══════════════════════════════════════════════════════
+  // ══ FEE GENERATION ════════════════════════════════════════════════════════
 
-  /** Create fee(s) — single student or bulk class */
-  generateFee(payload: GenerateFeePayload): Observable<ApiResponse<any>> {
-    return this.http.post<ApiResponse<any>>(`${this.base}/generate`, payload);
+  generateFee(payload: GenerateFeePayload): Observable<ApiResponse<GenerateFeeResponse>> {
+    return this.http.post<ApiResponse<GenerateFeeResponse>>(`${this.base}/generate`, payload);
   }
 
   // ══ PAYMENTS ══════════════════════════════════════════════════════════════
 
-  /** Append a payment entry to a fee record */
-  recordPayment(
-    feeId:   string,
-    payload: RecordPaymentPayload,
-  ): Observable<ApiResponse<FeeWithVirtuals>> {
-    return this.http.post<ApiResponse<FeeWithVirtuals>>(
-      `${this.base}/${feeId}/pay`, payload,
-    );
+  recordPayment(feeId: string, payload: RecordPaymentPayload): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.base}/${feeId}/pay`, payload);
   }
 
-  /** Remove a payment entry (e.g. bounced cheque) */
+  recordBillPayment(billId: string, payload: RecordPaymentPayload): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.base}/bill/${billId}/pay`, payload);
+  }
+
   deletePayment(feeId: string, paymentId: string): Observable<ApiResponse<any>> {
-    return this.http.delete<ApiResponse<any>>(
-      `${this.base}/${feeId}/payment/${paymentId}`,
-    );
+    return this.http.delete<ApiResponse<any>>(`${this.base}/${feeId}/payment/${paymentId}`);
   }
 
   // ══ WAIVERS ═══════════════════════════════════════════════════════════════
 
-  waiveFee(
-    feeId:        string,
-    waivedAmount: number,
-    waivedReason?: string,
-  ): Observable<ApiResponse<FeeWithVirtuals>> {
-    return this.http.put<ApiResponse<FeeWithVirtuals>>(
-      `${this.base}/${feeId}/waive`,
-      { waivedAmount, waivedReason },
-    );
+  waiveFee(feeId: string, waivedAmount: number, waivedReason?: string): Observable<ApiResponse<any>> {
+    return this.http.put<ApiResponse<any>>(`${this.base}/${feeId}/waive`, { waivedAmount, waivedReason });
   }
 
   // ══ QUERIES ═══════════════════════════════════════════════════════════════
 
-  /** Paginated list of all fees for the institute */
+  /** Paginated list of all bills for the institute */
   getAllFees(params: {
     status?:       string;
     feeType?:      string;
     academicYear?: string;
     page?:         number;
     limit?:        number;
-  } = {}): Observable<ApiResponse<FeeWithVirtuals[]>> {
+  } = {}): Observable<{ success: boolean; count: number; total: number; page: number; totalPages: number; data: Bill[] }> {
     let p = new HttpParams();
     if (params.status)       p = p.set('status',       params.status);
     if (params.feeType)      p = p.set('feeType',      params.feeType);
     if (params.academicYear) p = p.set('academicYear', params.academicYear);
     p = p.set('page',  String(params.page  ?? 1));
     p = p.set('limit', String(params.limit ?? 20));
-    return this.http.get<ApiResponse<FeeWithVirtuals[]>>(this.base, { params: p });
+    return this.http.get<any>(this.base, { params: p });
   }
 
-  /** Full payment history for one student */
-  getStudentFees(
-    studentId:    string,
-    status?:      string,
-    academicYear?: string,
-  ): Observable<StudentFeeHistory> {
+  /** Full bill history for one student */
+  getStudentFees(studentId: string, status?: string, academicYear?: string): Observable<StudentFeeHistory> {
     let p = new HttpParams();
     if (status)       p = p.set('status',       status);
     if (academicYear) p = p.set('academicYear', academicYear);
-    return this.http.get<StudentFeeHistory>(
-      `${this.base}/student/${studentId}`, { params: p },
-    );
+    return this.http.get<StudentFeeHistory>(`${this.base}/student/${studentId}`, { params: p });
+  }
+
+  /** Get complete bill detail — includes payments[] per fee item */
+  getBill(billId: string): Observable<ApiResponse<Bill>> {
+    return this.http.get<ApiResponse<Bill>>(`${this.base}/bill/${billId}`);
   }
 
   /** Pending/partial dues grouped by student for a class */
   getDuesByClass(
     className: string,
     section:   string,
-  ): Observable<ApiResponse<StudentDues[]>> {
-    return this.http.get<ApiResponse<StudentDues[]>>(
+  ): Observable<{ success: boolean; class: string; studentCount: number; grandTotalDue: number; data: StudentDues[] }> {
+    return this.http.get<any>(
       `${this.base}/dues/${className}`,
       { params: new HttpParams().set('section', section) },
     );
   }
 
+  /** All bills for a class-section — for bulk fee slip printing */
+  getClassBills(
+    className: string,
+    section:   string,
+    params?:   { academicYear?: string; status?: string },
+  ): Observable<ClassBillsResponse> {
+    let p = new HttpParams().set('section', section);
+    if (params?.academicYear) p = p.set('academicYear', params.academicYear);
+    if (params?.status)       p = p.set('status',       params.status);
+    return this.http.get<ClassBillsResponse>(`${this.base}/class/${className}/bills`, { params: p });
+  }
+
   /** Dashboard summary stats */
-  getFeeSummary(academicYear?: string): Observable<ApiResponse<FeeSummary>> {
-    const p = academicYear
-      ? new HttpParams().set('academicYear', academicYear)
-      : undefined;
+  getFeeSummary(opts?: {
+    period?: SummaryPeriod;
+    month?:  number;
+    year?:   number;
+  }): Observable<ApiResponse<FeeSummary>> {
+    let p = new HttpParams();
+    if (opts?.period) p = p.set('period', opts.period);
+    if (opts?.month)  p = p.set('month',  String(opts.month));
+    if (opts?.year)   p = p.set('year',   String(opts.year));
     return this.http.get<ApiResponse<FeeSummary>>(`${this.base}/summary`, { params: p });
   }
 

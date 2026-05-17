@@ -108,41 +108,66 @@
         <mat-card-header>
           <mat-icon mat-card-avatar class="section-icon icon-teal">receipt_long</mat-icon>
           <mat-card-title>Fee Details</mat-card-title>
-          <mat-card-subtitle>Configure the fee amount and due date</mat-card-subtitle>
+          <mat-card-subtitle>Add one or more fee types with their amounts</mat-card-subtitle>
         </mat-card-header>
 
         <mat-card-content class="card-body">
 
-          <!-- Fee Type dropdown -->
-          <mat-form-field appearance="outline" class="field-full" *ngIf="!customFeeType">
-            <mat-label>Fee Type *</mat-label>
-            <mat-icon matPrefix class="field-icon">label</mat-icon>
-            <mat-select formControlName="feeType">
-              <mat-option value="">Select fee type…</mat-option>
-              <mat-option *ngFor="let t of feeTypes" [value]="t">{{ t }}</mat-option>
-            </mat-select>
-            <mat-error>{{ getError('feeType') }}</mat-error>
-          </mat-form-field>
+          <!-- ── Fee Items (dynamic list) ─────────────────────────────────── -->
+          <div class="fee-items-label">Fee Items *</div>
 
-          <!-- Custom fee type text (shown when "Other" selected) -->
-          <mat-form-field appearance="outline" class="field-full" *ngIf="customFeeType">
-            <mat-label>Fee Type Name *</mat-label>
-            <mat-icon matPrefix class="field-icon">label</mat-icon>
-            <input matInput formControlName="customFeeTypeText" placeholder="e.g. Annual Maintenance Fee" />
-            <button mat-icon-button matSuffix type="button"
-              (click)="form.get('feeType')!.setValue('')" matTooltip="Back to dropdown">
-              <mat-icon>arrow_drop_down</mat-icon>
-            </button>
-          </mat-form-field>
+          <div formArrayName="feeItems">
+            <div *ngFor="let item of feeItemsArray.controls; let i = index"
+                 [formGroupName]="i" class="fee-item-row">
 
-          <!-- Amount -->
-          <mat-form-field appearance="outline" class="field-full">
-            <mat-label>Amount (₹) *</mat-label>
-            <mat-icon matPrefix class="field-icon">currency_rupee</mat-icon>
-            <input matInput type="number" formControlName="amount"
-              placeholder="0" min="1" step="1" />
-            <mat-error>{{ getError('amount') }}</mat-error>
-          </mat-form-field>
+              <!-- Fee Type — dropdown -->
+              <mat-form-field appearance="outline" class="field-type" *ngIf="!isCustomType(i)">
+                <mat-label>Fee Type</mat-label>
+                <mat-select formControlName="feeType" (selectionChange)="onFeeTypeChange(i)">
+                  <mat-option value="">Select type…</mat-option>
+                  <mat-option *ngFor="let t of feeTypes" [value]="t">{{ t }}</mat-option>
+                </mat-select>
+                <mat-error>{{ getItemError(i, 'feeType') }}</mat-error>
+              </mat-form-field>
+
+              <!-- Fee Type — custom text (when "Other" selected) -->
+              <mat-form-field appearance="outline" class="field-type" *ngIf="isCustomType(i)">
+                <mat-label>Fee Type Name</mat-label>
+                <input matInput formControlName="customFeeTypeText"
+                  placeholder="e.g. Annual Maintenance Fee" />
+                <button mat-icon-button matSuffix type="button"
+                  (click)="itemCtrl(i, 'feeType').setValue('')"
+                  matTooltip="Back to dropdown">
+                  <mat-icon>arrow_drop_down</mat-icon>
+                </button>
+              </mat-form-field>
+
+              <!-- Amount -->
+              <mat-form-field appearance="outline" class="field-amount">
+                <mat-label>Amount (₹)</mat-label>
+                <input matInput type="number" formControlName="amount"
+                  placeholder="0" min="1" step="1" />
+                <mat-error>{{ getItemError(i, 'amount') }}</mat-error>
+              </mat-form-field>
+
+              <!-- Remove row -->
+              <button mat-icon-button type="button" color="warn"
+                (click)="removeFeeItem(i)"
+                [disabled]="feeItemsArray.length === 1"
+                matTooltip="Remove this fee item"
+                class="remove-item-btn">
+                <mat-icon>remove_circle_outline</mat-icon>
+              </button>
+
+            </div>
+          </div>
+
+          <!-- Add another fee type -->
+          <button mat-stroked-button type="button" (click)="addFeeItem()" class="add-item-btn">
+            <mat-icon>add</mat-icon> Add Another Fee Type
+          </button>
+
+          <mat-divider class="section-divider"></mat-divider>
 
           <!-- Due Date -->
           <mat-form-field appearance="outline" class="field-full">

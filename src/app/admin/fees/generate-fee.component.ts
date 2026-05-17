@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import {
-  FormBuilder, FormGroup, Validators, AbstractControl,
+  FormBuilder, FormGroup, FormArray, Validators, AbstractControl,
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
@@ -33,7 +33,6 @@ export class GenerateFeeComponent implements OnInit, OnDestroy {
   students: { _id: string; name: string; rollNo: string }[] = [];
   loadingStudents = false;
   feeTypes = FEE_TYPES;
-  customFeeType = false;
 
   private destroy$ = new Subject<void>();
 
@@ -49,23 +48,52 @@ export class GenerateFeeComponent implements OnInit, OnDestroy {
     this.buildForm();
     this.loadClassNames();
     this.watchClassChange();
-    this.watchFeeTypeChange();
   }
 
   ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
 
-  private buildForm(): void {
-    this.form = this.fb.group({
-      class:             [''],
-      section:           [''],
-      studentId:         [''],
+  get feeItemsArray(): FormArray {
+    return this.form.get('feeItems') as FormArray;
+  }
+
+  private buildFeeItem(): FormGroup {
+    return this.fb.group({
       feeType:           ['', Validators.required],
       customFeeTypeText: [''],
       amount:            [null, [Validators.required, Validators.min(1)]],
-      dueDate:           [null, Validators.required],
-      academicYear:      [''],
-      lateFinePerDay:    [null, [Validators.min(0)]],
-      notes:             ['', Validators.maxLength(500)],
+    });
+  }
+
+  addFeeItem(): void {
+    this.feeItemsArray.push(this.buildFeeItem());
+  }
+
+  removeFeeItem(index: number): void {
+    if (this.feeItemsArray.length > 1) {
+      this.feeItemsArray.removeAt(index);
+    }
+  }
+
+  isCustomType(index: number): boolean {
+    return this.feeItemsArray.at(index).get('feeType')!.value === 'Other';
+  }
+
+  onFeeTypeChange(index: number): void {
+    if (!this.isCustomType(index)) {
+      this.feeItemsArray.at(index).get('customFeeTypeText')!.setValue('');
+    }
+  }
+
+  private buildForm(): void {
+    this.form = this.fb.group({
+      class:          [''],
+      section:        [''],
+      studentId:      [''],
+      feeItems:       this.fb.array([this.buildFeeItem()]),
+      dueDate:        [null, Validators.required],
+      academicYear:   [''],
+      lateFinePerDay: [null, [Validators.min(0)]],
+      notes:          ['', Validators.maxLength(500)],
     });
   }
 
@@ -93,14 +121,6 @@ export class GenerateFeeComponent implements OnInit, OnDestroy {
         } else {
           this.students = [];
         }
-      });
-  }
-
-  private watchFeeTypeChange(): void {
-    this.form.get('feeType')!.valueChanges.pipe(takeUntil(this.destroy$))
-      .subscribe(val => {
-        this.customFeeType = val === 'Other';
-        if (val !== 'Other') this.form.get('customFeeTypeText')!.setValue('');
       });
   }
 
@@ -133,19 +153,20 @@ export class GenerateFeeComponent implements OnInit, OnDestroy {
     }
 
     const v = this.form.value;
-    const feeType = this.customFeeType
-      ? (v.customFeeTypeText?.trim() || '')
-      : v.feeType;
+
+    const feeItems = (v.feeItems as any[]).map(item => ({
+      feeType: item.feeType === 'Other' ? (item.customFeeTypeText?.trim() || '') : item.feeType,
+      amount:  Number(item.amount),
+    }));
 
     const payload: any = {
-      feeType,
-      amount:  Number(v.amount),
+      feeItems,
       dueDate: v.dueDate instanceof Date ? v.dueDate.toISOString() : v.dueDate,
     };
 
-    if (v.academicYear?.trim())                       payload.academicYear  = v.academicYear.trim();
+    if (v.academicYear?.trim())                              payload.academicYear  = v.academicYear.trim();
     if (v.lateFinePerDay !== null && v.lateFinePerDay !== '') payload.lateFinePerDay = Number(v.lateFinePerDay);
-    if (v.notes?.trim())                              payload.notes         = v.notes.trim();
+    if (v.notes?.trim())                                     payload.notes         = v.notes.trim();
 
     if (this.mode === 'bulk') {
       payload.class   = v.class;
@@ -159,12 +180,25 @@ export class GenerateFeeComponent implements OnInit, OnDestroy {
       .pipe(finalize(() => this.saving = false), takeUntil(this.destroy$))
       .subscribe({
         next: res => {
-          const count = res.data?.count ?? res.data?.length ?? '';
-          this.notify.success(
-            this.mode === 'bulk'
-              ? `Fees generated${count ? ' for ' + count + ' student(s)' : ''}.`
-              : 'Fee generated successfully.'
-          );
+          const d = res.data;
+          const skipped = d?.skipped ?? [];
+
+          if (skipped.length > 0) {
+            this.notify.warn(`${skipped.length} fee type(s) already existed and were skipped.`);
+          }
+
+          if (this.mode === 'bulk') {
+            const count = d?.count ?? '';
+            this.notify.success(`Fees generated${count ? ' for ' + count + ' student(s)' : ''}.`);
+          } else {
+            const total = d?.totalAmount;
+            this.notify.success(
+              total
+                ? `Fee generated. Total: ₹${total.toLocaleString('en-IN')}.`
+                : 'Fee generated successfully.'
+            );
+          }
+
           this.router.navigate(['/admin/fees']);
         },
       });
@@ -184,13 +218,25 @@ export class GenerateFeeComponent implements OnInit, OnDestroy {
 
   g(path: string): AbstractControl { return this.form.get(path)!; }
 
+  itemCtrl(index: number, path: string): AbstractControl {
+    return this.feeItemsArray.at(index).get(path)!;
+  }
+
   getError(path: string): string {
     const ctrl = this.g(path);
     if (!ctrl.touched || ctrl.valid) return '';
-    if (ctrl.hasError('required')) return 'This field is required';
-    if (ctrl.hasError('min'))      return `Must be at least ${ctrl.errors?.['min']?.min}`;
-    if (ctrl.hasError('maxlength')) return `Max ${ctrl.errors?.['maxlength']?.requiredLength} characters`;
+    if (ctrl.hasError('required'))   return 'This field is required';
+    if (ctrl.hasError('min'))        return `Must be at least ${ctrl.errors?.['min']?.min}`;
+    if (ctrl.hasError('maxlength'))  return `Max ${ctrl.errors?.['maxlength']?.requiredLength} characters`;
     return 'Invalid value';
+  }
+
+  getItemError(index: number, path: string): string {
+    const ctrl = this.itemCtrl(index, path);
+    if (!ctrl.touched || ctrl.valid) return '';
+    if (ctrl.hasError('required'))   return 'Required';
+    if (ctrl.hasError('min'))        return `Min ${ctrl.errors?.['min']?.min}`;
+    return 'Invalid';
   }
 
   cancel(): void { this.router.navigate(['/admin/fees']); }

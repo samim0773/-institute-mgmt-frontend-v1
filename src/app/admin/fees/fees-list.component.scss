@@ -6,12 +6,35 @@
   flex-wrap: wrap; gap: 12px; margin-bottom: 20px;
   button mat-icon { margin-right: 6px; vertical-align: middle; }
 }
+.header-actions { display: flex; align-items: center; gap: 8px; }
 .page-title { font-size: 1.4rem; font-weight: 700; color: #212121; margin: 0 0 2px; }
 .page-sub   { font-size: 0.85rem; color: #757575; margin: 0; }
 
+// ── Period selector ───────────────────────────────────────────────────────────
+.period-bar {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 12px;
+  margin-bottom: 16px; background: #fff; padding: 10px 16px;
+  border-radius: 8px; border: 1px solid #e0e0e0;
+  box-shadow: 0 1px 3px rgba(0,0,0,.04);
+}
+.period-toggle {
+  ::ng-deep .mat-button-toggle { font-size: 0.8rem; }
+}
+.period-pickers {
+  display: flex; align-items: center; gap: 8px;
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
+}
+.period-field      { width: 130px; }
+.period-field--yr  { width: 90px; }
+.period-label {
+  display: flex; align-items: center; gap: 4px; margin-left: auto;
+  font-size: 0.82rem; font-weight: 600; color: #1565c0;
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+}
+
 // ── Stat cards ────────────────────────────────────────────────────────────────
 .stat-row {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 12px; margin-bottom: 20px;
 }
 .stat-card mat-card-content {
@@ -22,6 +45,8 @@
 .stat-label { font-size: 0.72rem; color: #757575; text-transform: uppercase; letter-spacing: 0.5px; }
 .stat-value { font-size: 1.2rem; font-weight: 700; }
 
+.stat-indigo { border-left: 4px solid #4527a0 !important;
+  mat-icon { color: #4527a0; } .stat-value { color: #4527a0; } }
 .stat-blue  { border-left: 4px solid #1565c0 !important;
   mat-icon { color: #1565c0; } .stat-value { color: #1565c0; } }
 .stat-green { border-left: 4px solid #2e7d32 !important;
@@ -110,27 +135,41 @@
   display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
   gap: 8px; padding-top: 12px; border-top: 1px solid #e0e0e0; margin-top: 8px;
 }
+.panel-footer-actions { display: flex; align-items: center; gap: 8px; }
 .panel-summary { font-size: 0.875rem; color: #616161; }
 .fine-note     { color: #c62828; margin-left: 8px; font-weight: 600; }
 
-// ── All-fees table ────────────────────────────────────────────────────────────
-.table-card { overflow: hidden; }
-.table-scroll { overflow-x: auto; }
-.fees-table {
-  width: 100%; min-width: 750px;
-  ::ng-deep th.mat-header-cell {
-    background: #f5f5f5; font-weight: 700;
-    font-size: 0.78rem; color: #616161; text-transform: uppercase; letter-spacing: 0.4px;
-  }
+// ── All-bills accordion ────────────────────────────────────────────────────────
+.bill-panel { margin-bottom: 0; }
+
+.bill-meta-chips {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-right: 12px;
 }
-.data-row { cursor: default; &:hover { background: #fafafa !important; } }
-.student-cell { display: flex; flex-direction: column; }
-.s-name { font-weight: 600; font-size: 0.875rem; }
-.s-class { font-size: 0.75rem; color: #757575; }
-.col-paid { color: #2e7d32 !important; font-weight: 600; }
-.col-due  { .due-red { color: #c62828; font-weight: 700; } }
-.overdue-text { color: #c62828; font-weight: 600; }
-.actions-cell { white-space: nowrap; }
+
+.bill-due-chip {
+  font-size: 0.72rem; color: #616161; background: #f5f5f5;
+  border-radius: 10px; padding: 2px 8px;
+  &.chip-overdue { background: #ffebee; color: #c62828; }
+}
+
+.bill-year-chip {
+  font-size: 0.72rem; color: #1565c0; background: #e3f2fd;
+  border-radius: 10px; padding: 2px 8px;
+}
+
+.fee-due-chip {
+  font-size: 0.8rem; color: #c62828; font-weight: 600;
+}
+
+.bill-notes-row {
+  display: flex; align-items: flex-start; gap: 8px;
+  font-size: 0.82rem; color: #616161;
+  padding: 8px 12px; background: #fffde7; border-radius: 6px; margin-top: 8px;
+  mat-icon { font-size: 16px; width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; color: #f9a825; }
+}
+
+.paid-text { color: #2e7d32; }
+.due-text  { color: #c62828; }
 
 // ── Status badges ─────────────────────────────────────────────────────────────
 .status-badge {
