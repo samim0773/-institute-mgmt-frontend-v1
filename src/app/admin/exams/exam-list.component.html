@@ -52,11 +52,11 @@
   <!-- ── Exam cards grid ───────────────────────────────────────────────────── -->
   <div class="exams-grid" *ngIf="!loading && exams.length > 0">
     <mat-card *ngFor="let exam of exams; trackBy: trackById" class="exam-card"
-      [class.exam-card--draft]="exam.status === 'draft'">
+      [class.exam-card--draft]="examStatus(exam) === 'draft'">
       <!-- Card header: status + actions -->
       <mat-card-header>
         <div mat-card-avatar class="exam-avatar">
-          <mat-icon>{{ exam.status === 'draft' ? 'edit_note' : 'assignment' }}</mat-icon>
+          <mat-icon>{{ examStatus(exam) === 'draft' ? 'edit_note' : 'assignment' }}</mat-icon>
         </div>
         <mat-card-title class="exam-name">{{ exam.name }}</mat-card-title>
         <mat-card-subtitle>
@@ -65,8 +65,8 @@
         </mat-card-subtitle>
 
         <!-- Status chip top-right -->
-        <span class="status-chip" [ngClass]="statusColor(exam.status)">
-          {{ exam.status | titlecase | replace:'_':' ' }}
+        <span class="status-chip" [ngClass]="statusColor(examStatus(exam))">
+          {{ examStatus(exam) | titlecase | replace:'_':' ' }}
         </span>
       </mat-card-header>
 
@@ -119,13 +119,13 @@
       <!-- Card actions -->
       <mat-card-actions class="exam-actions" align="end">
         <!-- Draft: show Publish -->
-        <button mat-stroked-button color="primary" *ngIf="exam.status === 'draft'" (click)="publishExam(exam)"
+        <button mat-stroked-button color="primary" *ngIf="examStatus(exam) === 'draft'" (click)="publishExam(exam)"
           matTooltip="Publish so teachers can see it">
           <mat-icon>publish</mat-icon> Publish
         </button>
 
         <!-- Non-draft: show Generate Admit Cards -->
-        <button mat-stroked-button *ngIf="exam.status !== 'draft'" (click)="generateAdmitCards(exam)"
+        <button mat-stroked-button *ngIf="examStatus(exam) !== 'draft'" (click)="generateAdmitCards(exam)"
           [disabled]="generatingId === exam._id" matTooltip="Generate admit cards for all students in this class">
           <mat-spinner *ngIf="generatingId === exam._id" diameter="16" class="btn-spinner"></mat-spinner>
           <mat-icon *ngIf="generatingId !== exam._id">badge</mat-icon>
@@ -133,7 +133,7 @@
         </button>
 
         <!-- View Admit Cards -->
-        <button mat-stroked-button color="accent" *ngIf="exam.status !== 'draft'" (click)="viewAdmitCards(exam._id)"
+        <button mat-stroked-button color="accent" *ngIf="examStatus(exam) !== 'draft'" (click)="viewAdmitCards(exam._id)"
           matTooltip="Browse & print admit cards">
           <mat-icon>print</mat-icon> Print
         </button>

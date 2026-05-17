@@ -18,7 +18,7 @@ import { MatProgressBarModule }     from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule }         from '@angular/material/tooltip';
 import { MatDividerModule }         from '@angular/material/divider';
-import { MatTabsModule }            from '@angular/material/tabs';
+import { MatStepperModule }         from '@angular/material/stepper';
 import { MatDatepickerModule }      from '@angular/material/datepicker';
 import { MatNativeDateModule }      from '@angular/material/core';
 
@@ -48,7 +48,7 @@ const routes: Routes = [
     MatFormFieldModule, MatInputModule, MatSelectModule,
     MatButtonModule, MatIconModule, MatCardModule,
     MatChipsModule, MatProgressBarModule, MatProgressSpinnerModule,
-    MatTooltipModule, MatDividerModule, MatTabsModule,
+    MatTooltipModule, MatDividerModule, MatStepperModule,
     MatDatepickerModule, MatNativeDateModule,
   ],
 })

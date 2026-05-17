@@ -10,7 +10,7 @@
 .form-title { font-size: 1.4rem; font-weight: 700; color: #212121; margin: 0; }
 .form-sub   { font-size: 0.85rem; color: #757575; margin: 4px 0 0; }
 
-// ── Loading state ─────────────────────────────────────────────────────────────
+// ── Loading ───────────────────────────────────────────────────────────────────
 .loading-overlay {
   display: flex; align-items: center; justify-content: center;
   gap: 12px; padding: 40px; color: #757575;
@@ -22,13 +22,29 @@
   &--loading { opacity: 0.5; pointer-events: none; }
 }
 
-// ── Tabs ──────────────────────────────────────────────────────────────────────
-.form-tabs {
-  ::ng-deep .mat-mdc-tab-body-wrapper { padding: 0; }
+// ── Stepper ───────────────────────────────────────────────────────────────────
+.form-stepper {
+  background: transparent;
+  ::ng-deep .mat-horizontal-stepper-header-container {
+    padding: 16px 24px 0;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  ::ng-deep .mat-horizontal-content-container { padding: 0; }
 }
-.tab-content {
+
+// ── Step content ──────────────────────────────────────────────────────────────
+.step-content {
   padding: 24px 24px 8px;
   @media (max-width: 600px) { padding: 16px 16px 8px; }
+}
+
+// ── Step actions (Back / Next / Submit) ───────────────────────────────────────
+.step-actions {
+  display: flex; justify-content: flex-end; align-items: center; gap: 12px;
+  padding: 16px 24px; border-top: 1px solid #e0e0e0;
+  background: #fafafa;
+  // Push Cancel/Back to left, Next/Submit stays right
+  button:first-child { margin-right: auto; }
 }
 
 // ── Section headings ──────────────────────────────────────────────────────────
@@ -57,16 +73,27 @@
   color: #9e9e9e; margin-right: 4px; font-size: 18px; width: 18px; height: 18px;
 }
 
-// ── Form actions ──────────────────────────────────────────────────────────────
-.form-actions {
-  display: flex; justify-content: flex-end; gap: 12px;
-  padding: 16px 24px; border-top: 1px solid #e0e0e0;
-  background: #fafafa;
+// ── Final step ────────────────────────────────────────────────────────────────
+.final-step {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 40px 24px; text-align: center; gap: 12px;
 }
+.final-icon {
+  font-size: 56px; width: 56px; height: 56px; color: #43a047;
+}
+.final-title {
+  font-size: 1.2rem; font-weight: 700; color: #212121; margin: 0;
+}
+.final-sub {
+  font-size: 0.92rem; color: #616161; margin: 0; max-width: 420px;
+}
+
+// ── Submit button ─────────────────────────────────────────────────────────────
 .save-btn {
   display: flex; align-items: center; gap: 8px;
   mat-icon { font-size: 18px; width: 18px; height: 18px; }
 }
-.btn-spinner { display: inline-block;
+.btn-spinner {
+  display: inline-block;
   ::ng-deep circle { stroke: rgba(255,255,255,0.8) !important; }
 }

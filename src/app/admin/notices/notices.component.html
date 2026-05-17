@@ -8,42 +8,24 @@
         <h2 class="page-title">Notices</h2>
         <p class="page-sub">{{ notices.length }} total · {{ notices | noticeCount:'draft' }} drafts</p>
       </div>
-      <button mat-raised-button color="primary" (click)="openCreate()">
-        <mat-icon>campaign</mat-icon> New Notice
-      </button>
+      <div class="header-actions">
+        <button mat-stroked-button (click)="openTemplateGallery()">
+          <mat-icon>auto_awesome</mat-icon> From Template
+        </button>
+        <button mat-raised-button color="primary" (click)="openCreate()">
+          <mat-icon>campaign</mat-icon> New Notice
+        </button>
+      </div>
     </div>
 
     <!-- Filter toggles -->
     <div class="filter-row">
-      <!-- <mat-chip-set>
-        <mat-chip
-          [class.chip-active]="showDrafts"
-          (click)="showDrafts = !showDrafts"
-          color="accent" [selected]="showDrafts"
-        >
-          <mat-icon matChipAvatar>edit_note</mat-icon>
-          Drafts
-        </mat-chip>
-        <mat-chip
-          [class.chip-active]="showPublished"
-          (click)="showPublished = !showPublished"
-          color="primary" [selected]="showPublished"
-        >
-          <mat-icon matChipAvatar>public</mat-icon>
-          Published
-        </mat-chip>
-      </mat-chip-set> -->
       <mat-chip-set>
-        <mat-chip-option [class.chip-active]="showDrafts" (click)="showDrafts = !showDrafts" color="accent"
-          [selected]="showDrafts">
-          <mat-icon matChipAvatar>edit_note</mat-icon>
-          Drafts
+        <mat-chip-option [selected]="showDrafts" (click)="showDrafts = !showDrafts" color="accent">
+          <mat-icon matChipAvatar>edit_note</mat-icon> Drafts
         </mat-chip-option>
-
-        <mat-chip-option [class.chip-active]="showPublished" (click)="showPublished = !showPublished" color="primary"
-          [selected]="showPublished">
-          <mat-icon matChipAvatar>public</mat-icon>
-          Published
+        <mat-chip-option [selected]="showPublished" (click)="showPublished = !showPublished" color="primary">
+          <mat-icon matChipAvatar>public</mat-icon> Published
         </mat-chip-option>
       </mat-chip-set>
     </div>
@@ -54,20 +36,25 @@
     <div class="empty-state" *ngIf="!loading && filteredNotices.length === 0">
       <mat-icon>notifications_none</mat-icon>
       <h3>No notices yet</h3>
-      <p>Create your first notice to inform students and teachers.</p>
-      <button mat-raised-button color="primary" (click)="openCreate()">
-        <mat-icon>campaign</mat-icon> Create Notice
-      </button>
+      <p>Create your first notice or start from a ready-made template.</p>
+      <div class="empty-actions">
+        <button mat-stroked-button (click)="openTemplateGallery()">
+          <mat-icon>auto_awesome</mat-icon> Use Template
+        </button>
+        <button mat-raised-button color="primary" (click)="openCreate()">
+          <mat-icon>campaign</mat-icon> New Notice
+        </button>
+      </div>
     </div>
 
     <!-- Notice cards -->
     <div class="notices-list" *ngIf="!loading && filteredNotices.length > 0">
       <mat-card *ngFor="let n of filteredNotices; trackBy: trackById" class="notice-card"
-        [class.notice-card--draft]="!n.isPublished" [class.notice-card--urgent]="(n | noticeCategory) === 'urgent'"
+        [class.notice-card--draft]="!n.isPublished"
+        [class.notice-card--urgent]="(n | noticeCategory) === 'urgent'"
         (click)="openEdit(n)">
         <mat-card-content class="card-inner">
 
-          <!-- Left: category emoji + title -->
           <div class="notice-main">
             <span class="notice-emoji">{{ emoji((n | noticeCategory) || 'general') }}</span>
             <div class="notice-body">
@@ -87,39 +74,167 @@
             </div>
           </div>
 
-          <!-- Right: status + actions -->
           <div class="notice-actions" (click)="$event.stopPropagation()">
             <span class="status-chip" [class.chip-published]="n.isPublished" [class.chip-draft]="!n.isPublished">
               <mat-icon>{{ n.isPublished ? 'public' : 'edit_note' }}</mat-icon>
               {{ n.isPublished ? 'Live' : 'Draft' }}
             </span>
 
-            <!-- Publish / Unpublish -->
-            <button mat-icon-button color="primary" *ngIf="!n.isPublished" (click)="publish(n, $event)"
-              [disabled]="actioningId === n._id" matTooltip="Publish notice">
+            <button mat-icon-button color="primary" *ngIf="!n.isPublished"
+              (click)="publish(n, $event)" [disabled]="actioningId === n._id" matTooltip="Publish">
               <mat-spinner *ngIf="actioningId === n._id" diameter="18"></mat-spinner>
               <mat-icon *ngIf="actioningId !== n._id">publish</mat-icon>
             </button>
-            <button mat-icon-button *ngIf="n.isPublished" (click)="unpublish(n, $event)"
-              [disabled]="actioningId === n._id" matTooltip="Unpublish">
+            <button mat-icon-button *ngIf="n.isPublished"
+              (click)="unpublish(n, $event)" [disabled]="actioningId === n._id" matTooltip="Unpublish">
               <mat-icon>unpublished</mat-icon>
             </button>
-
-            <!-- Edit -->
             <button mat-icon-button (click)="openEdit(n); $event.stopPropagation()" matTooltip="Edit">
               <mat-icon>edit</mat-icon>
             </button>
-
-            <!-- Delete -->
-            <button mat-icon-button color="warn" (click)="delete(n, $event)" [disabled]="deletingId === n._id"
-              matTooltip="Delete notice">
+            <button mat-icon-button (click)="printNotice(n, $event)" matTooltip="Print notice (A4)">
+              <mat-icon>print</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" (click)="delete(n, $event)"
+              [disabled]="deletingId === n._id" matTooltip="Delete">
               <mat-spinner *ngIf="deletingId === n._id" diameter="18"></mat-spinner>
               <mat-icon *ngIf="deletingId !== n._id">delete_outline</mat-icon>
             </button>
           </div>
+
         </mat-card-content>
       </mat-card>
     </div>
+  </ng-container>
+
+  <!-- ══ TEMPLATE GALLERY ══════════════════════════════════════════════════ -->
+  <ng-container *ngIf="panelMode === 'template'">
+
+    <div class="form-header">
+      <button mat-icon-button (click)="selectedTemplate ? backToGallery() : backToList()" aria-label="Back">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <h2 class="page-title">{{ selectedTemplate ? selectedTemplate.name : 'Notice Templates' }}</h2>
+        <p class="page-sub">
+          {{ selectedTemplate ? selectedTemplate.description : 'Pick a ready-made template and fill in the details' }}
+        </p>
+      </div>
+    </div>
+
+    <!-- ── Template card grid ─────────────────────────────────────────────── -->
+    <ng-container *ngIf="!selectedTemplate">
+      <div class="tpl-category-bar">
+        <button mat-button [class.tpl-cat-active]="!templateCategoryFilter"
+          (click)="templateCategoryFilter = ''">All ({{ templates.length }})</button>
+        <button mat-button *ngFor="let c of categories"
+          [class.tpl-cat-active]="templateCategoryFilter === c.value"
+          (click)="templateCategoryFilter = c.value">
+          <mat-icon class="cat-icon-sm">{{ c.icon }}</mat-icon> {{ c.label }}
+        </button>
+      </div>
+
+      <div class="tpl-grid">
+        <mat-card *ngFor="let t of filteredTemplates" class="tpl-card" (click)="selectTemplate(t)">
+          <mat-card-content>
+            <div class="tpl-card-top">
+              <mat-icon class="tpl-icon tpl-icon--{{ t.category }}">{{ t.icon }}</mat-icon>
+              <span class="category-badge cat-{{ t.category }}">{{ cLabel(t.category) }}</span>
+            </div>
+            <div class="tpl-name">{{ t.name }}</div>
+            <p class="tpl-desc">{{ t.description }}</p>
+            <div class="tpl-fields-hint">
+              <mat-icon class="hint-icon">tune</mat-icon>
+              {{ t.fields.length }} field{{ t.fields.length !== 1 ? 's' : '' }} to fill
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </ng-container>
+
+    <!-- ── Template field form + live preview ────────────────────────────── -->
+    <ng-container *ngIf="selectedTemplate">
+      <div class="tpl-workspace">
+
+        <!-- Field form -->
+        <mat-card class="tpl-fields-card">
+          <mat-card-content>
+            <div class="tpl-fields-heading">
+              <mat-icon>edit_note</mat-icon> Fill in Details
+            </div>
+            <form [formGroup]="templateForm" novalidate class="tpl-form">
+              <ng-container *ngFor="let field of selectedTemplate.fields">
+
+                <!-- Date picker -->
+                <mat-form-field *ngIf="field.type === 'date'" appearance="outline" class="field-full">
+                  <mat-label>{{ field.label }}</mat-label>
+                  <input matInput [matDatepicker]="dp" [formControlName]="field.key" />
+                  <mat-datepicker-toggle matIconSuffix [for]="dp"></mat-datepicker-toggle>
+                  <mat-datepicker #dp></mat-datepicker>
+                  <mat-error>Required</mat-error>
+                </mat-form-field>
+
+                <!-- Textarea -->
+                <mat-form-field *ngIf="field.type === 'textarea'" appearance="outline" class="field-full">
+                  <mat-label>{{ field.label }}</mat-label>
+                  <textarea matInput [formControlName]="field.key" rows="3"
+                    [placeholder]="field.placeholder || ''"></textarea>
+                </mat-form-field>
+
+                <!-- Text -->
+                <mat-form-field *ngIf="field.type === 'text'" appearance="outline" class="field-full">
+                  <mat-label>{{ field.label }}</mat-label>
+                  <input matInput [formControlName]="field.key" [placeholder]="field.placeholder || ''" />
+                  <mat-error>Required</mat-error>
+                </mat-form-field>
+
+              </ng-container>
+
+              <div class="tpl-apply-row">
+                <button mat-raised-button color="primary" type="button" (click)="applyTemplate()">
+                  <mat-icon>arrow_forward</mat-icon> Use This Template
+                </button>
+                <span class="tpl-apply-hint">You can edit the content before saving</span>
+              </div>
+            </form>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Live preview -->
+        <div class="tpl-preview-panel">
+          <div class="tpl-preview-label">
+            <mat-icon>visibility</mat-icon> Live Preview
+          </div>
+
+          <div class="tpl-preview-box" *ngIf="previewTitle || previewContent">
+            <!-- Simulated A4 notice -->
+            <div class="preview-notice-header">
+              <img *ngIf="instituteInfo?.logoUrl" [src]="instituteInfo!.logoUrl" class="preview-inst-logo" alt="Logo" />
+              <div class="preview-inst-line">{{ instituteInfo?.name || '[ Institute Name ]' }}</div>
+              <div *ngIf="instituteInfo?.address" class="preview-inst-sub">{{ instituteInfo!.address }}</div>
+              <div *ngIf="instituteInfo?.phone" class="preview-inst-sub">Phone: {{ instituteInfo!.phone }}</div>
+              <div class="preview-meta-row">
+                <span>Ref. No.: ___</span>
+                <span>Date: Today</span>
+              </div>
+            </div>
+            <div class="preview-tag">— {{ cLabel(selectedTemplate.category) }} Notice —</div>
+            <div class="preview-title">{{ previewTitle }}</div>
+            <div class="preview-content">{{ previewContent }}</div>
+            <div class="preview-sig">
+              <div class="preview-sig-line"></div>
+              <p>Principal</p>
+            </div>
+          </div>
+
+          <div class="tpl-preview-empty" *ngIf="!previewTitle && !previewContent">
+            <mat-icon>text_snippet</mat-icon>
+            <p>Fill in the fields on the left to see a live preview</p>
+          </div>
+        </div>
+
+      </div>
+    </ng-container>
   </ng-container>
 
   <!-- ══ CREATE / EDIT FORM ════════════════════════════════════════════════ -->
@@ -130,16 +245,13 @@
       </button>
       <div>
         <h2 class="page-title">{{ pageTitle }}</h2>
-        <p class="page-sub" *ngIf="panelMode === 'edit'">
-          Changes to content require unpublishing first
-        </p>
+        <p class="page-sub" *ngIf="panelMode === 'edit'">Changes to content require unpublishing first</p>
       </div>
     </div>
 
     <mat-card class="form-card">
       <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
 
-        <!-- Title -->
         <mat-form-field appearance="outline" class="field-full">
           <mat-label>Notice Title *</mat-label>
           <input matInput formControlName="title" placeholder="e.g. Annual Sports Day" />
@@ -148,10 +260,9 @@
           </mat-error>
         </mat-form-field>
 
-        <!-- Content (rich textarea) -->
         <mat-form-field appearance="outline" class="field-full">
           <mat-label>Notice Content *</mat-label>
-          <textarea matInput formControlName="content" rows="8"
+          <textarea matInput formControlName="content" rows="10"
             placeholder="Write the full notice here. Use line breaks for formatting."
             class="content-textarea"></textarea>
           <mat-hint align="end">{{ charCount }}/5000</mat-hint>
@@ -160,21 +271,19 @@
           </mat-error>
         </mat-form-field>
 
-        <!-- Category + Target class row -->
         <div class="field-row">
           <mat-form-field appearance="outline" class="field-md">
             <mat-label>Category</mat-label>
             <mat-select formControlName="category">
               <mat-option *ngFor="let c of categories" [value]="c.value">
-                <mat-icon class="cat-icon">{{ c.icon }}</mat-icon>
-                {{ c.label }}
+                <mat-icon class="cat-icon">{{ c.icon }}</mat-icon> {{ c.label }}
               </mat-option>
             </mat-select>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="field-md">
             <mat-label>Target Class (optional)</mat-label>
-            <input matInput formControlName="targetClass" placeholder="e.g. 10 — leave blank for all classes" />
+            <input matInput formControlName="targetClass" placeholder="e.g. 10 — blank for all" />
             <mat-hint>Leave blank to show to all classes</mat-hint>
           </mat-form-field>
 
@@ -187,7 +296,6 @@
           </mat-form-field>
         </div>
 
-        <!-- Attachment URL -->
         <mat-form-field appearance="outline" class="field-full">
           <mat-label>Attachment URL (optional)</mat-label>
           <mat-icon matPrefix>attach_file</mat-icon>
@@ -197,17 +305,18 @@
           </mat-error>
         </mat-form-field>
 
-        <!-- Publish immediately toggle -->
         <div class="publish-toggle">
           <mat-slide-toggle formControlName="isPublished" color="primary">
             Publish immediately (visible to teachers)
           </mat-slide-toggle>
         </div>
 
-        <!-- Actions -->
         <div class="form-actions">
           <button mat-stroked-button type="button" (click)="cancelEdit()" [disabled]="saving">
             Cancel
+          </button>
+          <button mat-stroked-button type="button" (click)="printForm()" matTooltip="Print as A4 notice">
+            <mat-icon>print</mat-icon> Print
           </button>
           <button mat-raised-button color="primary" type="submit" [disabled]="saving" class="save-btn">
             <mat-spinner *ngIf="saving" diameter="18" class="btn-spinner"></mat-spinner>

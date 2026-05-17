@@ -76,23 +76,30 @@ export interface Student {
 
 // ─── Exam ─────────────────────────────────────────────────────────────────────
 export interface ExamSubject {
-  name: string;
-  maxMarks: number;
+  name:              string;
+  maxMarks:          number;
+  passingMarks?:     number;
+  writtenMaxMarks?:  number;
+  oralMaxMarks?:     number;
+  oralPassingMarks?: number;
+  examDate?:         string;
+  examTime?:         string;
 }
 
 export interface Exam {
-  _id: string;
-  instituteId: string;
-  name: string;
-  class: string;
-  section: string;
-  startDate: string;
-  endDate: string;
-  subjects: ExamSubject[];
-  status: 'upcoming' | 'ongoing' | 'completed' | 'draft';
-  center: string;
+  _id:           string;
+  instituteId:   string;
+  name:          string;
+  class:         string;
+  section:       string;
+  academicYear?: string;
+  startDate:     string;
+  endDate:       string;
+  subjects:      ExamSubject[];
+  status: 'draft' | 'upcoming' | 'ongoing' | 'completed' | 'results_published';
+  center:        string;
   admitCardCount?: number;
-  createdAt: string;
+  createdAt:     string;
 }
 
 // ─── Admit Card ───────────────────────────────────────────────────────────────

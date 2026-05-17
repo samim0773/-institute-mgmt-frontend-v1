@@ -5,7 +5,9 @@
   <div class="page-header">
     <div>
       <h2 class="page-title">Mark Entry</h2>
-      <p class="page-sub">Subject: <strong>{{ subjectName }}</strong></p>
+      <p class="page-sub" *ngIf="selectedSubjectName">
+        Subject: <strong>{{ selectedSubjectName }}</strong>
+      </p>
     </div>
     <button
       mat-raised-button color="primary"
@@ -59,28 +61,44 @@
         </mat-select>
       </mat-form-field>
 
+      <!-- Step 4: Subject (only when teacher is assigned to multiple subjects in this exam) -->
+      <mat-form-field appearance="outline" class="sel-field"
+        *ngIf="selectedExam && availableSubjects.length > 1">
+        <mat-label>Subject</mat-label>
+        <mat-select [(ngModel)]="selectedSubjectName" (ngModelChange)="onSubjectChange($event)">
+          <mat-option value="">Select…</mat-option>
+          <mat-option *ngFor="let s of availableSubjects" [value]="s">{{ s }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
     </div>
 
     <!-- No exams hint -->
     <p class="no-exam-hint" *ngIf="!loadingExams && selectedSection && exams.length === 0">
       <mat-icon>info</mat-icon>
-      No published exams found for {{ subjectName }} in Class {{ selectedClass }}-{{ selectedSection }}.
-      Ask your admin to publish an exam that includes this subject.
+      No completed exams found where you are assigned a subject in
+      Class {{ selectedClass }}-{{ selectedSection }}.
+      Ask your admin to check subject assignments.
+    </p>
+
+    <!-- Prompt to pick subject -->
+    <p class="no-exam-hint" *ngIf="needsSubjectSelection">
+      <mat-icon>info</mat-icon>
+      You are assigned to {{ availableSubjects.length }} subjects in this exam — please select one above.
     </p>
   </mat-card>
 
   <!-- ── Exam detail banner ──────────────────────────────────────────────────── -->
-  <div class="exam-banner" *ngIf="selectedExam">
+  <div class="exam-banner" *ngIf="selectedExam && selectedSubjectName">
     <div class="exam-banner-info">
       <mat-icon>assignment</mat-icon>
       <div>
         <span class="exam-banner-name">{{ selectedExam.name }}</span>
         <span class="exam-banner-sub">
-          {{ subjectName }} · Max Marks: <strong>{{ maxMarks }}</strong>
+          {{ selectedSubjectName }} · Max Marks: <strong>{{ maxMarks }}</strong>
         </span>
       </div>
     </div>
-    <!-- Progress bar -->
     <div class="progress-section">
       <span class="progress-label">{{ savedCount }} / {{ entries.length }} saved</span>
       <mat-progress-bar
@@ -100,7 +118,7 @@
   </div>
 
   <!-- ── No students ────────────────────────────────────────────────────────── -->
-  <div class="empty-state" *ngIf="!loadingStudents && selectedExam && entries.length === 0">
+  <div class="empty-state" *ngIf="!loadingStudents && selectedExam && selectedSubjectName && entries.length === 0">
     <mat-icon>people_outline</mat-icon>
     <h3>No students found</h3>
     <p>Class {{ selectedClass }}-{{ selectedSection }} has no active students.</p>
@@ -133,12 +151,10 @@
             [class.row-error]="!!entry.error"
           >
 
-            <!-- Roll no -->
             <td class="col-roll">
               <span class="roll-chip">{{ entry.rollNo }}</span>
             </td>
 
-            <!-- Name -->
             <td class="col-name">
               <div class="student-cell">
                 <div class="s-avatar">{{ entry.name[0] }}</div>
@@ -149,7 +165,6 @@
               </div>
             </td>
 
-            <!-- Absent checkbox -->
             <td class="col-absent">
               <mat-checkbox
                 [checked]="entry.isAbsent"
@@ -159,7 +174,6 @@
               ></mat-checkbox>
             </td>
 
-            <!-- Marks input -->
             <td class="col-marks">
               <input
                 type="number"
@@ -176,7 +190,6 @@
               <span class="row-error-msg" *ngIf="entry.error">{{ entry.error }}</span>
             </td>
 
-            <!-- Remarks -->
             <td class="col-remarks">
               <input
                 type="text"
@@ -185,11 +198,10 @@
                 (ngModelChange)="entry.saved = false"
                 placeholder="optional"
                 maxlength="200"
-                 [attr.aria-label]="'Remarks for ' + entry.name"
+                [attr.aria-label]="'Remarks for ' + entry.name"
               />
             </td>
 
-            <!-- Save button (per-row) -->
             <td class="col-save">
               <button
                 mat-icon-button
@@ -211,7 +223,6 @@
       </table>
     </div>
 
-    <!-- Table footer: bulk save -->
     <div class="table-footer">
       <span class="footer-count">
         <mat-icon [class.all-done]="allSaved">{{ allSaved ? 'check_circle' : 'pending' }}</mat-icon>

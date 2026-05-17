@@ -158,6 +158,19 @@ export class ExamService {
 
   // ══ HELPERS ══════════════════════════════════════════════════════════════
 
+  /** Compute the real current status from exam dates — mirrors the backend logic. */
+  computeStatus(exam: Exam): string {
+    const s = exam.status;
+    if (s === 'draft' || s === 'results_published') return s;
+    const now   = new Date();
+    const start = new Date(exam.startDate);
+    const end   = new Date(exam.endDate);
+    end.setHours(23, 59, 59, 999);
+    if (now < start) return 'upcoming';
+    if (now <= end)  return 'ongoing';
+    return 'completed';
+  }
+
   statusColor(status: string): string {
     const map: Record<string, string> = {
       draft:              'status-draft',

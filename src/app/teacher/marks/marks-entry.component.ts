@@ -1,7 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { Subject }                from 'rxjs';
-import { takeUntil, finalize, switchMap } from 'rxjs/operators';
+import { takeUntil, finalize }   from 'rxjs/operators';
 
 import { HttpClient, HttpParams }  from '@angular/common/http';
 import { environment }             from '../../../environments/environment';
@@ -9,7 +8,7 @@ import { AuthService }             from '../../core/services/auth.service';
 import { NotificationService }     from '../../core/services/notification.service';
 import { StudentService }          from '../../admin/students/student.service';
 import { ExamService }             from '../../admin/exams/exam.service';
-import { Exam, Student, ApiResponse } from '../../core/models';
+import { Exam, Student, ApiResponse, SubjectAssignmentEntry } from '../../core/models';
 
 interface MarksEntry {
   studentId:  string;
@@ -19,8 +18,8 @@ interface MarksEntry {
   marks:      number | null;
   isAbsent:   boolean;
   remarks:    string;
-  saved:      boolean;   // true after successful upsert
-  saving:     boolean;   // per-row saving spinner
+  saved:      boolean;
+  saving:     boolean;
   error:      string;
 }
 
@@ -31,11 +30,19 @@ interface MarksEntry {
 })
 export class MarksEntryComponent implements OnInit, OnDestroy {
 
-  // ── Context ────────────────────────────────────────────────────────────────
-  subjectName = '';      // from JWT — teacher can only enter for this subject
-  classNames: string[]  = [];
-  sections:   string[]  = [];
-  exams:      Exam[]    = [];
+  // ── Subject assignments from ClassSubjectTeacher (authoritative) ───────────
+  subjectAssignments: SubjectAssignmentEntry[] = [];
+
+  // ── Available subjects for the selected exam ───────────────────────────────
+  availableSubjects: string[] = [];
+
+  // The subject currently being entered
+  selectedSubjectName = '';
+
+  // ── Dropdowns ──────────────────────────────────────────────────────────────
+  classNames: string[] = [];
+  sections:   string[] = [];
+  exams:      Exam[]   = [];
 
   // ── Selections ─────────────────────────────────────────────────────────────
   selectedClass   = '';
@@ -43,11 +50,11 @@ export class MarksEntryComponent implements OnInit, OnDestroy {
   selectedExam: Exam | null = null;
 
   // ── State ──────────────────────────────────────────────────────────────────
-  entries:     MarksEntry[] = [];
-  loadingExams     = false;
-  loadingStudents  = false;
-  savingAll        = false;
-  savedCount       = 0;
+  entries:        MarksEntry[] = [];
+  loadingExams    = false;
+  loadingStudents = false;
+  savingAll       = false;
+  savedCount      = 0;
 
   private destroy$ = new Subject<void>();
 
@@ -60,42 +67,53 @@ export class MarksEntryComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.subjectName = this.auth.currentUser?.subject || '';
-    if (!this.subjectName) {
-      this.notify.error('No subject assigned to your account. Contact admin.');
-      return;
-    }
-    this.loadClassNames();
+    // Always fetch fresh assignments — login token doesn't carry subjectAssignments
+    this.auth.refreshMe()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: res => {
+          this.subjectAssignments = res.data?.subjectAssignments || [];
+          if (this.subjectAssignments.length === 0) {
+            this.notify.warn('No subjects are assigned to your account. Contact admin.');
+          }
+          this.buildClassNames();
+          this.studentSvc.getClasses().pipe(takeUntil(this.destroy$)).subscribe();
+        },
+        error: () => {
+          // Fall back to cached user data
+          this.subjectAssignments = this.auth.currentUser?.subjectAssignments || [];
+          this.buildClassNames();
+          this.studentSvc.getClasses().pipe(takeUntil(this.destroy$)).subscribe();
+        },
+      });
   }
 
   ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
 
-  // ── Step 1: load class names ───────────────────────────────────────────────
-  private loadClassNames(): void {
-    this.studentSvc.getClassNames()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(res => {
-        this.classNames = res.data || [];
-      });
-    this.studentSvc.getClasses()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe();
+  private buildClassNames(): void {
+    this.classNames = [...new Set(this.subjectAssignments.map(a => a.className))].sort();
   }
 
-  // ── Step 2: class changed → update sections ────────────────────────────────
+  // ── Step 2: class changed → update sections from assignments ──────────────
   onClassChange(cls: string): void {
-    this.selectedClass   = cls;
-    this.selectedSection = '';
-    this.selectedExam    = null;
-    this.entries         = [];
-    this.sections = cls ? this.studentSvc.getSectionsForClass(cls) : [];
+    this.selectedClass        = cls;
+    this.selectedSection      = '';
+    this.selectedExam         = null;
+    this.availableSubjects    = [];
+    this.selectedSubjectName  = '';
+    this.entries              = [];
+    this.sections = cls
+      ? [...new Set(this.subjectAssignments.filter(a => a.className === cls).map(a => a.section))].sort()
+      : [];
   }
 
   // ── Step 3: section changed → load exams ──────────────────────────────────
   onSectionChange(section: string): void {
-    this.selectedSection = section;
-    this.selectedExam    = null;
-    this.entries         = [];
+    this.selectedSection      = section;
+    this.selectedExam         = null;
+    this.availableSubjects    = [];
+    this.selectedSubjectName  = '';
+    this.entries              = [];
     if (!this.selectedClass || !section) return;
     this.loadExams();
   }
@@ -105,21 +123,25 @@ export class MarksEntryComponent implements OnInit, OnDestroy {
     this.examSvc.getExams({
       class:   this.selectedClass,
       section: this.selectedSection,
-      status:  'upcoming,ongoing,completed',
+      status:  'completed',
     }).pipe(
       finalize(() => this.loadingExams = false),
       takeUntil(this.destroy$),
     ).subscribe({
       next: res => {
-        // Only show exams that contain this teacher's subject
+        // Subjects this teacher is assigned to in the selected class+section
+        const assignedSubjects = this.subjectAssignments
+          .filter(a => a.className === this.selectedClass && a.section === this.selectedSection)
+          .map(a => a.subjectName.toLowerCase());
+
+        // Show only exams that contain at least one of the teacher's assigned subjects
         this.exams = (res.data || []).filter(e =>
-          e.subjects?.some(s =>
-            s.name.toLowerCase() === this.subjectName.toLowerCase()
-          )
+          e.subjects?.some(s => assignedSubjects.includes(s.name.toLowerCase()))
         );
+
         if (this.exams.length === 0) {
           this.notify.warn(
-            `No exams found for ${this.subjectName} in ` +
+            `No completed exams found for your subjects in ` +
             `Class ${this.selectedClass}-${this.selectedSection}.`
           );
         }
@@ -127,10 +149,38 @@ export class MarksEntryComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ── Step 4: exam selected → load students ─────────────────────────────────
+  // ── Step 4: exam selected → compute available subjects ────────────────────
   onExamChange(exam: Exam): void {
-    this.selectedExam = exam;
-    this.entries      = [];
+    this.selectedExam        = exam;
+    this.selectedSubjectName = '';
+    this.entries             = [];
+
+    if (!exam) { this.availableSubjects = []; return; }
+
+    const assignedSubjects = this.subjectAssignments
+      .filter(a => a.className === this.selectedClass && a.section === this.selectedSection)
+      .map(a => a.subjectName.toLowerCase());
+
+    this.availableSubjects = exam.subjects
+      .filter(s => assignedSubjects.includes(s.name.toLowerCase()))
+      .map(s => s.name);
+
+    if (this.availableSubjects.length === 0) {
+      this.notify.error('No assigned subjects found for you in this exam.');
+      return;
+    }
+
+    // Auto-select if only one subject available
+    if (this.availableSubjects.length === 1) {
+      this.onSubjectChange(this.availableSubjects[0]);
+    }
+  }
+
+  // ── Step 5: subject selected → load roster ─────────────────────────────────
+  onSubjectChange(subjectName: string): void {
+    this.selectedSubjectName = subjectName;
+    this.entries             = [];
+    if (!subjectName || !this.selectedExam) return;
     this.loadRoster();
   }
 
@@ -139,27 +189,21 @@ export class MarksEntryComponent implements OnInit, OnDestroy {
     this.loadingStudents = true;
 
     this.studentSvc.getStudents({
-      class:   this.selectedClass,
-      section: this.selectedSection,
+      class:    this.selectedClass,
+      section:  this.selectedSection,
       isActive: true,
-      limit:   200,
+      limit:    200,
     }).pipe(
       finalize(() => this.loadingStudents = false),
       takeUntil(this.destroy$),
     ).subscribe({
-      next: res => {
-        const students = res.data || [];
-
-        // Pre-populate entries from existing marks (if any)
-        this.loadExistingMarks(students);
-      },
+      next: res => this.loadExistingMarks(res.data || []),
     });
   }
 
   private loadExistingMarks(students: Student[]): void {
     if (!this.selectedExam) return;
 
-    // GET /api/marks/:examId/:class?section=...
     const params = new HttpParams().set('section', this.selectedSection);
     this.http.get<ApiResponse<any>>(
       `${environment.apiUrl}/marks/${this.selectedExam._id}/${this.selectedClass}`,
@@ -168,15 +212,9 @@ export class MarksEntryComponent implements OnInit, OnDestroy {
       .subscribe({
         next: res => {
           const roster = res.data || [];
-
-          // Build entries array — one row per student
           this.entries = students.map(s => {
-            // Find existing mark for this student's subject
-            const existingRow = roster.find(
-              (r: any) => r.student?.id === s._id
-            );
-            const existingMark = existingRow?.marks?.[this.subjectName];
-
+            const existingRow  = roster.find((r: any) => r.student?.id === s._id);
+            const existingMark = existingRow?.marks?.[this.selectedSubjectName];
             return {
               studentId: s._id,
               name:      s.name,
@@ -192,7 +230,6 @@ export class MarksEntryComponent implements OnInit, OnDestroy {
           });
         },
         error: () => {
-          // No marks yet — build blank roster
           this.entries = students.map(s => ({
             studentId: s._id,
             name:      s.name,
@@ -219,19 +256,15 @@ export class MarksEntryComponent implements OnInit, OnDestroy {
 
   // ── Save single row ────────────────────────────────────────────────────────
   saveRow(entry: MarksEntry): void {
-    if (!this.selectedExam) return;
-
-    const maxMarks = this.selectedExam.subjects.find(
-      s => s.name.toLowerCase() === this.subjectName.toLowerCase()
-    )?.maxMarks ?? 100;
+    if (!this.selectedExam || !this.selectedSubjectName) return;
 
     if (!entry.isAbsent) {
       if (entry.marks === null || entry.marks === undefined) {
         entry.error = 'Enter marks or mark as absent';
         return;
       }
-      if (entry.marks < 0 || entry.marks > maxMarks) {
-        entry.error = `Marks must be 0–${maxMarks}`;
+      if (entry.marks < 0 || entry.marks > this.maxMarks) {
+        entry.error = `Marks must be 0–${this.maxMarks}`;
         return;
       }
     }
@@ -239,17 +272,16 @@ export class MarksEntryComponent implements OnInit, OnDestroy {
     entry.saving = true;
     entry.error  = '';
 
-    const payload = {
-      examId:        this.selectedExam._id,
-      studentId:     entry.studentId,
-      subjectName:   this.subjectName,
-      marksObtained: entry.isAbsent ? 0 : Number(entry.marks),
-      isAbsent:      entry.isAbsent,
-      remarks:       entry.remarks || undefined,
-    };
-
     this.http.post<ApiResponse<any>>(
-      `${environment.apiUrl}/marks`, payload,
+      `${environment.apiUrl}/marks`,
+      {
+        examId:        this.selectedExam._id,
+        studentId:     entry.studentId,
+        subjectName:   this.selectedSubjectName,
+        marksObtained: entry.isAbsent ? 0 : Number(entry.marks),
+        isAbsent:      entry.isAbsent,
+        remarks:       entry.remarks || undefined,
+      },
     ).pipe(
       finalize(() => entry.saving = false),
       takeUntil(this.destroy$),
@@ -266,11 +298,7 @@ export class MarksEntryComponent implements OnInit, OnDestroy {
 
   // ── Save all rows ──────────────────────────────────────────────────────────
   saveAll(): void {
-    if (!this.selectedExam) return;
-
-    const maxMarks = this.selectedExam.subjects.find(
-      s => s.name.toLowerCase() === this.subjectName.toLowerCase()
-    )?.maxMarks ?? 100;
+    if (!this.selectedExam || !this.selectedSubjectName) return;
 
     const entries = this.entries.map(e => ({
       studentId:     e.studentId,
@@ -282,15 +310,15 @@ export class MarksEntryComponent implements OnInit, OnDestroy {
     this.savingAll = true;
     this.http.post<ApiResponse<any>>(
       `${environment.apiUrl}/marks/bulk`,
-      { examId: this.selectedExam._id, subjectName: this.subjectName, entries },
+      { examId: this.selectedExam._id, subjectName: this.selectedSubjectName, entries },
     ).pipe(
       finalize(() => this.savingAll = false),
       takeUntil(this.destroy$),
     ).subscribe({
       next: res => {
         const d = res.data;
-        this.notify.success(`Saved: ${d?.saved ?? 0} marks. ${d?.errors?.length ? d.errors.length + ' errors.' : ''}`);
-        this.entries.forEach(e => e.saved = !e.error);
+        this.notify.success(`Saved: ${d?.saved ?? 0} marks.${d?.errors?.length ? ` ${d.errors.length} errors.` : ''}`);
+        this.entries.forEach(e => { if (!e.error) e.saved = true; });
         this.savedCount = this.entries.filter(e => e.saved).length;
       },
     });
@@ -298,9 +326,9 @@ export class MarksEntryComponent implements OnInit, OnDestroy {
 
   // ── Helpers ────────────────────────────────────────────────────────────────
   get maxMarks(): number {
-    if (!this.selectedExam) return 100;
+    if (!this.selectedExam || !this.selectedSubjectName) return 100;
     return this.selectedExam.subjects.find(
-      s => s.name.toLowerCase() === this.subjectName.toLowerCase()
+      s => s.name.toLowerCase() === this.selectedSubjectName.toLowerCase()
     )?.maxMarks ?? 100;
   }
 
@@ -311,6 +339,10 @@ export class MarksEntryComponent implements OnInit, OnDestroy {
 
   get allSaved(): boolean {
     return this.entries.length > 0 && this.entries.every(e => e.saved);
+  }
+
+  get needsSubjectSelection(): boolean {
+    return !!this.selectedExam && this.availableSubjects.length > 1 && !this.selectedSubjectName;
   }
 
   trackByStudentId(_: number, e: MarksEntry): string { return e.studentId; }

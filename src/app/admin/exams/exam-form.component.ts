@@ -74,8 +74,10 @@ export class ExamFormComponent implements OnInit, OnDestroy {
   private endAfterStart(group: AbstractControl) {
     const start = group.get('startDate')?.value;
     const end   = group.get('endDate')?.value;
-    if (start && end && new Date(end) <= new Date(start)) {
-      group.get('endDate')?.setErrors({ endBeforeStart: true });
+    if (start && end) {
+      const s = new Date(start); s.setHours(0, 0, 0, 0);
+      const e = new Date(end);   e.setHours(0, 0, 0, 0);
+      if (e < s) group.get('endDate')?.setErrors({ endBeforeStart: true });
     }
     return null;
   }
@@ -92,13 +94,36 @@ export class ExamFormComponent implements OnInit, OnDestroy {
       writtenMaxMarks:  [null],
       oralMaxMarks:     [null],
       oralPassingMarks: [null],
-      teacherSubject:   [''],
       examDate:         [null],
       examTime:         ['', Validators.maxLength(50)],
     });
   }
 
-  addSubject(): void { this.subjects.push(this.newSubjectRow()); }
+  // Number of calendar days in the exam (start and end both inclusive), 0 if dates not set/invalid
+  get examDays(): number {
+    const start = this.form.get('startDate')?.value;
+    const end   = this.form.get('endDate')?.value;
+    if (!start || !end) return 0;
+    const s = new Date(start); s.setHours(0, 0, 0, 0);
+    const e = new Date(end);   e.setHours(0, 0, 0, 0);
+    if (e < s) return 0;
+    return Math.floor((e.getTime() - s.getTime()) / 86400000) + 1;
+  }
+
+  get subjectLimitReached(): boolean {
+    return this.examDays > 0 && this.subjects.length >= this.examDays;
+  }
+
+  addSubject(): void {
+    if (this.subjectLimitReached) {
+      this.notify.warn(
+        `A ${this.examDays}-day exam can have at most ${this.examDays} subject(s). ` +
+        `Extend the exam dates to add more.`
+      );
+      return;
+    }
+    this.subjects.push(this.newSubjectRow());
+  }
 
   removeSubject(i: number): void {
     if (this.subjects.length > 1) this.subjects.removeAt(i);
@@ -210,7 +235,6 @@ export class ExamFormComponent implements OnInit, OnDestroy {
               writtenMaxMarks:  [hasOral ? s.writtenMaxMarks ?? null : null],
               oralMaxMarks:     [hasOral ? s.oralMaxMarks   ?? null : null],
               oralPassingMarks: [hasOral ? s.oralPassingMarks ?? null : null],
-              teacherSubject:   [s.teacherSubject || ''],
               examDate:         [s.examDate ? new Date(s.examDate) : null],
               examTime:         [s.examTime || '', Validators.maxLength(50)],
             }));
@@ -242,8 +266,18 @@ export class ExamFormComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Client-side: written + oral must equal maxMarks when both provided
+    // Subject count must not exceed exam duration in days
+    const days = this.examDays;
     const subs = this.form.getRawValue().subjects as any[];
+    if (days > 0 && subs.length > days) {
+      this.notify.warn(
+        `A ${days}-day exam can have at most ${days} subject(s). ` +
+        `Remove ${subs.length - days} subject(s) or extend the exam dates.`
+      );
+      return;
+    }
+
+    // Client-side: written + oral must equal maxMarks when both provided
     for (const s of subs) {
       if (s.hasOral && s.writtenMaxMarks != null && s.oralMaxMarks != null) {
         if (Number(s.writtenMaxMarks) + Number(s.oralMaxMarks) !== Number(s.maxMarks)) {
@@ -290,7 +324,6 @@ export class ExamFormComponent implements OnInit, OnDestroy {
           passingMarks: Number(s.passingMarks),
           ...(s.examDate      && { examDate:      s.examDate instanceof Date ? s.examDate.toISOString() : s.examDate }),
           ...(s.examTime      && { examTime:      s.examTime.trim() }),
-          ...(s.teacherSubject && { teacherSubject: s.teacherSubject.trim() }),
         };
         if (s.hasOral) {
           if (s.writtenMaxMarks  != null) sub['writtenMaxMarks']  = Number(s.writtenMaxMarks);
@@ -330,7 +363,7 @@ export class ExamFormComponent implements OnInit, OnDestroy {
     if (c.hasError('minlength'))      return `Min ${c.errors?.['minlength'].requiredLength} chars`;
     if (c.hasError('maxlength'))      return `Max ${c.errors?.['maxlength'].requiredLength} chars`;
     if (c.hasError('pattern'))        return 'Format: YYYY-YY (e.g. 2024-25)';
-    if (c.hasError('endBeforeStart')) return 'End date must be after start date';
+    if (c.hasError('endBeforeStart')) return 'End date cannot be before start date';
     if (c.hasError('min'))            return `Minimum value: ${c.errors?.['min'].min}`;
     if (c.hasError('max'))            return `Maximum value: ${c.errors?.['max'].max}`;
     return 'Invalid';

@@ -112,7 +112,13 @@
             <span *ngIf="!loadingSubjects && availableSubjects.length > 0" class="subjects-ready-hint">
               <mat-icon>check_circle</mat-icon> {{ availableSubjects.length }} subject(s) available
             </span>
-            <button mat-stroked-button color="primary" type="button" (click)="addSubject()">
+            <span *ngIf="examDays > 0" class="subjects-limit-hint"
+              [class.subjects-limit-reached]="subjectLimitReached">
+              <mat-icon>{{ subjectLimitReached ? 'block' : 'info' }}</mat-icon>
+              {{ subjects.length }}/{{ examDays }} subject(s) · {{ examDays }}-day exam
+            </span>
+            <button mat-stroked-button color="primary" type="button" (click)="addSubject()"
+              [disabled]="subjectLimitReached">
               <mat-icon>add</mat-icon> Add Subject
             </button>
           </div>
@@ -129,7 +135,7 @@
 
             <div class="subject-fields">
 
-              <!-- Row 1: name / teacher / date / time -->
+              <!-- Row 1: name / date / time -->
               <div class="subrow">
 
                 <!-- Subject Name — select from available list or free-type -->
@@ -145,11 +151,6 @@
                     <input matInput formControlName="name" placeholder="Mathematics" />
                   </ng-template>
                   <mat-error *ngIf="sg(i,'name').touched && sg(i,'name').invalid">Required</mat-error>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" class="subfield-teacher">
-                  <mat-label>Teacher Subject</mat-label>
-                  <input matInput formControlName="teacherSubject" placeholder="e.g. Mathematics" />
                 </mat-form-field>
 
                 <mat-form-field appearance="outline" class="subfield-date">

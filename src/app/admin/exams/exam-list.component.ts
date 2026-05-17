@@ -114,6 +114,7 @@ export class ExamListComponent implements OnInit, OnDestroy {
       });
   }
 
+  examStatus(exam: Exam): string { return this.examSvc.computeStatus(exam); }
   statusColor(s: string): string { return this.examSvc.statusColor(s); }
 
   formatRange(start: string, end: string): string {

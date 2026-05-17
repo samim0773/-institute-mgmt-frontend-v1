@@ -16,6 +16,8 @@ import { MatChipsModule }           from '@angular/material/chips';
 import { MatSlideToggleModule }     from '@angular/material/slide-toggle';
 import { MatDatepickerModule }      from '@angular/material/datepicker';
 import { MatNativeDateModule }      from '@angular/material/core';
+import { MatDividerModule }         from '@angular/material/divider';
+import { MatButtonToggleModule }    from '@angular/material/button-toggle';
 
 import { NoticesComponent }    from './notices.component';
 import {
@@ -46,6 +48,7 @@ const routes: Routes = [
     MatProgressBarModule, MatProgressSpinnerModule,
     MatTooltipModule, MatChipsModule, MatSlideToggleModule,
     MatDatepickerModule, MatNativeDateModule,
+    MatDividerModule, MatButtonToggleModule,
   ],
 })
 export class NoticesModule {}

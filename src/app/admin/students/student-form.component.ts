@@ -1,12 +1,11 @@
-import {
-  Component, OnInit, OnDestroy,
-} from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import {
   FormBuilder, FormGroup, Validators, AbstractControl,
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject }                from 'rxjs';
 import { takeUntil, finalize }    from 'rxjs/operators';
+import { MatStepper }             from '@angular/material/stepper';
 
 import { StudentService, ClassSection } from './student.service';
 import { NotificationService }          from '../../core/services/notification.service';
@@ -26,22 +25,20 @@ const GUARDIAN_RELS = ['Father','Mother','Guardian','Uncle','Aunt','Grandparent'
 })
 export class StudentFormComponent implements OnInit, OnDestroy {
 
+  @ViewChild('stepper') stepper!: MatStepper;
+
   form!:    FormGroup;
   isEdit    = false;
   studentId = '';
   saving    = false;
-  loading   = false;   // loading existing student data for edit
+  loading   = false;
 
-  // Dropdown data
   classNames:   string[]       = [];
   sections:     string[]       = [];
   classList:    ClassSection[] = [];
   bloodGroups  = BLOOD_GROUPS;
   genders      = GENDERS;
   guardianRels = GUARDIAN_RELS;
-
-  // UI state
-  activeTab = 0;  // 0: Personal, 1: Guardian, 2: Address
 
   private destroy$ = new Subject<void>();
 
@@ -58,7 +55,6 @@ export class StudentFormComponent implements OnInit, OnDestroy {
     this.loadDropdownData();
     this.watchClassChange();
 
-    // Detect edit vs create from route
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
       if (params['id']) {
         this.isEdit    = true;
@@ -68,44 +64,32 @@ export class StudentFormComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
+  ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
 
   // ─── Form construction ─────────────────────────────────────────────────────
   private buildForm(): void {
     this.form = this.fb.group({
-      // ── Academic placement ─────────────────────────────────────────────────
-      class: ['', Validators.required],
-      section: ['', Validators.required],
-      rollNo: ['', [Validators.required, Validators.maxLength(20)]],
-      admissionNo: ['', Validators.maxLength(30)],
-      academicYear: [''],
-
-      // ── Personal ──────────────────────────────────────────────────────────
-      name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
-      dob: [null],
-      gender: [''],
-      bloodGroup: [''],
-
-      // ── Guardian ──────────────────────────────────────────────────────────
-      guardianName: ['', [Validators.required, Validators.maxLength(100)]],
-      guardianPhone: ['', [
-        Validators.required,
-        Validators.pattern(/^[0-9+\-\s()]{7,15}$/),
-      ]],
-      guardianEmail: ['', Validators.email],
-      guardianRelation: [''],
-
-      // ── Emergency contact ─────────────────────────────────────────────────
-      emergencyContact: this.fb.group({
-        name: [''],
-        relationship: [''],
-        phone: [''],
+      personal: this.fb.group({
+        class:        ['', Validators.required],
+        section:      ['', Validators.required],
+        rollNo:       ['', [Validators.required, Validators.maxLength(20)]],
+        academicYear: [''],
+        name:         ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
+        dob:          [null],
+        gender:       [''],
+        bloodGroup:   [''],
       }),
-
-      // ── Address ───────────────────────────────────────────────────────────
+      guardian: this.fb.group({
+        guardianName:     ['', [Validators.required, Validators.maxLength(100)]],
+        guardianPhone:    ['', [Validators.required, Validators.pattern(/^[0-9+\-\s()]{7,15}$/)]],
+        guardianEmail:    ['', Validators.email],
+        guardianRelation: [''],
+        emergencyContact: this.fb.group({
+          name:         [''],
+          relationship: [''],
+          phone:        [''],
+        }),
+      }),
       address: this.fb.group({
         street:  [''],
         city:    [''],
@@ -115,30 +99,27 @@ export class StudentFormComponent implements OnInit, OnDestroy {
     });
   }
 
+  get personalGroup(): FormGroup { return this.form.get('personal') as FormGroup; }
+  get guardianGroup(): FormGroup { return this.form.get('guardian') as FormGroup; }
+  get addressGroup():  FormGroup { return this.form.get('address')  as FormGroup; }
+
   // ─── Load dropdown data ────────────────────────────────────────────────────
   private loadDropdownData(): void {
-    // Load class names for the class dropdown
     this.studentSvc.getClassNames()
       .pipe(takeUntil(this.destroy$))
-      .subscribe(res => {
-        this.classNames = res.data || [];
-      });
+      .subscribe(res => { this.classNames = res.data || []; });
 
-    // Load full class list (needed to derive sections)
     this.studentSvc.getClasses()
       .pipe(takeUntil(this.destroy$))
-      .subscribe(res => {
-        this.classList = res.data || [];
-      });
+      .subscribe(res => { this.classList = res.data || []; });
   }
 
-  // ─── When class changes, update sections dropdown ──────────────────────────
+  // ─── When class changes, update sections ──────────────────────────────────
   private watchClassChange(): void {
-    this.form.get('class')!.valueChanges
+    this.personalGroup.get('class')!.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe(cls => {
-        // Reset section when class changes
-        this.form.get('section')!.setValue('', { emitEvent: false });
+        this.personalGroup.get('section')!.setValue('', { emitEvent: false });
         this.sections = cls ? this.studentSvc.getSectionsForClass(cls) : [];
       });
   }
@@ -147,33 +128,32 @@ export class StudentFormComponent implements OnInit, OnDestroy {
   private loadStudent(id: string): void {
     this.loading = true;
     this.studentSvc.getStudent(id)
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => (this.loading = false)),
-      )
+      .pipe(takeUntil(this.destroy$), finalize(() => (this.loading = false)))
       .subscribe({
         next: res => {
           const s = res.data!;
-          // Populate sections for this class first
           this.sections = this.studentSvc.getSectionsForClass(s.class);
 
-          this.form.patchValue({
-            class:            s.class,
-            section:          s.section,
-            rollNo:           s.rollNo,
-            admissionNo:      (s as any).admissionNo || '',
-            academicYear:     (s as any).academicYear || '',
-            name:             s.name,
-            dob:              s.dob ? new Date(s.dob) : null,
-            gender:           s.gender || '',
-            bloodGroup:       s.bloodGroup || '',
+          this.personalGroup.patchValue({
+            class:        s.class,
+            section:      s.section,
+            rollNo:       s.rollNo,
+            academicYear: (s as any).academicYear || '',
+            name:         s.name,
+            dob:          s.dob ? new Date(s.dob) : null,
+            gender:       s.gender || '',
+            bloodGroup:   s.bloodGroup || '',
+          });
+
+          this.guardianGroup.patchValue({
             guardianName:     s.guardianName,
             guardianPhone:    s.guardianPhone,
-            guardianEmail:    (s as any).guardianEmail || '',
+            guardianEmail:    (s as any).guardianEmail    || '',
             guardianRelation: (s as any).guardianRelation || '',
             emergencyContact: (s as any).emergencyContact || {},
-            address:          s.address || {},
           });
+
+          this.addressGroup.patchValue((s as any).address || {});
         },
         error: () => {
           this.notify.error('Could not load student data.');
@@ -182,27 +162,32 @@ export class StudentFormComponent implements OnInit, OnDestroy {
       });
   }
 
+  // ─── Stepper: validate current step then advance ──────────────────────────
+  nextStep(groupName: string): void {
+    const group = this.form.get(groupName) as FormGroup;
+    group.markAllAsTouched();
+    if (group.invalid) {
+      this.notify.warn('Please fill in all required fields before continuing.');
+      return;
+    }
+    this.stepper.next();
+  }
+
   // ─── Submit ────────────────────────────────────────────────────────────────
   onSubmit(): void {
+    this.form.markAllAsTouched();
     if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      // Find first invalid tab and switch to it
-      this.activeTab = this.firstInvalidTab();
       this.notify.warn('Please fill in all required fields.');
       return;
     }
 
     this.saving = true;
     const payload = this.buildPayload();
-
-    const call = this.isEdit
+    const call    = this.isEdit
       ? this.studentSvc.updateStudent(this.studentId, payload)
       : this.studentSvc.createStudent(payload);
 
-    call.pipe(
-      takeUntil(this.destroy$),
-      finalize(() => (this.saving = false)),
-    ).subscribe({
+    call.pipe(takeUntil(this.destroy$), finalize(() => (this.saving = false))).subscribe({
       next: res => {
         const action = this.isEdit ? 'updated' : 'added';
         this.notify.success(`${res.data?.name || 'Student'} ${action} successfully.`);
@@ -211,82 +196,58 @@ export class StudentFormComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ─── Build API payload — strip empty strings ───────────────────────────────
+  // ─── Build API payload ─────────────────────────────────────────────────────
   private buildPayload(): Record<string, any> {
-    const raw     = this.form.getRawValue();
+    const p = this.personalGroup.getRawValue();
+    const g = this.guardianGroup.getRawValue();
+    const a = this.addressGroup.getRawValue();
     const payload: Record<string, any> = {};
 
     const set = (key: string, val: any) => {
-      if (val !== null && val !== undefined && val !== '') {
-        payload[key] = val;
-      }
+      if (val !== null && val !== undefined && val !== '') payload[key] = val;
     };
 
-    set('name',             raw.name);
-    set('class',            raw.class.toUpperCase());
-    set('section',          raw.section.toUpperCase());
-    set('rollNo',           raw.rollNo);
-    set('admissionNo',      raw.admissionNo);
-    set('academicYear',     raw.academicYear);
-    set('dob',              raw.dob ? (raw.dob instanceof Date ? raw.dob.toISOString() : raw.dob) : null);
-    set('gender',           raw.gender);
-    set('bloodGroup',       raw.bloodGroup);
-    set('guardianName',     raw.guardianName);
-    set('guardianPhone',    raw.guardianPhone);
-    set('guardianEmail',    raw.guardianEmail);
-    set('guardianRelation', raw.guardianRelation);
+    set('name',             p.name);
+    set('class',            p.class.toUpperCase());
+    set('section',          p.section.toUpperCase());
+    set('rollNo',           p.rollNo);
+    set('academicYear',     p.academicYear);
+    set('dob',              p.dob ? (p.dob instanceof Date ? p.dob.toISOString() : p.dob) : null);
+    set('gender',           p.gender);
+    set('bloodGroup',       p.bloodGroup);
+    set('guardianName',     g.guardianName);
+    set('guardianPhone',    g.guardianPhone);
+    set('guardianEmail',    g.guardianEmail);
+    set('guardianRelation', g.guardianRelation);
 
-    // Nested objects — only include if at least one field has a value
-    const ec = raw.emergencyContact;
-    if (ec.name || ec.phone) {
-      payload['emergencyContact'] = ec;
-    }
+    const ec = g.emergencyContact;
+    if (ec.name || ec.phone) payload['emergencyContact'] = ec;
 
-    const addr = raw.address;
-    if (addr.street || addr.city || addr.state || addr.pincode) {
-      payload['address'] = addr;
-    }
+    if (a.street || a.city || a.state || a.pincode) payload['address'] = a;
 
     return payload;
   }
 
-  // ─── Find the first tab that has an invalid field ─────────────────────────
-  private firstInvalidTab(): number {
-    const tab0Fields = ['class','section','rollNo','name','dob','gender','bloodGroup'];
-    const tab1Fields = ['guardianName','guardianPhone','guardianEmail','guardianRelation'];
-    if (tab0Fields.some(f => this.form.get(f)?.invalid)) return 0;
-    if (tab1Fields.some(f => this.form.get(f)?.invalid)) return 1;
-    return 2;
+  // ─── Template helpers ──────────────────────────────────────────────────────
+  g(groupName: string, field: string): AbstractControl {
+    return this.form.get(`${groupName}.${field}`)!;
   }
 
-  // ─── Getters for template ──────────────────────────────────────────────────
-  g(path: string): AbstractControl { return this.form.get(path)!; }
-
-  hasError(path: string, error: string): boolean {
-    const ctrl = this.g(path);
-    return ctrl.hasError(error) && ctrl.touched;
-  }
-
-  getError(path: string): string {
-    const ctrl = this.g(path);
+  getError(groupName: string, field: string): string {
+    const ctrl = this.g(groupName, field);
     if (!ctrl.touched || ctrl.valid) return '';
-    if (ctrl.hasError('required'))   return 'This field is required';
-    if (ctrl.hasError('minlength'))  return `Minimum ${ctrl.errors?.['minlength']?.requiredLength} characters`;
-    if (ctrl.hasError('maxlength'))  return `Maximum ${ctrl.errors?.['maxlength']?.requiredLength} characters`;
-    if (ctrl.hasError('email'))      return 'Enter a valid email address';
+    if (ctrl.hasError('required'))  return 'This field is required';
+    if (ctrl.hasError('minlength')) return `Minimum ${ctrl.errors?.['minlength']?.requiredLength} characters`;
+    if (ctrl.hasError('maxlength')) return `Maximum ${ctrl.errors?.['maxlength']?.requiredLength} characters`;
+    if (ctrl.hasError('email'))     return 'Enter a valid email address';
     if (ctrl.hasError('pattern')) {
-      if (path === 'guardianPhone') return 'Enter a valid phone number (7–15 digits)';
-      if (path.includes('pincode')) return 'Pincode must be 6 digits';
+      if (field === 'guardianPhone') return 'Enter a valid phone number (7–15 digits)';
+      if (field === 'pincode')       return 'Pincode must be 6 digits';
       return 'Invalid format';
     }
     return 'Invalid value';
   }
 
-  get pageTitle(): string {
-    return this.isEdit ? 'Edit Student' : 'Add New Student';
-  }
-
-  cancel(): void {
-    this.router.navigate(['/admin/students']);
-  }
+  get pageTitle(): string { return this.isEdit ? 'Edit Student' : 'Add New Student'; }
+  cancel(): void { this.router.navigate(['/admin/students']); }
 }
