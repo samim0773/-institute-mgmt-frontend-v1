@@ -88,30 +88,3 @@
   border-top: 1px solid #f0f0f0; text-align: right;
 }
 
-// ── Bulk print area ───────────────────────────────────────────────────────────
-// Off-screen on screen; brought to top of page by global @media print CSS.
-.bulk-print-root {
-  position: fixed;
-  top: 0;
-  left: -9999px;   // completely off the viewport on screen
-  width: 210mm;    // real width for rendering; overridden to 100% by print CSS
-}
-
-// Cut line separator between the two copies (same design as admit-card component)
-.ac-cut-line {
-  display: flex; align-items: center; justify-content: center;
-  border-top: 1px dashed #aaa; border-bottom: 1px dashed #aaa;
-  padding: 3px 0; margin: 0;
-  .cut-text { font-size: 0.75rem; color: #999; background: #fff; padding: 0 12px; letter-spacing: 2px; white-space: nowrap; }
-}
-
-// ── Print overrides ───────────────────────────────────────────────────────────
-@media print {
-  // Page break between students
-  .bulk-page-break { page-break-after: always; break-after: page; }
-
-  // Keep each pair (Office + Student copy) on one page
-  .bulk-print-root > ng-container { page-break-inside: avoid; }
-
-  .ac-cut-line .cut-text { background: white; font-size: 8pt; color: #888; }
-}

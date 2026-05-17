@@ -197,32 +197,5 @@
     </div>
   </mat-card>
 
-  <!--
-    ── Bulk print area ──────────────────────────────────────────────────────
-    Rendered only while bulk printing is in progress (*ngIf).
-    Positioned off-screen on screen via CSS (.bulk-print-root).
-    The global @media print rule (position:absolute top:0 left:0 width:100%)
-    brings it to the top of the printed page when window.print() is called.
-    Each student gets one A4 page: Office Copy on top, Student Copy on bottom.
-  -->
-  <div class="bulk-print-root print-area" *ngIf="bulkPrintCards.length > 0">
-    <ng-container *ngFor="let card of bulkPrintCards; let last = last">
-
-      <!-- Office Copy (top half of A4) -->
-      <app-admit-card-print [card]="card" copyLabel="Office Copy"></app-admit-card-print>
-
-      <!-- Scissor cut line -->
-      <div class="ac-cut-line">
-        <span class="cut-text">✂&nbsp;&nbsp; CUT HERE &nbsp;&nbsp;✂</span>
-      </div>
-
-      <!-- Student Copy (bottom half of A4) -->
-      <app-admit-card-print [card]="card" copyLabel="Student Copy"></app-admit-card-print>
-
-      <!-- Page break after each student (except the last) -->
-      <div class="bulk-page-break" *ngIf="!last"></div>
-
-    </ng-container>
-  </div>
 
 </div>

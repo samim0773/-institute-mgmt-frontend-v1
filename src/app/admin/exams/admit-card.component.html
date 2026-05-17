@@ -36,19 +36,10 @@
     <!-- Screen-only hint (hidden when printing) -->
     <p class="preview-hint no-print">
       <mat-icon>info_outline</mat-icon>
-      Print preview — 2 admit cards per A4 sheet (Office Copy &amp; Student Copy)
+      Print preview — 1 admit card per A4 sheet
     </p>
 
-    <!-- ── Copy 1: Office Copy ─────────────────────────────────────────── -->
-    <app-admit-card-print [card]="admitCard" copyLabel="Office Copy"></app-admit-card-print>
-
-    <!-- ── Scissor cut line ────────────────────────────────────────────── -->
-    <div class="ac-cut-line">
-      <span class="cut-text">✂&nbsp;&nbsp; CUT HERE &nbsp;&nbsp;✂</span>
-    </div>
-
-    <!-- ── Copy 2: Student Copy ───────────────────────────────────────── -->
-    <app-admit-card-print [card]="admitCard" copyLabel="Student Copy"></app-admit-card-print>
+    <app-admit-card-print [card]="admitCard"></app-admit-card-print>
 
   </div>
 
