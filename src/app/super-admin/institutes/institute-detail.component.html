@@ -202,5 +202,88 @@
 
     </div>
 
+    <!-- ── Plan Management ────────────────────────────────────────────────── -->
+    <mat-card class="plan-mgmt-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>workspace_premium</mat-icon>
+        <mat-card-title>Plan Management</mat-card-title>
+        <mat-card-subtitle>Subscription plan &amp; active student capacity</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+
+        <!-- Student usage bar -->
+        <div class="usage-section">
+          <div class="usage-header">
+            <span class="usage-label">Active Students</span>
+            <span class="usage-count"
+              [class.usage-warn]="studentUsagePct >= 90"
+              [class.usage-full]="studentUsagePct >= 100">
+              {{ institute.stats.activeStudents | number }} / {{ planLimit | number }}
+            </span>
+          </div>
+          <mat-progress-bar
+            mode="determinate"
+            [value]="studentUsagePct"
+            [color]="usageBarColor">
+          </mat-progress-bar>
+          <p class="usage-near-limit" *ngIf="studentUsagePct >= 90 && studentUsagePct < 100">
+            <mat-icon>warning</mat-icon>
+            Approaching plan limit — consider upgrading.
+          </p>
+          <p class="usage-near-limit usage-at-limit" *ngIf="studentUsagePct >= 100">
+            <mat-icon>block</mat-icon>
+            Plan limit reached — new students cannot be added.
+          </p>
+        </div>
+
+        <mat-divider class="plan-divider"></mat-divider>
+
+        <!-- Plan selector row -->
+        <div class="plan-edit-row">
+
+          <mat-form-field appearance="outline" class="plan-select-field">
+            <mat-label>Change Plan</mat-label>
+            <mat-select [formControl]="planCtrl">
+              <mat-option *ngFor="let p of plans" [value]="p.value">
+                <span [style.color]="p.color" style="font-weight:600">{{ p.label }}</span>
+                &nbsp;&mdash;&nbsp;up to {{ planLimitFor(p.value) | number }} students
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="expiry-field">
+            <mat-label>Plan Expires On</mat-label>
+            <input matInput [matDatepicker]="planExpPicker" [formControl]="expiryCtrl" />
+            <mat-datepicker-toggle matIconSuffix [for]="planExpPicker"></mat-datepicker-toggle>
+            <mat-datepicker #planExpPicker></mat-datepicker>
+            <mat-hint>Leave empty for no expiry</mat-hint>
+          </mat-form-field>
+
+        </div>
+
+        <!-- Downgrade warning -->
+        <div class="downgrade-warn" *ngIf="downgradeWarning() as warn">
+          <mat-icon color="warn">warning</mat-icon>
+          <span>{{ warn }}</span>
+        </div>
+
+        <div class="plan-save-row">
+          <button mat-raised-button color="primary"
+            [disabled]="planSaving || !!downgradeWarning()"
+            (click)="savePlan()">
+            <mat-spinner *ngIf="planSaving" diameter="18" class="btn-spinner"></mat-spinner>
+            <mat-icon *ngIf="!planSaving">save</mat-icon>
+            {{ planSaving ? 'Saving…' : 'Update Plan' }}
+          </button>
+          <span class="current-plan-info" *ngIf="institute.planExpiresAt">
+            <mat-icon>schedule</mat-icon>
+            Expires: {{ fmt(institute.planExpiresAt) }}
+          </span>
+        </div>
+
+      </mat-card-content>
+    </mat-card>
+
   </ng-container>
 </div>

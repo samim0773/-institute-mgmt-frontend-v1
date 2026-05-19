@@ -43,16 +43,17 @@ export interface AuthResponse {
 
 // ─── Institute ────────────────────────────────────────────────────────────────
 export interface Institute {
-  _id:          string;
-  name:         string;
-  code:         string;
-  address:      string;
-  contactEmail: string;
-  contactPhone?: string;
-  plan?:        string;
-  isActive:     boolean;
-  createdAt:    string;
-  updatedAt?:   string;
+  _id:            string;
+  name:           string;
+  code:           string;
+  address:        string;
+  contactEmail:   string;
+  contactPhone?:  string;
+  plan?:          string;
+  planExpiresAt?: string;
+  isActive:       boolean;
+  createdAt:      string;
+  updatedAt?:     string;
 }
 
 // ─── Student ──────────────────────────────────────────────────────────────────

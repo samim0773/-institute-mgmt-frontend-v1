@@ -122,6 +122,56 @@
   p { margin: 0; font-size: 0.85rem; }
 }
 
+// Plan management card
+.plan-mgmt-card {
+  margin-top: 20px;
+  mat-card-title  { font-size: 1rem; font-weight: 700; }
+  mat-card-avatar mat-icon {
+    font-size: 22px; width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    background: #f3e5f5; border-radius: 50%; color: #6a1b9a;
+  }
+}
+
+.usage-section { margin: 8px 0 4px; }
+.usage-header  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.usage-label   { font-size: 0.8rem; font-weight: 600; color: #546e7a; text-transform: uppercase; letter-spacing: 0.4px; }
+.usage-count   { font-size: 0.9rem; font-weight: 700; color: #37474f; }
+.usage-warn    { color: #e65100 !important; }
+.usage-full    { color: #c62828 !important; }
+.usage-near-limit {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 0.75rem; color: #e65100; margin: 4px 0 0;
+  mat-icon { font-size: 15px; width: 15px; height: 15px; }
+  &.usage-at-limit { color: #c62828; }
+}
+
+.plan-divider { margin: 16px 0; }
+
+.plan-edit-row {
+  display: flex; gap: 16px; flex-wrap: wrap; margin-top: 8px;
+  .plan-select-field { flex: 1; min-width: 200px; }
+  .expiry-field      { flex: 1; min-width: 180px; }
+}
+
+.downgrade-warn {
+  display: flex; align-items: flex-start; gap: 8px;
+  background: #fff3e0; border: 1px solid #ffcc02; border-radius: 8px;
+  padding: 10px 14px; margin: 8px 0;
+  font-size: 0.82rem; color: #e65100; line-height: 1.4;
+  mat-icon { font-size: 18px; width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+}
+
+.plan-save-row {
+  display: flex; align-items: center; gap: 16px; margin-top: 12px; flex-wrap: wrap;
+  .btn-spinner { display: inline-block; margin-right: 6px; }
+}
+.current-plan-info {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 0.78rem; color: #9e9e9e;
+  mat-icon { font-size: 14px; width: 14px; height: 14px; }
+}
+
 // Empty state
 .empty-state {
   display: flex; flex-direction: column; align-items: center;

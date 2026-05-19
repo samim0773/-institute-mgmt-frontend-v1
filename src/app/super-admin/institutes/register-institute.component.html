@@ -47,9 +47,11 @@
                 <mat-label>Plan</mat-label>
                 <mat-select formControlName="plan">
                   <mat-option *ngFor="let p of plans" [value]="p.value">
-                    {{ p.label }}
+                    <span [style.color]="p.color" style="font-weight:600">{{ p.label }}</span>
+                    &nbsp;— {{ planLimitFor(p.value) | number }} students
                   </mat-option>
                 </mat-select>
+                <mat-hint>Max active students allowed by plan</mat-hint>
               </mat-form-field>
             </div>
 

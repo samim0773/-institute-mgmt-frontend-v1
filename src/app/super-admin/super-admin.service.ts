@@ -32,9 +32,10 @@ export interface InstituteUser {
 }
 
 export interface InstituteDetail extends Institute {
-  plan:      string;
-  updatedAt: string;
-  users:     InstituteUser[];
+  plan:           string;
+  planExpiresAt?: string;
+  updatedAt:      string;
+  users:          InstituteUser[];
   stats: {
     totalStudents:  number;
     activeStudents: number;
@@ -68,7 +69,15 @@ export const PLANS = [
   { value: 'trial',    label: 'Trial',    color: '#f57c00' },
   { value: 'basic',    label: 'Basic',    color: '#1565c0' },
   { value: 'standard', label: 'Standard', color: '#2e7d32' },
+  { value: 'advance',  label: 'Advance',  color: '#6a1b9a' },
 ];
+
+export const PLAN_LIMITS: Record<string, number> = {
+  trial:    50,
+  basic:    500,
+  standard: 1000,
+  advance:  2000,
+};
 
 @Injectable({ providedIn: 'root' })
 export class SuperAdminService {

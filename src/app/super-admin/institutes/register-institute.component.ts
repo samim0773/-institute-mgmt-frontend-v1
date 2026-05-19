@@ -4,7 +4,7 @@ import { Router }                       from '@angular/router';
 import { Subject }                      from 'rxjs';
 import { takeUntil, finalize }          from 'rxjs/operators';
 
-import { SuperAdminService, PLANS } from '../super-admin.service';
+import { SuperAdminService, PLANS, PLAN_LIMITS } from '../super-admin.service';
 import { NotificationService }      from '../../core/services/notification.service';
 
 @Component({
@@ -120,6 +120,8 @@ export class RegisterInstituteComponent implements OnInit, OnDestroy {
     }
     return 'Invalid value';
   }
+
+  planLimitFor(plan: string): number { return PLAN_LIMITS[plan] ?? 0; }
 
   cancel(): void { this.router.navigate(['/super-admin/institutes']); }
 }
