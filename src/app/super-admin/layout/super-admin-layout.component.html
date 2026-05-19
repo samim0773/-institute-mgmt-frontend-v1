@@ -51,6 +51,10 @@
           <small>Super Administrator</small>
         </div>
         <mat-divider></mat-divider>
+        <a mat-menu-item routerLink="/super-admin/change-password">
+          <mat-icon>lock</mat-icon> Change Password
+        </a>
+        <mat-divider></mat-divider>
         <button mat-menu-item (click)="logout()" class="logout-item">
           <mat-icon>logout</mat-icon> Sign Out
         </button>

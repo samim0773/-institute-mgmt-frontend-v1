@@ -98,6 +98,11 @@
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef></th>
           <td mat-cell *matCellDef="let t" class="actions-cell">
+            <button mat-icon-button color="accent"
+              (click)="openResetPassword(t)"
+              matTooltip="Reset Password">
+              <mat-icon>lock_reset</mat-icon>
+            </button>
             <button mat-icon-button [color]="t.isActive ? 'warn' : 'primary'"
               (click)="toggleActive(t)"
               [disabled]="togglingId === t._id"

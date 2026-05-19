@@ -185,6 +185,9 @@
                 <span class="last-login">
                   {{ u.lastLoginAt ? fmt(u.lastLoginAt) : 'Never logged in' }}
                 </span>
+                <button mat-icon-button color="warn" (click)="openResetPassword(u)" matTooltip="Reset Password">
+                  <mat-icon>lock_reset</mat-icon>
+                </button>
               </div>
 
             </div>

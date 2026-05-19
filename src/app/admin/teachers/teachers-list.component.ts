@@ -8,6 +8,8 @@ import { MatDialog }                    from '@angular/material/dialog';
 import { HttpClient }          from '@angular/common/http';
 import { environment }         from '../../../environments/environment';
 import { NotificationService } from '../../core/services/notification.service';
+import { AuthService }         from '../../core/services/auth.service';
+import { ResetPasswordDialogComponent, ResetPasswordDialogData } from './reset-password-dialog.component';
 
 export interface HomeroomClass {
   classSectionId: string;
@@ -58,6 +60,8 @@ export class TeachersListComponent implements OnInit, OnDestroy {
     private http:   HttpClient,
     private notify: NotificationService,
     private router: Router,
+    private dialog: MatDialog,
+    private auth:   AuthService,
   ) {}
 
   ngOnInit(): void {
@@ -113,6 +117,11 @@ export class TeachersListComponent implements OnInit, OnDestroy {
   }
 
   addTeacher(): void { this.router.navigate(['/admin/teachers/new']); }
+
+  openResetPassword(teacher: Teacher): void {
+    const data: ResetPasswordDialogData = { userId: teacher._id, userName: teacher.name };
+    this.dialog.open(ResetPasswordDialogComponent, { data, width: '420px' });
+  }
 
   formatDate(d: string): string {
     if (!d) return 'Never';

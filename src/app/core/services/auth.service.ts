@@ -96,6 +96,14 @@ export class AuthService {
   }
 
   /**
+   * PUT /api/auth/reset-password/:userId
+   * Admin resets a teacher's password; super_admin resets any user's password.
+   */
+  resetUserPassword(userId: string, newPassword: string): Observable<any> {
+    return this.http.put(`${environment.apiUrl}/auth/reset-password/${userId}`, { newPassword });
+  }
+
+  /**
    * GET /api/auth/me — returns the institute info for the current user.
    * Result is cached in-memory so subsequent calls skip the network.
    */

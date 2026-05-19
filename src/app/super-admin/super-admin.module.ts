@@ -26,13 +26,16 @@ import { MatTooltipModule }         from '@angular/material/tooltip';
 import { MatChipsModule }           from '@angular/material/chips';
 import { MatDatepickerModule }      from '@angular/material/datepicker';
 import { MatNativeDateModule }      from '@angular/material/core';
+import { MatDialogModule }          from '@angular/material/dialog';
 
 // Components
-import { SuperAdminLayoutComponent }      from './layout/super-admin-layout.component';
-import { InstitutesListComponent }        from './institutes/institutes-list.component';
-import { RegisterInstituteComponent }     from './institutes/register-institute.component';
-import { InstituteDetailComponent }       from './institutes/institute-detail.component';
-import { SuperAdminDashboardComponent }   from './dashboard/super-admin-dashboard.component';
+import { SuperAdminLayoutComponent }          from './layout/super-admin-layout.component';
+import { InstitutesListComponent }            from './institutes/institutes-list.component';
+import { RegisterInstituteComponent }         from './institutes/register-institute.component';
+import { InstituteDetailComponent }           from './institutes/institute-detail.component';
+import { SuperAdminDashboardComponent }       from './dashboard/super-admin-dashboard.component';
+import { SuperAdminChangePasswordComponent }          from './change-password/change-password.component';
+import { SuperAdminResetPasswordDialogComponent }     from './institutes/reset-password-dialog.component';
 
 const routes: Routes = [
   {
@@ -43,7 +46,8 @@ const routes: Routes = [
       { path: 'dashboard',         component: SuperAdminDashboardComponent, title: 'Dashboard' },
       { path: 'institutes',        component: InstitutesListComponent,      title: 'All Institutes' },
       { path: 'institutes/new',    component: RegisterInstituteComponent,   title: 'Register Institute' },
-      { path: 'institutes/:id',    component: InstituteDetailComponent,     title: 'Institute Details' },
+      { path: 'institutes/:id',    component: InstituteDetailComponent,         title: 'Institute Details' },
+      { path: 'change-password',   component: SuperAdminChangePasswordComponent, title: 'Change Password' },
     ],
   },
 ];
@@ -55,6 +59,8 @@ const routes: Routes = [
     RegisterInstituteComponent,
     InstituteDetailComponent,
     SuperAdminDashboardComponent,
+    SuperAdminChangePasswordComponent,
+    SuperAdminResetPasswordDialogComponent,
   ],
   imports: [
     CommonModule,
@@ -67,7 +73,7 @@ const routes: Routes = [
     MatTableModule, MatSlideToggleModule,
     MatProgressBarModule, MatProgressSpinnerModule,
     MatTooltipModule, MatChipsModule,
-    MatDatepickerModule, MatNativeDateModule,
+    MatDatepickerModule, MatNativeDateModule, MatDialogModule,
   ],
 })
 export class SuperAdminModule {}

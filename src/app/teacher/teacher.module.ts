@@ -29,11 +29,12 @@ import { MatDatepickerModule }      from '@angular/material/datepicker';
 import { MatNativeDateModule }      from '@angular/material/core';
 
 // Components
-import { TeacherLayoutComponent }     from './layout/teacher-layout.component';
-import { TeacherDashboardComponent }  from './dashboard/teacher-dashboard.component';
-import { TeacherResultsComponent }    from './results/teacher-results.component';
-import { MarksEntryComponent }        from './marks/marks-entry.component';
-import { NoticeBoardComponent }       from './notices/notice-board.component';
+import { TeacherLayoutComponent }          from './layout/teacher-layout.component';
+import { TeacherDashboardComponent }       from './dashboard/teacher-dashboard.component';
+import { TeacherResultsComponent }         from './results/teacher-results.component';
+import { MarksEntryComponent }             from './marks/marks-entry.component';
+import { NoticeBoardComponent }            from './notices/notice-board.component';
+import { TeacherChangePasswordComponent }  from './change-password/change-password.component';
 
 
 // Shared pipes from NoticesModule
@@ -55,7 +56,8 @@ const routes: Routes = [
       { path: 'dashboard', component: TeacherDashboardComponent, title: 'My Profile' },
       { path: 'marks',     component: MarksEntryComponent,       title: 'Mark Entry' },
       { path: 'notices',   component: NoticeBoardComponent,      title: 'Notice Board' },
-      { path: 'results',   component: TeacherResultsComponent,   title: 'Results' },
+      { path: 'results',         component: TeacherResultsComponent,        title: 'Results' },
+      { path: 'change-password', component: TeacherChangePasswordComponent,  title: 'Change Password' },
     ],
   },
 ];
@@ -67,6 +69,7 @@ const routes: Routes = [
     MarksEntryComponent,
     NoticeBoardComponent,
     TeacherResultsComponent,
+    TeacherChangePasswordComponent,
   ],
   imports: [
     CommonModule, FormsModule, ReactiveFormsModule,

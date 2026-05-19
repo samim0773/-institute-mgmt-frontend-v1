@@ -36,6 +36,7 @@ import { MatTabsModule }            from '@angular/material/tabs';
 // Components
 import { AdminLayoutComponent }  from './layout/admin-layout.component';
 import { DashboardComponent }    from './dashboard/dashboard.component';
+import { ChangePasswordComponent } from './change-password/change-password.component';
 
 const routes: Routes = [
   {
@@ -64,6 +65,8 @@ const routes: Routes = [
       { path: 'notices', loadChildren: () => import('./notices/notices.module').then(m => m.NoticesModule), title: 'Notices' },
 
       { path: 'teachers', loadChildren: () => import('./teachers/teachers.module').then(m => m.TeachersModule), title: 'Teachers' },
+
+      { path: 'change-password', component: ChangePasswordComponent, title: 'Change Password' },
     ],
   },
 ];
@@ -85,7 +88,7 @@ const MATERIAL = [
   declarations: [
     AdminLayoutComponent,
     DashboardComponent,
-    // Feature components added in Steps 5.3–5.7
+    ChangePasswordComponent,
   ],
   imports: [
     CommonModule,

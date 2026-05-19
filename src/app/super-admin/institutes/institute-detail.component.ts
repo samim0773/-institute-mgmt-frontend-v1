@@ -2,9 +2,11 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router }       from '@angular/router';
 import { Subject }                      from 'rxjs';
 import { takeUntil, finalize }          from 'rxjs/operators';
+import { MatDialog }                    from '@angular/material/dialog';
 
 import { SuperAdminService, InstituteDetail, InstituteUser } from '../super-admin.service';
 import { NotificationService }                               from '../../core/services/notification.service';
+import { SuperAdminResetPasswordDialogComponent, SuperAdminResetDialogData } from './reset-password-dialog.component';
 
 @Component({
   selector:    'app-institute-detail',
@@ -23,6 +25,7 @@ export class InstituteDetailComponent implements OnInit, OnDestroy {
     private router:   Router,
     private superSvc: SuperAdminService,
     private notify:   NotificationService,
+    private dialog:   MatDialog,
   ) {}
 
   ngOnInit(): void {
@@ -66,5 +69,10 @@ export class InstituteDetailComponent implements OnInit, OnDestroy {
 
   roleColor(u: InstituteUser): string {
     return u.role === 'admin' ? '#1565c0' : '#2e7d32';
+  }
+
+  openResetPassword(user: InstituteUser): void {
+    const data: SuperAdminResetDialogData = { userId: user._id, userName: user.name, userRole: user.role };
+    this.dialog.open(SuperAdminResetPasswordDialogComponent, { data, width: '420px' });
   }
 }

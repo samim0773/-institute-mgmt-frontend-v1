@@ -14,10 +14,12 @@ import { MatChipsModule }           from '@angular/material/chips';
 import { MatFormFieldModule }       from '@angular/material/form-field';
 import { MatInputModule }           from '@angular/material/input';
 import { MatSelectModule }          from '@angular/material/select';
+import { MatDialogModule }          from '@angular/material/dialog';
 
-import { TeachersListComponent } from './teachers-list.component';
-import { TeacherCountPipe }      from './teacher.pipe';
-import { AddTeacherComponent }   from '../../teacher/add-teacher/add-teacher.component';
+import { TeachersListComponent }        from './teachers-list.component';
+import { TeacherCountPipe }             from './teacher.pipe';
+import { AddTeacherComponent }          from '../../teacher/add-teacher/add-teacher.component';
+import { ResetPasswordDialogComponent } from './reset-password-dialog.component';
 
 
 const routes: Routes = [
@@ -26,7 +28,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  declarations: [ TeachersListComponent, TeacherCountPipe, AddTeacherComponent ],
+  declarations: [ TeachersListComponent, TeacherCountPipe, AddTeacherComponent, ResetPasswordDialogComponent ],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -34,7 +36,7 @@ const routes: Routes = [
     MatCardModule, MatButtonModule, MatIconModule,
     MatTableModule, MatProgressBarModule, MatProgressSpinnerModule,
     MatTooltipModule, MatChipsModule,
-    MatFormFieldModule, MatInputModule, MatSelectModule,
+    MatFormFieldModule, MatInputModule, MatSelectModule, MatDialogModule,
   ],
 })
 export class TeachersModule {}
