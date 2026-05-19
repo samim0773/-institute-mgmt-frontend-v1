@@ -3,22 +3,19 @@
 
   <!-- ── Left panel: branding ──────────────────────────────────────────────── -->
   <div class="login-brand" aria-hidden="true">
-
-    <!-- Animated floating orbs (pure CSS) -->
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
     <div class="orb orb-3"></div>
 
     <div class="brand-content">
 
-      <!-- Logo icon with glow ring -->
       <div class="brand-logo-wrap">
         <mat-icon class="brand-logo-icon">school</mat-icon>
       </div>
 
       <h1 class="brand-title">
-        Institute<br>
-        <span class="brand-title-gradient">Management</span>
+        EduManage<br>
+        <span class="brand-title-accent">Pro</span>
       </h1>
       <p class="brand-tagline">
         Streamline exams, results, fees &amp; notices — all in one powerful platform.
@@ -26,34 +23,34 @@
 
       <ul class="brand-features">
         <li>
-          <span class="feature-dot"></span>
+          <mat-icon class="feature-icon">check_circle</mat-icon>
           <span>Multi-institute support</span>
         </li>
         <li>
-          <span class="feature-dot"></span>
+          <mat-icon class="feature-icon">check_circle</mat-icon>
           <span>Printable admit cards &amp; marksheets</span>
         </li>
         <li>
-          <span class="feature-dot"></span>
+          <mat-icon class="feature-icon">check_circle</mat-icon>
           <span>Fee management &amp; payment history</span>
         </li>
         <li>
-          <span class="feature-dot"></span>
+          <mat-icon class="feature-icon">check_circle</mat-icon>
           <span>Role-based access for admins &amp; teachers</span>
         </li>
       </ul>
 
-      <!-- Decorative bottom wave divider -->
-      <div class="brand-wave"></div>
+      <a class="back-home-link" routerLink="/">
+        <mat-icon>arrow_back</mat-icon>
+        Back to Home
+      </a>
+
     </div>
   </div>
 
   <!-- ── Right panel: form ─────────────────────────────────────────────────── -->
   <div class="login-form-panel">
     <div class="login-card" role="main">
-
-      <!-- Colorful top accent bar -->
-      <div class="card-accent-bar"></div>
 
       <!-- Header -->
       <div class="login-header">
@@ -91,7 +88,7 @@
             matInput
             type="email"
             formControlName="email"
-            placeholder="admin@institute.com"
+            placeholder="admin&#64;institute.com"
             autocomplete="email"
             [attr.aria-describedby]="emailError ? 'email-error' : null"
           />
@@ -158,10 +155,13 @@
           <span class="role-chip role-teacher">
             <span class="chip-dot chip-dot--teacher"></span>Teacher
           </span>
-          <!-- <span class="role-chip role-super">
-            <span class="chip-dot chip-dot--super"></span>Super Admin
-          </span> -->
         </div>
+      </div>
+
+      <!-- Register CTA -->
+      <div class="register-cta">
+        <span>Don't have an account?</span>
+        <a routerLink="/register">Start free trial</a>
       </div>
 
     </div><!-- /login-card -->

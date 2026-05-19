@@ -1,0 +1,360 @@
+<!-- ─── Navbar ──────────────────────────────────────────────────────────────── -->
+<nav class="navbar" [class.scrolled]="navScrolled">
+  <div class="nav-container">
+    <div class="nav-brand">
+      <mat-icon class="brand-icon">school</mat-icon>
+      <span class="brand-name">EduManage<span class="brand-accent"> Pro</span></span>
+    </div>
+
+    <div class="nav-links" [class.open]="mobileMenuOpen">
+      <a (click)="scrollTo('features')">Features</a>
+      <a (click)="scrollTo('why-us')">Why Us</a>
+      <a (click)="scrollTo('pricing')">Pricing</a>
+      <a (click)="scrollTo('contact')">Contact</a>
+    </div>
+
+    <div class="nav-actions">
+      <button mat-stroked-button class="btn-login" (click)="goToLogin()">Login</button>
+      <button mat-flat-button   class="btn-start" (click)="goToRegister()">Get Started Free</button>
+    </div>
+
+    <button class="hamburger" (click)="mobileMenuOpen = !mobileMenuOpen">
+      <mat-icon>{{ mobileMenuOpen ? 'close' : 'menu' }}</mat-icon>
+    </button>
+  </div>
+</nav>
+
+<!-- ─── Hero ───────────────────────────────────────────────────────────────── -->
+<section class="hero-section" id="home">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="hero-content">
+    <div class="hero-badge">
+      <mat-icon>verified</mat-icon>
+      <span>Trusted by institutes across India</span>
+    </div>
+
+    <h1 class="hero-title">
+      Modern Institute<br>
+      <span class="hero-title-accent">Management Platform</span>
+    </h1>
+
+    <p class="hero-subtitle">
+      Automate student records, exams, fees, and notices from one powerful dashboard.
+      Built for schools, coaching centres, and educational institutes of every size.
+    </p>
+
+    <div class="hero-cta">
+      <button mat-flat-button class="cta-primary" (click)="goToRegister()">
+        <mat-icon>rocket_launch</mat-icon>
+        Start Free Trial — 20 Days
+      </button>
+      <button mat-stroked-button class="cta-secondary" (click)="scrollTo('features')">
+        <mat-icon>play_circle</mat-icon>
+        See Features
+      </button>
+    </div>
+
+    <p class="hero-note">No credit card required &nbsp;•&nbsp; Setup in 2 minutes &nbsp;•&nbsp; Cancel anytime</p>
+  </div>
+
+  <div class="hero-visual">
+    <div class="dashboard-mockup">
+      <div class="mockup-header">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="mockup-title">Admin Dashboard</span>
+      </div>
+      <div class="mockup-body">
+        <div class="stat-card"><mat-icon>people</mat-icon><div><strong>248</strong><small>Students</small></div></div>
+        <div class="stat-card"><mat-icon>person</mat-icon><div><strong>12</strong><small>Teachers</small></div></div>
+        <div class="stat-card"><mat-icon>class</mat-icon><div><strong>8</strong><small>Classes</small></div></div>
+        <div class="stat-card accent"><mat-icon>payments</mat-icon><div><strong>₹1.2L</strong><small>Fees Collected</small></div></div>
+        <div class="mockup-bar">
+          <span>Exam Results Published</span>
+          <div class="progress-bar"><div class="progress-fill" style="width:78%"></div></div>
+          <span>78%</span>
+        </div>
+        <div class="mockup-bar">
+          <span>Fee Collection</span>
+          <div class="progress-bar"><div class="progress-fill green" style="width:91%"></div></div>
+          <span>91%</span>
+        </div>
+        <div class="mockup-notice">
+          <mat-icon>campaign</mat-icon>
+          <span>Mid-term exams start next week</span>
+          <span class="badge">New</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Stats ──────────────────────────────────────────────────────────────── -->
+<section class="stats-section">
+  <div class="stats-grid">
+    <div class="stat-item" *ngFor="let s of animatedStats">
+      <span class="stat-number">{{ s.current }}{{ s.suffix }}</span>
+      <span class="stat-label">{{ s.label }}</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Features ──────────────────────────────────────────────────────────── -->
+<section class="section features-section" id="features">
+  <div class="section-inner">
+    <div class="section-header" #animateOnScroll>
+      <span class="section-tag">Features</span>
+      <h2>Everything Your Institute Needs</h2>
+      <p>A complete digital operations platform — no more spreadsheets, no more paper.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card" *ngFor="let f of features; let i = index"
+           #animateOnScroll [style.animationDelay]="(i * 0.1) + 's'">
+        <div class="feature-icon">
+          <mat-icon>{{ f.icon }}</mat-icon>
+        </div>
+        <h3>{{ f.title }}</h3>
+        <p>{{ f.desc }}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Why Choose Us ─────────────────────────────────────────────────────── -->
+<section class="section why-section" id="why-us">
+  <div class="section-inner">
+    <div class="section-header" #animateOnScroll>
+      <span class="section-tag">Why EduManage Pro</span>
+      <h2>More Than Just Software</h2>
+      <p>We're a consultancy — we partner with your institute for long-term success.</p>
+    </div>
+
+    <div class="why-grid">
+      <div class="why-card" *ngFor="let w of whyUs; let i = index"
+           #animateOnScroll [style.animationDelay]="(i * 0.12) + 's'">
+        <div class="why-icon-wrap">
+          <mat-icon>{{ w.icon }}</mat-icon>
+        </div>
+        <h3>{{ w.title }}</h3>
+        <p>{{ w.desc }}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── How It Works ──────────────────────────────────────────────────────── -->
+<section class="section steps-section" id="how-it-works">
+  <div class="section-inner">
+    <div class="section-header" #animateOnScroll>
+      <span class="section-tag">Simple Process</span>
+      <h2>Up & Running in Minutes</h2>
+      <p>No technical expertise needed. We guide you every step of the way.</p>
+    </div>
+
+    <div class="steps-row">
+      <div class="step-item" *ngFor="let s of steps; let i = index"
+           #animateOnScroll [style.animationDelay]="(i * 0.15) + 's'">
+        <div class="step-number">{{ s.number }}</div>
+        <div class="step-connector" *ngIf="i < steps.length - 1"></div>
+        <h3>{{ s.title }}</h3>
+        <p>{{ s.desc }}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Pricing ────────────────────────────────────────────────────────────── -->
+<section class="section pricing-section" id="pricing">
+  <div class="section-inner">
+    <div class="section-header" #animateOnScroll>
+      <span class="section-tag">Pricing</span>
+      <h2>Start Free, Scale When Ready</h2>
+      <p>Try the full platform for 20 days at no cost. Upgrade when you're convinced.</p>
+    </div>
+
+    <div class="pricing-grid">
+      <!-- Trial Plan -->
+      <div class="price-card" #animateOnScroll>
+        <div class="plan-badge trial">Free Trial</div>
+        <div class="plan-price">₹0<span>/20 days</span></div>
+        <h3>Trial Plan</h3>
+        <p>Get the full experience with no commitment.</p>
+        <ul class="plan-features">
+          <li><mat-icon>check_circle</mat-icon> Up to 50 students</li>
+          <li><mat-icon>check_circle</mat-icon> All core features</li>
+          <li><mat-icon>check_circle</mat-icon> Admin + Teacher access</li>
+          <li><mat-icon>check_circle</mat-icon> Exams, Fees & Notices</li>
+          <li><mat-icon>check_circle</mat-icon> Email support</li>
+        </ul>
+        <button mat-flat-button class="plan-btn trial-btn" (click)="goToRegister()">
+          Start Free Trial
+        </button>
+      </div>
+
+      <!-- Paid Plan -->
+      <div class="price-card featured" #animateOnScroll [style.animationDelay]="'0.1s'">
+        <div class="plan-badge paid">Popular</div>
+        <div class="plan-price">Custom<span> pricing</span></div>
+        <h3>Paid Plans</h3>
+        <p>Tailored to your student count and feature needs.</p>
+        <ul class="plan-features">
+          <li><mat-icon>check_circle</mat-icon> 500 – 2000+ students</li>
+          <li><mat-icon>check_circle</mat-icon> All trial features</li>
+          <li><mat-icon>check_circle</mat-icon> Custom feature development</li>
+          <li><mat-icon>check_circle</mat-icon> Priority 24/7 support</li>
+          <li><mat-icon>check_circle</mat-icon> Dedicated onboarding</li>
+          <li><mat-icon>check_circle</mat-icon> Data migration assistance</li>
+        </ul>
+        <button mat-flat-button class="plan-btn paid-btn" (click)="scrollTo('contact')">
+          Contact Us for Pricing
+        </button>
+        <p class="coming-soon-note">
+          <mat-icon>schedule</mat-icon>
+          Online payment via Razorpay — coming soon
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── About / Consultancy ───────────────────────────────────────────────── -->
+<section class="section about-section" id="about">
+  <div class="section-inner about-inner">
+    <div class="about-text" #animateOnScroll>
+      <span class="section-tag">About Us</span>
+      <h2>We're EduManage Pro Consultancy</h2>
+      <p>
+        We are a technology consultancy specialising in educational management solutions.
+        Our team has built EduManage Pro to solve the real operational challenges faced by
+        schools, coaching institutes, and tutoring centres across India.
+      </p>
+      <p>
+        We don't just provide software — we work alongside your team to understand your
+        unique processes and configure the platform exactly how you need it. If a feature
+        doesn't exist yet, we build it.
+      </p>
+      <div class="about-highlights">
+        <div class="highlight"><mat-icon>handshake</mat-icon><span>Partnership-first approach</span></div>
+        <div class="highlight"><mat-icon>engineering</mat-icon><span>Custom development available</span></div>
+        <div class="highlight"><mat-icon>language</mat-icon><span>Serving institutes across India</span></div>
+      </div>
+    </div>
+    <div class="about-visual" #animateOnScroll [style.animationDelay]="'0.2s'">
+      <div class="about-card">
+        <mat-icon class="ac-icon">lightbulb</mat-icon>
+        <h4>Our Mission</h4>
+        <p>Make institute management effortless so educators can focus on what matters — teaching.</p>
+      </div>
+      <div class="about-card">
+        <mat-icon class="ac-icon">visibility</mat-icon>
+        <h4>Our Vision</h4>
+        <p>Every educational institute in India empowered with professional digital tools.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Contact ────────────────────────────────────────────────────────────── -->
+<section class="section contact-section" id="contact">
+  <div class="section-inner">
+    <div class="section-header" #animateOnScroll>
+      <span class="section-tag">Get In Touch</span>
+      <h2>Ready to Transform Your Institute?</h2>
+      <p>Reach out for a demo, pricing details, or custom feature enquiries.</p>
+    </div>
+
+    <div class="contact-grid">
+      <div class="contact-info" #animateOnScroll>
+        <div class="contact-item">
+          <mat-icon>email</mat-icon>
+          <div>
+            <strong>Email Us</strong>
+            <a href="mailto:edumanagepro&#64;gmail.com">edumanagepro&#64;gmail.com</a>
+          </div>
+        </div>
+        <div class="contact-item">
+          <mat-icon>schedule</mat-icon>
+          <div>
+            <strong>Support Hours</strong>
+            <span>24 / 7 — Always available</span>
+          </div>
+        </div>
+        <div class="contact-item">
+          <mat-icon>location_on</mat-icon>
+          <div>
+            <strong>Serving</strong>
+            <span>Institutes across India</span>
+          </div>
+        </div>
+        <div class="contact-item">
+          <mat-icon>timer</mat-icon>
+          <div>
+            <strong>Response Time</strong>
+            <span>Within 2 hours (business hours)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="contact-cta-box" #animateOnScroll [style.animationDelay]="'0.15s'">
+        <h3>Start Your Free Trial Now</h3>
+        <p>
+          Register your institute in 2 minutes. Get 20 days of full access — completely free.
+          After your trial, simply contact us and we'll set up your paid plan.
+        </p>
+        <button mat-flat-button class="cta-primary large" (click)="goToRegister()">
+          <mat-icon>rocket_launch</mat-icon>
+          Register Your Institute
+        </button>
+        <p class="or-divider">— or —</p>
+        <a href="mailto:edumanagepro&#64;gmail.com" class="email-link">
+          <mat-icon>mail_outline</mat-icon>
+          Email us directly
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Footer ─────────────────────────────────────────────────────────────── -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="nav-brand">
+        <mat-icon class="brand-icon">school</mat-icon>
+        <span class="brand-name">EduManage<span class="brand-accent"> Pro</span></span>
+      </div>
+      <p>Modern institute management for the modern educator.</p>
+    </div>
+
+    <div class="footer-links">
+      <strong>Quick Links</strong>
+      <a (click)="scrollTo('features')">Features</a>
+      <a (click)="scrollTo('why-us')">Why Us</a>
+      <a (click)="scrollTo('pricing')">Pricing</a>
+      <a (click)="scrollTo('about')">About</a>
+      <a (click)="scrollTo('contact')">Contact</a>
+    </div>
+
+    <div class="footer-links">
+      <strong>Account</strong>
+      <a (click)="goToLogin()">Login</a>
+      <a (click)="goToRegister()">Start Free Trial</a>
+    </div>
+
+    <div class="footer-contact">
+      <strong>Contact</strong>
+      <a href="mailto:edumanagepro&#64;gmail.com">
+        <mat-icon>email</mat-icon> edumanagepro&#64;gmail.com
+      </a>
+      <span><mat-icon>support_agent</mat-icon> 24/7 Support</span>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <span>© 2025 EduManage Pro Consultancy. All rights reserved.</span>
+    <span>Crafted with ❤️ for Indian Educators</span>
+  </div>
+</footer>

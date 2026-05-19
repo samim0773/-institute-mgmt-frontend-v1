@@ -1,0 +1,237 @@
+<div class="register-page">
+
+  <!-- Orbs -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <!-- Navbar -->
+  <nav class="reg-nav">
+    <div class="nav-brand" (click)="goToLanding()">
+      <mat-icon>school</mat-icon>
+      <span>EduManage<span class="accent"> Pro</span></span>
+    </div>
+    <button mat-stroked-button class="btn-login" (click)="goToLogin()">
+      Already registered? Login
+    </button>
+  </nav>
+
+  <div class="reg-container">
+
+    <!-- ── Step 3: Success ─────────────────────────────────────────────────── -->
+    <div class="success-card" *ngIf="step === 3 && successData">
+      <div class="success-icon">
+        <mat-icon>check_circle</mat-icon>
+      </div>
+      <h1>You're all set! 🎉</h1>
+      <p class="success-msg">
+        <strong>{{ successData.institute.name }}</strong> has been registered successfully.
+        Your 20-day free trial is now active.
+      </p>
+
+      <div class="trial-info-box">
+        <mat-icon>timer</mat-icon>
+        <div>
+          <strong>Trial Period</strong>
+          <span>Active until <b>{{ trialEndDate }}</b> (20 days)</span>
+        </div>
+      </div>
+
+      <div class="success-details">
+        <div class="detail-row">
+          <span>Institute Code</span>
+          <strong>{{ successData.institute.code }}</strong>
+        </div>
+        <div class="detail-row">
+          <span>Admin Email</span>
+          <strong>{{ successData.admin.email }}</strong>
+        </div>
+        <div class="detail-row">
+          <span>Plan</span>
+          <strong class="accent">Trial (20 days free)</strong>
+        </div>
+      </div>
+
+      <div class="upgrade-notice">
+        <mat-icon>info</mat-icon>
+        <p>
+          After your trial ends, contact us at
+          <a href="mailto:edumanagepro&#64;gmail.com">edumanagepro&#64;gmail.com</a>
+          to upgrade to a paid plan and continue using the service uninterrupted.
+        </p>
+      </div>
+
+      <button mat-flat-button class="btn-go-login" (click)="goToLogin()">
+        <mat-icon>login</mat-icon>
+        Go to Login
+      </button>
+    </div>
+
+    <!-- ── Steps 1 & 2: Form ───────────────────────────────────────────────── -->
+    <div class="form-card" *ngIf="step < 3">
+
+      <!-- Header -->
+      <div class="form-header">
+        <div class="nav-brand" (click)="goToLanding()">
+          <mat-icon>school</mat-icon>
+          <span>EduManage<span class="accent"> Pro</span></span>
+        </div>
+        <h1>Register Your Institute</h1>
+        <p>Start your 20-day free trial — no credit card required.</p>
+      </div>
+
+      <!-- Trial banner -->
+      <div class="trial-banner">
+        <mat-icon>verified</mat-icon>
+        <span>Free 20-day trial &nbsp;•&nbsp; All features included &nbsp;•&nbsp; No payment needed</span>
+      </div>
+
+      <!-- Stepper indicator -->
+      <div class="step-indicator">
+        <div class="step-dot" [class.active]="step >= 1" [class.done]="step > 1">
+          <mat-icon *ngIf="step > 1">check</mat-icon>
+          <span *ngIf="step <= 1">1</span>
+        </div>
+        <div class="step-line" [class.active]="step >= 2"></div>
+        <div class="step-dot" [class.active]="step >= 2">
+          <span>2</span>
+        </div>
+        <div class="step-labels">
+          <span [class.active]="step === 1">Institute Details</span>
+          <span [class.active]="step === 2">Admin Account</span>
+        </div>
+      </div>
+
+      <!-- Server error -->
+      <div class="server-error" *ngIf="serverError" role="alert">
+        <mat-icon>error_outline</mat-icon>
+        {{ serverError }}
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+        <!-- ── Step 1: Institute Details ──────────────────────────────────── -->
+        <div *ngIf="step === 1" class="form-step">
+          <h2>Step 1: Institute Details</h2>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Institute Name</mat-label>
+            <input matInput formControlName="instituteName" placeholder="e.g. Sunshine Academy">
+            <mat-icon matPrefix>business</mat-icon>
+            <mat-error>{{ err('instituteName') }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Institute Code</mat-label>
+            <input matInput formControlName="instituteCode" placeholder="e.g. SUNAC" maxlength="10">
+            <mat-icon matPrefix>badge</mat-icon>
+            <mat-hint>2–10 alphanumeric characters, auto-converted to UPPERCASE</mat-hint>
+            <mat-error>{{ err('instituteCode') }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Address</mat-label>
+            <textarea matInput formControlName="address" rows="2"
+                      placeholder="Full address of your institute"></textarea>
+            <mat-icon matPrefix>location_on</mat-icon>
+            <mat-error>{{ err('address') }}</mat-error>
+          </mat-form-field>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Contact Email</mat-label>
+              <input matInput formControlName="contactEmail" type="email"
+                     placeholder="institute&#64;example.com">
+              <mat-icon matPrefix>email</mat-icon>
+              <mat-error>{{ err('contactEmail') }}</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Phone (optional)</mat-label>
+              <input matInput formControlName="contactPhone" placeholder="+91 98765 43210">
+              <mat-icon matPrefix>phone</mat-icon>
+              <mat-error>{{ err('contactPhone') }}</mat-error>
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Website (optional)</mat-label>
+            <input matInput formControlName="website" placeholder="https://yourinstitute.com">
+            <mat-icon matPrefix>language</mat-icon>
+          </mat-form-field>
+
+          <button mat-flat-button type="button" class="btn-next" (click)="nextStep()">
+            Next: Admin Account
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </div>
+
+        <!-- ── Step 2: Admin Account ──────────────────────────────────────── -->
+        <div *ngIf="step === 2" class="form-step">
+          <h2>Step 2: Create Admin Account</h2>
+          <p class="step-hint">This account will be the primary admin for your institute.</p>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Admin Full Name</mat-label>
+            <input matInput formControlName="adminName" placeholder="Your full name">
+            <mat-icon matPrefix>person</mat-icon>
+            <mat-error>{{ err('adminName') }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Admin Email</mat-label>
+            <input matInput formControlName="adminEmail" type="email"
+                   placeholder="admin@yourinstitute.com">
+            <mat-icon matPrefix>email</mat-icon>
+            <mat-hint>This will be your login email</mat-hint>
+            <mat-error>{{ err('adminEmail') }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Password</mat-label>
+            <input matInput formControlName="adminPassword"
+                   [type]="showPassword ? 'text' : 'password'"
+                   placeholder="Minimum 6 characters">
+            <mat-icon matPrefix>lock</mat-icon>
+            <button mat-icon-button matSuffix type="button"
+                    (click)="showPassword = !showPassword"
+                    [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
+              <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            <mat-hint>At least 6 characters</mat-hint>
+            <mat-error>{{ err('adminPassword') }}</mat-error>
+          </mat-form-field>
+
+          <!-- Razorpay placeholder — payment integration coming soon -->
+          <div class="payment-placeholder">
+            <mat-icon>lock</mat-icon>
+            <div>
+              <strong>Free Trial — No Payment Required</strong>
+              <span>Online payment via Razorpay will be available soon for plan upgrades.</span>
+            </div>
+          </div>
+
+          <div class="step-actions">
+            <button mat-stroked-button type="button" class="btn-back" (click)="prevStep()">
+              <mat-icon>arrow_back</mat-icon>
+              Back
+            </button>
+
+            <button mat-flat-button type="submit" class="btn-submit" [disabled]="loading">
+              <mat-spinner diameter="18" *ngIf="loading"></mat-spinner>
+              <mat-icon *ngIf="!loading">rocket_launch</mat-icon>
+              {{ loading ? 'Registering…' : 'Start Free Trial' }}
+            </button>
+          </div>
+        </div>
+
+      </form>
+
+      <!-- Footer note -->
+      <p class="footer-note">
+        By registering you agree to our Terms of Service.
+        Need help? Email <a href="mailto:edumanagepro&#64;gmail.com">edumanagepro&#64;gmail.com</a>
+      </p>
+    </div>
+
+  </div>
+</div>

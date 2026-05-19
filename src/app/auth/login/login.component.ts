@@ -84,11 +84,14 @@ export class LoginComponent implements OnInit, OnDestroy {
           }
         },
         error: (err) => {
-          // 401 → wrong credentials. 403 → account deactivated.
+          // 401 → wrong credentials. 402 → trial expired. 403 → deactivated.
           // ErrorInterceptor handles snackbar; we set the inline message too.
           const status = err?.status;
           if (status === 401) {
             this.serverError = 'Invalid email or password.';
+          } else if (status === 402) {
+            this.serverError = err.error?.message ||
+              'Your free trial has expired. Contact edumanagepro@gmail.com to upgrade.';
           } else if (status === 403) {
             this.serverError = err.error?.message || 'Your account has been deactivated.';
           } else if (status === 0) {

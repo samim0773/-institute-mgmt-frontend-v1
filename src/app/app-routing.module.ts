@@ -3,13 +3,22 @@ import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard }          from './core/guards/auth.guard';
 import { RoleGuard }          from './core/guards/role.guard';
 import { LoginRedirectGuard } from './core/guards/login-redirect.guard';
+import { LandingComponent }   from './public/landing/landing.component';
+import { RegisterComponent }  from './public/register/register.component';
 
 const routes: Routes = [
-  // ─── Default redirect ──────────────────────────────────────────────────────
+  // ─── Public: Landing page ─────────────────────────────────────────────────
   {
-    path: '',
-    redirectTo: 'auth/login',
+    path:      '',
+    component: LandingComponent,
     pathMatch: 'full',
+  },
+
+  // ─── Public: Institute self-registration (trial) ──────────────────────────
+  {
+    path:        'register',
+    component:   RegisterComponent,
+    canActivate: [LoginRedirectGuard],
   },
 
   // ─── Auth (login page) ─────────────────────────────────────────────────────
@@ -57,7 +66,7 @@ const routes: Routes = [
   // ─── Wildcard 404 ──────────────────────────────────────────────────────────
   {
     path: '**',
-    redirectTo: 'auth/login',
+    redirectTo: '',
   },
 ];
 
