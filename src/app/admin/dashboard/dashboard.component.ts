@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subject, forkJoin }            from 'rxjs';
-import { takeUntil, finalize }          from 'rxjs/operators';
+import { Subject, forkJoin }              from 'rxjs';
+import { takeUntil, finalize }            from 'rxjs/operators';
 import { AdminApiService }              from '../services/admin-api.service';
 import { AuthService }                  from '../../core/services/auth.service';
 
@@ -89,9 +89,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   classLoading   = true;
 
   // ── Greet ─────────────────────────────────────────────────────────────────
-  greeting   = '';
-  userName   = '';
-  today      = new Date();
+  greeting       = '';
+  userName       = '';
+  instituteName  = '';
+  today          = new Date();
 
   private destroy$ = new Subject<void>();
 
@@ -103,6 +104,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.setupGreeting();
     this.loadDashboard();
+    this.auth.getMyInstituteInfo()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(info => { this.instituteName = info?.name || ''; });
   }
 
   ngOnDestroy(): void {

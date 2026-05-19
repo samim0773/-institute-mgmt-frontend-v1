@@ -1,6 +1,66 @@
 // teacher-dashboard.component.scss
 .dashboard-page { max-width: 860px; margin: 0 auto; }
 
+// ── Institute hero banner ─────────────────────────────────────────────────────
+.teacher-hero {
+  background:    linear-gradient(135deg, #004d40 0%, #00695c 50%, #00838f 100%);
+  border-radius: 16px;
+  padding:       22px 28px;
+  margin-bottom: 24px;
+  box-shadow:    0 8px 28px rgba(0,77,64,0.22);
+  position:      relative;
+  overflow:      hidden;
+
+  &::after {
+    content:       '';
+    position:      absolute;
+    top:           -50px; right: -50px;
+    width:         180px; height: 180px;
+    border-radius: 50%;
+    background:    radial-gradient(circle, rgba(255,255,255,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  @media (max-width: 480px) { padding: 18px 20px; border-radius: 12px; }
+}
+
+.teacher-hero-inner {
+  display:     flex;
+  align-items: center;
+  gap:         16px;
+  position:    relative;
+  z-index:     1;
+}
+
+.hero-school-icon {
+  font-size:  36px !important;
+  width:      36px !important;
+  height:     36px !important;
+  color:      rgba(255,255,255,0.85);
+  flex-shrink: 0;
+}
+
+.hero-text {
+  display:        flex;
+  flex-direction: column;
+  gap:            2px;
+}
+
+.hero-inst-name {
+  font-size:   1.15rem;
+  font-weight: 700;
+  color:       #fff;
+  letter-spacing: 0.2px;
+}
+
+.hero-tagline {
+  font-size:  0.78rem;
+  color:      rgba(255,255,255,0.65);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
 // ── Profile card ────────────────────────────────────────────────────────────
 .profile-card {
   margin-bottom: 24px;

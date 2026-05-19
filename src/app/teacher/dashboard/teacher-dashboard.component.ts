@@ -13,8 +13,9 @@ import { AuthUser }             from '../../core/models';
 })
 export class TeacherDashboardComponent implements OnInit, OnDestroy {
 
-  profile: AuthUser | null = null;
-  loading = true;
+  profile:       AuthUser | null = null;
+  loading:       boolean = true;
+  instituteName: string  = '';
 
   private destroy$ = new Subject<void>();
 
@@ -24,7 +25,6 @@ export class TeacherDashboardComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // Use the already-stored user immediately, then refresh from server
     this.profile = this.auth.currentUser;
     this.loading = !!this.profile === false;
 
@@ -40,6 +40,10 @@ export class TeacherDashboardComponent implements OnInit, OnDestroy {
           this.loading = false;
         },
       });
+
+    this.auth.getMyInstituteInfo()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(info => { this.instituteName = info?.name || ''; });
   }
 
   ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }

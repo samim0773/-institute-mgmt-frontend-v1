@@ -2,15 +2,28 @@
 <mat-sidenav-container class="layout-container" autosize>
 
   <mat-sidenav #sidenav [mode]="sidenavMode" [opened]="sidenavOpened" class="sidebar" fixedInViewport>
-    <!-- Brand -->
+    <!-- Brand + Institute name -->
     <div class="sidebar-brand">
-      <mat-icon class="brand-icon">school</mat-icon>
-      <span class="brand-text">InstituteMS</span>
+      <div class="brand-logo-box">
+        <mat-icon class="brand-icon">school</mat-icon>
+      </div>
+      <div class="brand-text-group">
+        <span class="brand-app-name">InstituteMS</span>
+        <span class="brand-inst-name" *ngIf="instituteName" [title]="instituteName">
+          {{ instituteName }}
+        </span>
+        <span class="brand-inst-name brand-inst-name--placeholder" *ngIf="!instituteName">
+          Teacher Portal
+        </span>
+      </div>
     </div>
-    <div class="sidebar-sub">
-      <mat-icon class="sub-icon">person</mat-icon>
-      <span class="sub-text">Teacher Portal</span>
+
+    <!-- Institute name banner -->
+    <div class="inst-name-banner" *ngIf="instituteName">
+      <mat-icon class="inst-banner-icon">business</mat-icon>
+      <span class="inst-banner-text">{{ instituteName }}</span>
     </div>
+
     <mat-divider></mat-divider>
 
     <!-- Subject badge -->

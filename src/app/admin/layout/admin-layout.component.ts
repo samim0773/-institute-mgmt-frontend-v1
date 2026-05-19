@@ -45,9 +45,10 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
   sidenavOpened = true;
 
   // ── User info (for toolbar avatar) ───────────────────────────────────────
-  userName  = '';
-  userRole  = '';
-  userInitial = '';
+  userName     = '';
+  userRole     = '';
+  userInitial  = '';
+  instituteName = '';
 
   private destroy$ = new Subject<void>();
 
@@ -60,6 +61,7 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadUserInfo();
+    this.loadInstituteName();
     this.watchBreakpoint();
     this.closeDrawerOnMobileNav();
   }
@@ -75,6 +77,14 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
     this.userName    = user?.name    || 'Admin';
     this.userRole    = this.formatRole(user?.role || 'admin');
     this.userInitial = (user?.name?.[0] || 'A').toUpperCase();
+  }
+
+  private loadInstituteName(): void {
+    this.authService.getMyInstituteInfo()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(info => {
+        this.instituteName = info?.name || '';
+      });
   }
 
   private formatRole(role: string): string {

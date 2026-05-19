@@ -3,6 +3,17 @@
 
   <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
 
+  <!-- ── Institute hero banner ─────────────────────────────────────────────── -->
+  <div class="teacher-hero" *ngIf="!loading && instituteName">
+    <div class="teacher-hero-inner">
+      <mat-icon class="hero-school-icon">school</mat-icon>
+      <div class="hero-text">
+        <span class="hero-inst-name">{{ instituteName }}</span>
+        <span class="hero-tagline">Teacher Dashboard</span>
+      </div>
+    </div>
+  </div>
+
   <ng-container *ngIf="!loading && profile">
 
     <!-- ── Profile card ──────────────────────────────────────────────────────── -->

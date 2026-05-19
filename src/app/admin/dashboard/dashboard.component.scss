@@ -5,35 +5,122 @@
   margin:    0 auto;
 }
 
-// ── Greeting header ───────────────────────────────────────────────────────────
-.dash-header {
-  display:      flex;
-  align-items:  center;
+// ── Hero greeting banner ──────────────────────────────────────────────────────
+.dash-hero {
+  display:         flex;
+  align-items:     center;
   justify-content: space-between;
-  flex-wrap:    wrap;
-  gap:          12px;
-  margin-bottom: 24px;
+  flex-wrap:       wrap;
+  gap:             16px;
+  margin-bottom:   28px;
+  background:      linear-gradient(135deg, #1a237e 0%, #283593 55%, #1565c0 100%);
+  border-radius:   18px;
+  padding:         28px 32px;
+  position:        relative;
+  overflow:        hidden;
+  box-shadow:      0 8px 32px rgba(26,35,126,0.22);
+
+  // Decorative subtle glow orb
+  &::after {
+    content:       '';
+    position:      absolute;
+    top:           -60px;
+    right:         -60px;
+    width:         240px;
+    height:        240px;
+    border-radius: 50%;
+    background:    radial-gradient(circle, rgba(255,255,255,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  @media (max-width: 600px) { padding: 22px 20px; border-radius: 14px; }
+}
+
+.dash-hero-left {
+  position: relative;
+  z-index:  1;
+}
+
+// Institute name pill
+.inst-pill {
+  display:       inline-flex;
+  align-items:   center;
+  gap:           6px;
+  background:    rgba(255,255,255,0.14);
+  border:        1px solid rgba(255,255,255,0.22);
+  border-radius: 20px;
+  padding:       4px 12px 4px 8px;
+  margin-bottom: 12px;
+
+  .inst-pill-icon {
+    font-size:  14px;
+    width:      14px;
+    height:     14px;
+    color:      #90caf9;
+  }
+
+  .inst-pill-text {
+    font-size:   0.78rem;
+    font-weight: 600;
+    color:       rgba(255,255,255,0.9);
+    letter-spacing: 0.2px;
+  }
 }
 
 .dash-greeting {
-  font-size:   1.5rem;
+  font-size:   1.6rem;
   font-weight: 700;
-  color:       #212121;
-  margin:      0 0 4px;
+  color:       #fff;
+  margin:      0 0 6px;
+  position:    relative;
+  z-index:     1;
 
-  @media (max-width: 480px) { font-size: 1.2rem; }
+  @media (max-width: 480px) { font-size: 1.25rem; }
 }
 
 .dash-date {
   font-size:  0.875rem;
-  color:      #757575;
+  color:      rgba(255,255,255,0.72);
   margin:     0;
+  position:   relative;
+  z-index:    1;
 }
 
-.dash-cta {
-  white-space: nowrap;
+// Hero action buttons
+.dash-hero-actions {
+  display:    flex;
+  gap:        10px;
+  flex-wrap:  wrap;
+  position:   relative;
+  z-index:    1;
 
-  mat-icon { margin-right: 6px; vertical-align: middle; }
+  @media (max-width: 480px) { width: 100%; }
+}
+
+.dash-cta-primary {
+  background:  rgba(255,255,255,0.18) !important;
+  color:       #fff !important;
+  border:      1px solid rgba(255,255,255,0.3) !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  white-space: nowrap;
+  transition:  background 0.2s ease !important;
+
+  &:hover { background: rgba(255,255,255,0.28) !important; }
+
+  mat-icon { margin-right: 6px; vertical-align: middle; font-size: 18px; }
+}
+
+.dash-cta-secondary {
+  color:         rgba(255,255,255,0.85) !important;
+  border-color:  rgba(255,255,255,0.3) !important;
+  border-radius: 10px !important;
+  font-weight:   600 !important;
+  white-space:   nowrap;
+
+  &:hover { border-color: rgba(255,255,255,0.6) !important; color: #fff !important; }
+
+  mat-icon { margin-right: 6px; vertical-align: middle; font-size: 18px; }
 }
 
 // ══ STAT CARDS ════════════════════════════════════════════════════════════════
@@ -54,15 +141,17 @@ $stat-colors: (
 );
 
 .stat-card {
-  cursor: default;
-  transition: box-shadow 0.2s, transform 0.15s;
-  border-left: 4px solid transparent;
+  cursor:        default;
+  border-radius: 14px !important;
+  transition:    box-shadow 0.22s ease, transform 0.18s ease;
+  border-left:   4px solid transparent;
+  border:        none;
 
   &--clickable {
     cursor: pointer;
     &:hover {
-      box-shadow:  0 4px 16px rgba(0,0,0,0.12) !important;
-      transform:   translateY(-2px);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.13) !important;
+      transform:  translateY(-3px);
     }
   }
 
@@ -90,13 +179,14 @@ $stat-colors: (
 }
 
 .stat-icon-wrap {
-  width:            52px;
-  height:           52px;
-  border-radius:    14px;
+  width:            54px;
+  height:           54px;
+  border-radius:    16px;
   display:          flex;
   align-items:      center;
   justify-content:  center;
   flex-shrink:      0;
+  box-shadow:       0 2px 8px rgba(0,0,0,0.1);
 }
 
 .stat-icon {
@@ -164,7 +254,8 @@ $stat-colors: (
 
 // Shared card styles
 .dash-card {
-  min-height: 280px;
+  min-height:    280px;
+  border-radius: 14px !important;
 
   ::ng-deep mat-card-header {
     display:     flex;

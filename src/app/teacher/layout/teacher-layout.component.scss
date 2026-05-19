@@ -8,12 +8,31 @@
   ::ng-deep .mat-drawer-inner-container { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
   ::ng-deep mat-divider { border-top-color: rgba(255,255,255,0.12) !important; }
 }
-.sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 20px 20px 8px;
-  font-size: 1rem; font-weight: 700; color: #fff;
-  .brand-icon { font-size: 26px; width: 26px; height: 26px; color: #80cbc4; } }
-.sidebar-sub { display: flex; align-items: center; gap: 8px; padding: 2px 20px 10px;
-  font-size: 0.75rem; opacity: 0.6;
-  .sub-icon { font-size: 14px; width: 14px; height: 14px; } }
+.sidebar-brand {
+  display: flex; align-items: center; gap: 12px; padding: 18px 18px 14px;
+}
+.brand-logo-box {
+  width: 40px; height: 40px; border-radius: 11px;
+  background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.18);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  .brand-icon { font-size: 22px; width: 22px; height: 22px; color: #80cbc4; }
+}
+.brand-text-group { display: flex; flex-direction: column; min-width: 0; }
+.brand-app-name { font-size: 0.92rem; font-weight: 700; color: #fff; letter-spacing: 0.2px; line-height: 1.2; }
+.brand-inst-name {
+  font-size: 0.72rem; color: #80cbc4; font-weight: 500;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; margin-top: 2px;
+  &--placeholder { opacity: 0.55; text-transform: uppercase; letter-spacing: 0.6px; }
+}
+.inst-name-banner {
+  display: flex; align-items: center; gap: 7px;
+  margin: 0 12px 10px;
+  background: linear-gradient(135deg, rgba(128,203,196,0.18) 0%, rgba(0,150,136,0.12) 100%);
+  border: 1px solid rgba(128,203,196,0.24); border-radius: 8px; padding: 7px 12px;
+  .inst-banner-icon { font-size: 14px; width: 14px; height: 14px; color: #80cbc4; flex-shrink: 0; }
+  .inst-banner-text { font-size: 0.78rem; font-weight: 600; color: rgba(255,255,255,0.88);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: 0.1px; }
+}
 .subject-badge {
   display: flex; align-items: center; gap: 8px; margin: 10px 12px;
   background: rgba(255,255,255,0.12); border-radius: 20px; padding: 6px 14px;

@@ -9,16 +9,26 @@
     class="sidebar"
     fixedInViewport
   >
-    <!-- Brand logo -->
+    <!-- Brand + Institute name -->
     <div class="sidebar-brand">
-      <mat-icon class="brand-icon">school</mat-icon>
-      <span class="brand-text">InstituteMS</span>
+      <div class="brand-logo-box">
+        <mat-icon class="brand-icon">school</mat-icon>
+      </div>
+      <div class="brand-text-group">
+        <span class="brand-app-name">InstituteMS</span>
+        <span class="brand-inst-name" *ngIf="instituteName" [title]="instituteName">
+          {{ instituteName }}
+        </span>
+        <span class="brand-inst-name brand-inst-name--placeholder" *ngIf="!instituteName">
+          Admin Portal
+        </span>
+      </div>
     </div>
 
-    <!-- Institute name sub-heading -->
-    <div class="sidebar-inst-name">
-      <mat-icon class="inst-icon">business</mat-icon>
-      <span class="inst-label">Admin Portal</span>
+    <!-- Institute name banner (full-width, below brand) -->
+    <div class="inst-name-banner" *ngIf="instituteName">
+      <mat-icon class="inst-banner-icon">business</mat-icon>
+      <span class="inst-banner-text">{{ instituteName }}</span>
     </div>
 
     <mat-divider></mat-divider>

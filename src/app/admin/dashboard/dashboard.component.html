@@ -1,19 +1,38 @@
 <!-- dashboard.component.html -->
 <div class="dashboard">
 
-  <!-- ── Greeting header ──────────────────────────────────────────────────── -->
-  <div class="dash-header">
-    <div>
+  <!-- ── Greeting hero banner ─────────────────────────────────────────────── -->
+  <div class="dash-hero">
+    <div class="dash-hero-left">
+
+      <!-- Institute name pill -->
+      <div class="inst-pill" *ngIf="instituteName">
+        <mat-icon class="inst-pill-icon">business</mat-icon>
+        <span class="inst-pill-text">{{ instituteName }}</span>
+      </div>
+
       <h1 class="dash-greeting">{{ greeting }}, {{ userName }} 👋</h1>
       <p class="dash-date">{{ today | date:'EEEE, d MMMM yyyy' }}</p>
     </div>
-    <button
-      mat-stroked-button
-      routerLink="/admin/students"
-      class="dash-cta"
-    >
-      <mat-icon>add</mat-icon> Add Student
-    </button>
+
+    <div class="dash-hero-actions">
+      <button
+        mat-raised-button
+        routerLink="/admin/students"
+        class="dash-cta-primary"
+      >
+        <mat-icon>person_add</mat-icon>
+        Add Student
+      </button>
+      <button
+        mat-stroked-button
+        routerLink="/admin/notices/new"
+        class="dash-cta-secondary"
+      >
+        <mat-icon>campaign</mat-icon>
+        Post Notice
+      </button>
+    </div>
   </div>
 
   <!-- ── Stat cards row ───────────────────────────────────────────────────── -->

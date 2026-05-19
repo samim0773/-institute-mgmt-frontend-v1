@@ -1,7 +1,7 @@
 import { Injectable }        from '@angular/core';
 import { HttpClient }        from '@angular/common/http';
 import { Router }            from '@angular/router';
-import { BehaviorSubject, Observable, tap, catchError, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, of, tap, map, catchError, throwError } from 'rxjs';
 import { MatSnackBar }       from '@angular/material/snack-bar';
 import { environment }       from '../../../environments/environment';
 import {
@@ -16,11 +16,11 @@ export class AuthService {
   private readonly USER_KEY  = 'inst_user';
 
   // ─── Reactive state ──────────────────────────────────────────────────────────
-  // BehaviorSubject emits the current user synchronously on subscribe.
-  // Any component can inject AuthService and subscribe to currentUser$ to
-  // reactively show/hide UI based on login state and role.
   private currentUserSubject = new BehaviorSubject<AuthUser | null>(this.loadUserFromStorage());
   readonly currentUser$ = this.currentUserSubject.asObservable();
+
+  // Cached institute info — fetched once per session from /auth/me
+  private instituteInfoSubject = new BehaviorSubject<{ name: string; code?: string } | null>(null);
 
   constructor(
     private http:      HttpClient,
@@ -58,6 +58,7 @@ export class AuthService {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
     this.currentUserSubject.next(null);
+    this.instituteInfoSubject.next(null);
     this.router.navigate(['/auth/login']);
   }
 
@@ -92,6 +93,20 @@ export class AuthService {
           }
         }),
       );
+  }
+
+  /**
+   * GET /api/auth/me — returns the institute info for the current user.
+   * Result is cached in-memory so subsequent calls skip the network.
+   */
+  getMyInstituteInfo(): Observable<{ name: string; code?: string } | null> {
+    const cached = this.instituteInfoSubject.value;
+    if (cached) return of(cached);
+    return this.http.get<any>(`${environment.apiUrl}/auth/me`).pipe(
+      map((res: any) => res?.data?.institute ?? null),
+      tap(info => this.instituteInfoSubject.next(info)),
+      catchError(() => of(null)),
+    );
   }
 
   // ═══════════════════════════════════════════════════════════════════════════

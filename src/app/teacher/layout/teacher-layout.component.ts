@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Router }            from '@angular/router';
+import { Subject }           from 'rxjs';
+import { takeUntil }         from 'rxjs/operators';
 import { AuthService }       from '../../core/services/auth.service';
 
 @Component({
@@ -8,10 +10,13 @@ import { AuthService }       from '../../core/services/auth.service';
   templateUrl: './teacher-layout.component.html',
   styleUrls:   ['./teacher-layout.component.scss'],
 })
-export class TeacherLayoutComponent implements OnInit {
+export class TeacherLayoutComponent implements OnInit, OnDestroy {
 
-  sidenavOpened = true;
-  isMobile      = false;
+  sidenavOpened  = true;
+  isMobile       = false;
+  instituteName  = '';
+
+  private destroy$ = new Subject<void>();
 
   // Teacher navigation — intentionally limited vs admin
   navItems = [
@@ -28,10 +33,23 @@ export class TeacherLayoutComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.breakpoint.observe([Breakpoints.Handset]).subscribe(r => {
-      this.isMobile      = r.matches;
-      this.sidenavOpened = !r.matches;
-    });
+    this.breakpoint.observe([Breakpoints.Handset])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(r => {
+        this.isMobile      = r.matches;
+        this.sidenavOpened = !r.matches;
+      });
+
+    this.auth.getMyInstituteInfo()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(info => {
+        this.instituteName = info?.name || '';
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   get sidenavMode(): 'over' | 'side' {

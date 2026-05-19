@@ -31,35 +31,90 @@
 
 // Brand section at top
 .sidebar-brand {
-  display:      flex;
-  align-items:  center;
-  gap:          12px;
-  padding:      20px 20px 12px;
-  font-size:    1.1rem;
-  font-weight:  700;
-  letter-spacing: 0.3px;
-
-  .brand-icon {
-    font-size:  28px;
-    width:      28px;
-    height:     28px;
-    color:      #90caf9;   // light blue accent
-  }
-
-  .brand-text { color: #fff; }
-}
-
-// Institute portal sub-line
-.sidebar-inst-name {
   display:     flex;
   align-items: center;
-  gap:         8px;
-  padding:     4px 20px 12px;
-  font-size:   0.8rem;
-  opacity:     0.65;
+  gap:         12px;
+  padding:     18px 18px 14px;
+}
 
-  .inst-icon  { font-size: 16px; width: 16px; height: 16px; }
-  .inst-label { text-transform: uppercase; letter-spacing: 0.8px; }
+.brand-logo-box {
+  width:            40px;
+  height:           40px;
+  border-radius:    11px;
+  background:       rgba(255,255,255,0.14);
+  border:           1px solid rgba(255,255,255,0.18);
+  display:          flex;
+  align-items:      center;
+  justify-content:  center;
+  flex-shrink:      0;
+
+  .brand-icon {
+    font-size: 22px;
+    width:     22px;
+    height:    22px;
+    color:     #90caf9;
+  }
+}
+
+.brand-text-group {
+  display:        flex;
+  flex-direction: column;
+  min-width:      0;
+}
+
+.brand-app-name {
+  font-size:      0.92rem;
+  font-weight:    700;
+  color:          #fff;
+  letter-spacing: 0.2px;
+  line-height:    1.2;
+}
+
+.brand-inst-name {
+  font-size:     0.72rem;
+  color:         #90caf9;
+  font-weight:   500;
+  white-space:   nowrap;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+  max-width:     160px;
+  margin-top:    2px;
+
+  &--placeholder {
+    opacity:        0.55;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+}
+
+// Institute name banner below brand
+.inst-name-banner {
+  display:       flex;
+  align-items:   center;
+  gap:           7px;
+  margin:        0 12px 10px;
+  background:    linear-gradient(135deg, rgba(144,202,249,0.18) 0%, rgba(100,130,220,0.12) 100%);
+  border:        1px solid rgba(144,202,249,0.22);
+  border-radius: 8px;
+  padding:       7px 12px;
+
+  .inst-banner-icon {
+    font-size:  14px;
+    width:      14px;
+    height:     14px;
+    color:      #90caf9;
+    flex-shrink: 0;
+  }
+
+  .inst-banner-text {
+    font-size:     0.78rem;
+    font-weight:   600;
+    color:         rgba(255,255,255,0.88);
+    white-space:   nowrap;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+    letter-spacing: 0.1px;
+  }
 }
 
 ::ng-deep .sidebar mat-divider {
@@ -86,12 +141,12 @@
   border-radius: 0 24px 24px 0 !important;   // pill shape on the right side
   margin-right:  12px !important;
   height:        44px !important;
-  color:         rgba(255, 255, 255, 0.75) !important;
+  color:         #fff !important;
   transition:    background 0.15s, color 0.15s !important;
 
   &:hover {
     background: rgba(255, 255, 255, 0.1) !important;
-    color:      #fff !important;
+    color:      #bbdefb !important;
   }
 
   // Active state
@@ -114,6 +169,7 @@
 .nav-label {
   font-size:   0.875rem;
   font-weight: 500;
+  color:       inherit;
 }
 
 // Badge (e.g. pending fees count)
