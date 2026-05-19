@@ -3,12 +3,14 @@ import { FormControl }                  from '@angular/forms';
 import { Router }                       from '@angular/router';
 import { Subject }                      from 'rxjs';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
+import { MatDialog }            from '@angular/material/dialog';
 import { takeUntil, finalize, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import {
   SuperAdminService, InstituteWithStats, PlatformStats, PLANS,
 } from '../super-admin.service';
 import { NotificationService } from '../../core/services/notification.service';
+import { DeleteInstituteDialogComponent, DeleteInstituteDialogData } from './delete-institute-dialog.component';
 
 @Component({
   selector:    'app-institutes-list',
@@ -47,6 +49,7 @@ export class InstitutesListComponent implements OnInit, OnDestroy {
     private superSvc: SuperAdminService,
     private notify:   NotificationService,
     private router:   Router,
+    private dialog:   MatDialog,
   ) {}
 
   ngOnInit(): void {
@@ -58,7 +61,7 @@ export class InstitutesListComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
 
   // ── Load platform stats ────────────────────────────────────────────────────
-  private loadStats(): void {
+  loadStats(): void {
     this.loadingStats = true;
     this.superSvc.getPlatformStats()
       .pipe(finalize(() => this.loadingStats = false), takeUntil(this.destroy$))
@@ -138,6 +141,32 @@ export class InstitutesListComponent implements OnInit, OnDestroy {
           this.loadStats();
         }
       });
+  }
+
+  // ── Delete institute ──────────────────────────────────────────────────────
+  openDeleteDialog(inst: InstituteWithStats, event: MouseEvent): void {
+    event.stopPropagation();
+    const data: DeleteInstituteDialogData = {
+      instituteId:   inst._id,
+      instituteName: inst.name,
+      stats: {
+        totalStudents: inst.stats?.totalStudents ?? 0,
+        totalUsers:    inst.stats?.totalUsers    ?? 0,
+        totalAdmins:   inst.stats?.totalAdmins   ?? 0,
+        totalTeachers: inst.stats?.totalTeachers ?? 0,
+      },
+    };
+    const ref = this.dialog.open(DeleteInstituteDialogComponent, {
+      data,
+      width: '500px',
+      disableClose: true,
+    });
+    ref.afterClosed().subscribe(result => {
+      if (result?.deleted) {
+        this.loadInstitutes();
+        this.loadStats();
+      }
+    });
   }
 
   // ── Navigate ──────────────────────────────────────────────────────────────

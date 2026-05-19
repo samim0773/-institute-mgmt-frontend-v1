@@ -36,6 +36,7 @@ import { InstituteDetailComponent }           from './institutes/institute-detai
 import { SuperAdminDashboardComponent }       from './dashboard/super-admin-dashboard.component';
 import { SuperAdminChangePasswordComponent }          from './change-password/change-password.component';
 import { SuperAdminResetPasswordDialogComponent }     from './institutes/reset-password-dialog.component';
+import { DeleteInstituteDialogComponent }             from './institutes/delete-institute-dialog.component';
 
 const routes: Routes = [
   {
@@ -61,6 +62,7 @@ const routes: Routes = [
     SuperAdminDashboardComponent,
     SuperAdminChangePasswordComponent,
     SuperAdminResetPasswordDialogComponent,
+    DeleteInstituteDialogComponent,
   ],
   imports: [
     CommonModule,

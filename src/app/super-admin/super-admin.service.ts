@@ -113,6 +113,12 @@ export class SuperAdminService {
     return this.http.put<ApiResponse<any>>(`${this.base}/institutes/${id}/toggle`, {});
   }
 
+  deleteInstitute(id: string, password: string): Observable<ApiResponse<any>> {
+    return this.http.delete<ApiResponse<any>>(`${this.base}/institutes/${id}`, {
+      body: { password },
+    });
+  }
+
   updatePlan(id: string, plan: string, planExpiresAt?: string): Observable<ApiResponse<any>> {
     return this.http.put<ApiResponse<any>>(`${this.base}/institutes/${id}/plan`, { plan, planExpiresAt });
   }

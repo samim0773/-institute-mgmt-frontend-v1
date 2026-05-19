@@ -7,6 +7,7 @@ import { MatDialog }                    from '@angular/material/dialog';
 import { SuperAdminService, InstituteDetail, InstituteUser } from '../super-admin.service';
 import { NotificationService }                               from '../../core/services/notification.service';
 import { SuperAdminResetPasswordDialogComponent, SuperAdminResetDialogData } from './reset-password-dialog.component';
+import { DeleteInstituteDialogComponent, DeleteInstituteDialogData } from './delete-institute-dialog.component';
 
 @Component({
   selector:    'app-institute-detail',
@@ -74,5 +75,29 @@ export class InstituteDetailComponent implements OnInit, OnDestroy {
   openResetPassword(user: InstituteUser): void {
     const data: SuperAdminResetDialogData = { userId: user._id, userName: user.name, userRole: user.role };
     this.dialog.open(SuperAdminResetPasswordDialogComponent, { data, width: '420px' });
+  }
+
+  openDeleteInstitute(): void {
+    if (!this.institute) return;
+    const data: DeleteInstituteDialogData = {
+      instituteId:   this.institute._id,
+      instituteName: this.institute.name,
+      stats: {
+        totalStudents: this.institute.stats?.totalStudents ?? 0,
+        totalUsers:    this.totalUsers,
+        totalAdmins:   this.admins.length,
+        totalTeachers: this.teachers.length,
+      },
+    };
+    const ref = this.dialog.open(DeleteInstituteDialogComponent, {
+      data,
+      width: '500px',
+      disableClose: true,
+    });
+    ref.afterClosed().subscribe(result => {
+      if (result?.deleted) {
+        this.router.navigate(['/super-admin/institutes']);
+      }
+    });
   }
 }

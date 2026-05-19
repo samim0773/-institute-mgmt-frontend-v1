@@ -230,6 +230,11 @@
               matTooltip="View details">
               <mat-icon>visibility</mat-icon>
             </button>
+            <button mat-icon-button color="warn"
+              (click)="openDeleteDialog(inst, $event)"
+              matTooltip="Delete institute permanently">
+              <mat-icon>delete_forever</mat-icon>
+            </button>
           </td>
         </ng-container>
 
