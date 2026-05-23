@@ -6,7 +6,7 @@ dist/
 .angular/
 
 # Environment (prod URLs are not secret but good habit)
-src/environments/environment.prod.ts
+# src/environments/environment.prod.ts
 
 # OS / Editor
 .DS_Store
