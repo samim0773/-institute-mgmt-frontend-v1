@@ -1,13 +1,15 @@
 <!-- subject-form.component.html -->
 <div class="subject-form-page">
 
-  <!-- ── Header ─────────────────────────────────────────────────────────────── -->
+  <!-- ══ Page Header ═══════════════════════════════════════════════════════════ -->
   <div class="page-header">
-    <button mat-icon-button (click)="cancel()">
+    <button mat-icon-button (click)="cancel()" aria-label="Back to subjects" class="back-btn">
       <mat-icon>arrow_back</mat-icon>
     </button>
-    <div>
-      <h2 class="page-title">{{ isEditMode ? 'Edit Subject Assignment' : 'Assign Subject to Class' }}</h2>
+    <div class="header-text">
+      <h2 class="page-title">
+        {{ isEditMode ? 'Edit Subject Assignment' : 'Assign Subject to Class' }}
+      </h2>
       <p class="page-sub">
         {{ isEditMode
            ? 'Change the assigned teacher or deactivate this slot'
@@ -16,7 +18,7 @@
     </div>
   </div>
 
-  <!-- ── Loading ────────────────────────────────────────────────────────────── -->
+  <!-- ══ Loading ════════════════════════════════════════════════════════════════ -->
   <div class="loading-state" *ngIf="loading">
     <mat-spinner diameter="40"></mat-spinner>
     <p>Loading assignment…</p>
@@ -25,19 +27,27 @@
   <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate *ngIf="!loading">
     <div class="form-grid">
 
-      <!-- ══ Left card ════════════════════════════════════════════════════════ -->
+      <!-- ══ Card 1 — Class & Subject ════════════════════════════════════════ -->
       <mat-card class="section-card">
         <mat-card-header>
-          <mat-icon mat-card-avatar class="section-icon icon-indigo">class</mat-icon>
-          <mat-card-title>{{ isEditMode ? 'Assignment Info' : 'Class & Subject' }}</mat-card-title>
+          <div mat-card-avatar class="section-icon icon-purple">
+            <mat-icon>menu_book</mat-icon>
+          </div>
+          <mat-card-title>
+            {{ isEditMode ? 'Assignment Info' : 'Class & Subject' }}
+          </mat-card-title>
           <mat-card-subtitle>
-            {{ isEditMode ? 'Read-only — cannot be changed after creation' : 'Select the class and enter the subject' }}
+            {{ isEditMode
+               ? 'Read-only — cannot be changed after creation'
+               : 'Select the class and enter the subject name' }}
           </mat-card-subtitle>
         </mat-card-header>
+
         <mat-card-content class="card-body">
 
-          <!-- ── EDIT MODE: read-only summary ──────────────────────────────── -->
+          <!-- ── EDIT MODE: read-only summary ─────────────────────────────── -->
           <ng-container *ngIf="isEditMode && existingAssignment">
+
             <div class="readonly-info">
               <div class="readonly-row">
                 <span class="readonly-label">Class</span>
@@ -48,13 +58,18 @@
               </div>
               <div class="readonly-row">
                 <span class="readonly-label">Subject</span>
-                <span class="readonly-value subject-highlight">{{ existingAssignment.subjectName }}</span>
+                <span class="readonly-value subject-highlight">
+                  {{ existingAssignment.subjectName }}
+                </span>
               </div>
             </div>
 
-            <!-- Active toggle (edit mode only) -->
-            <div class="active-toggle-row">
-              <mat-icon [class.icon-active]="g('isActive').value"
+            <!-- Active / Inactive toggle -->
+            <div class="active-toggle-row"
+              [class.toggle-active]="g('isActive').value"
+              [class.toggle-inactive]="!g('isActive').value">
+              <mat-icon class="toggle-icon"
+                [class.icon-active]="g('isActive').value"
                 [class.icon-inactive]="!g('isActive').value">
                 {{ g('isActive').value ? 'check_circle' : 'cancel' }}
               </mat-icon>
@@ -63,13 +78,15 @@
               </span>
               <button mat-stroked-button type="button"
                 [color]="g('isActive').value ? 'warn' : 'primary'"
+                class="toggle-action-btn"
                 (click)="g('isActive').setValue(!g('isActive').value)">
                 {{ g('isActive').value ? 'Deactivate' : 'Reactivate' }}
               </button>
             </div>
+
           </ng-container>
 
-          <!-- ── CREATE MODE: class + subject ──────────────────────────────── -->
+          <!-- ── CREATE MODE ──────────────────────────────────────────────── -->
           <ng-container *ngIf="!isEditMode">
 
             <!-- Class Name -->
@@ -83,19 +100,19 @@
               <mat-error>{{ getError('className') }}</mat-error>
             </mat-form-field>
 
-            <!-- Section -->
+            <!-- Section (shown once a class is chosen) -->
             <mat-form-field appearance="outline" class="field-full"
               *ngIf="sections.length > 0 || g('className').value">
               <mat-label>Section *</mat-label>
               <mat-icon matPrefix class="field-icon">splitscreen</mat-icon>
               <mat-select formControlName="section">
                 <mat-option value="">Select section…</mat-option>
-                <mat-option *ngFor="let s of sections" [value]="s">{{ s }}</mat-option>
+                <mat-option *ngFor="let s of sections" [value]="s">Section {{ s }}</mat-option>
               </mat-select>
               <mat-error>{{ getError('section') }}</mat-error>
             </mat-form-field>
 
-            <!-- Confirmation badge once class-section is resolved -->
+            <!-- Class-section confirmed banner -->
             <div class="class-confirmed" *ngIf="g('classSectionId').value">
               <mat-icon>check_circle</mat-icon>
               Class {{ g('className').value }}-{{ g('section').value }} selected
@@ -105,19 +122,22 @@
             <mat-form-field appearance="outline" class="field-full">
               <mat-label>Subject Name *</mat-label>
               <mat-icon matPrefix class="field-icon">menu_book</mat-icon>
-              <input matInput formControlName="subjectName" placeholder="e.g. Mathematics" maxlength="100" />
+              <input matInput formControlName="subjectName"
+                placeholder="e.g. Mathematics" maxlength="100" />
               <mat-error>{{ getError('subjectName') }}</mat-error>
             </mat-form-field>
 
-            <!-- Common subject chips -->
+            <!-- Common subject quick-pick chips -->
             <div class="quick-pick">
               <span class="quick-label">Quick pick:</span>
-              <button *ngFor="let s of commonSubjects" type="button"
-                class="subject-chip"
-                [class.chip-selected]="g('subjectName').value === s"
-                (click)="pickSubject(s)">
-                {{ s }}
-              </button>
+              <div class="quick-chips">
+                <button *ngFor="let s of commonSubjects" type="button"
+                  class="subject-chip"
+                  [class.chip-selected]="g('subjectName').value === s"
+                  (click)="pickSubject(s)">
+                  {{ s }}
+                </button>
+              </div>
             </div>
 
           </ng-container>
@@ -125,13 +145,16 @@
         </mat-card-content>
       </mat-card>
 
-      <!-- ══ Right card: Teacher ═══════════════════════════════════════════════ -->
+      <!-- ══ Card 2 — Teacher Assignment ════════════════════════════════════ -->
       <mat-card class="section-card">
         <mat-card-header>
-          <mat-icon mat-card-avatar class="section-icon icon-teal">person_pin</mat-icon>
+          <div mat-card-avatar class="section-icon icon-teal">
+            <mat-icon>person_pin</mat-icon>
+          </div>
           <mat-card-title>Assign Teacher</mat-card-title>
           <mat-card-subtitle>Optional — you can assign a teacher later</mat-card-subtitle>
         </mat-card-header>
+
         <mat-card-content class="card-body">
 
           <mat-form-field appearance="outline" class="field-full">
@@ -161,12 +184,14 @@
             </ng-container>
           </div>
 
-          <div class="unassigned-hint" *ngIf="!g('teacherId').value">
+          <!-- Unassigned hint -->
+          <div class="hint-box hint-info" *ngIf="!g('teacherId').value && teachers.length > 0">
             <mat-icon>info</mat-icon>
             <span>This subject slot will be unassigned. You can assign a teacher anytime by editing.</span>
           </div>
 
-          <div class="no-teachers-hint" *ngIf="teachers.length === 0">
+          <!-- No teachers hint -->
+          <div class="hint-box hint-warn" *ngIf="teachers.length === 0">
             <mat-icon>warning_amber</mat-icon>
             <span>No active teachers found. Add teachers first.</span>
           </div>
@@ -176,16 +201,19 @@
 
     </div><!-- /form-grid -->
 
-    <!-- ── Actions ─────────────────────────────────────────────────────────── -->
+    <!-- ══ Form Actions ═══════════════════════════════════════════════════════ -->
     <div class="form-actions">
-      <button mat-stroked-button type="button" (click)="cancel()" [disabled]="saving">
-        Cancel
+      <button mat-stroked-button type="button" (click)="cancel()"
+        [disabled]="saving" class="cancel-btn">
+        <mat-icon>close</mat-icon> Cancel
       </button>
       <button mat-raised-button color="primary" type="submit"
         [disabled]="saving" class="submit-btn">
         <mat-spinner *ngIf="saving" diameter="18" class="btn-spinner"></mat-spinner>
         <mat-icon *ngIf="!saving">{{ isEditMode ? 'save' : 'add' }}</mat-icon>
-        {{ saving ? (isEditMode ? 'Saving…' : 'Assigning…') : (isEditMode ? 'Save Changes' : 'Assign Subject') }}
+        {{ saving
+           ? (isEditMode ? 'Saving…' : 'Assigning…')
+           : (isEditMode ? 'Save Changes' : 'Assign Subject') }}
       </button>
     </div>
 

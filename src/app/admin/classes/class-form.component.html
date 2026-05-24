@@ -3,12 +3,14 @@
 
   <!-- ── Header ─────────────────────────────────────────────────────────────── -->
   <div class="page-header">
-    <button mat-icon-button (click)="cancel()" aria-label="Back to classes">
+    <button mat-icon-button (click)="cancel()" aria-label="Back to classes" class="back-btn">
       <mat-icon>arrow_back</mat-icon>
     </button>
-    <div>
+    <div class="header-text">
       <h2 class="page-title">{{ isEditMode ? 'Edit Class' : 'Add New Class' }}</h2>
-      <p class="page-sub">{{ isEditMode ? 'Update class details and teacher assignment' : 'Create a new class section' }}</p>
+      <p class="page-sub">
+        {{ isEditMode ? 'Update class details and teacher assignment' : 'Create a new class section' }}
+      </p>
     </div>
   </div>
 
@@ -21,13 +23,16 @@
   <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate *ngIf="!loading">
     <div class="form-grid">
 
-      <!-- ══ Left: Class Identity ═════════════════════════════════════════════ -->
+      <!-- ══ Card 1: Class Identity ══════════════════════════════════════════ -->
       <mat-card class="section-card">
         <mat-card-header>
-          <mat-icon mat-card-avatar class="section-icon icon-indigo">class</mat-icon>
+          <div mat-card-avatar class="section-icon icon-indigo">
+            <mat-icon>class</mat-icon>
+          </div>
           <mat-card-title>Class Identity</mat-card-title>
           <mat-card-subtitle>Class name, section and academic year</mat-card-subtitle>
         </mat-card-header>
+
         <mat-card-content class="card-body">
 
           <!-- Class Name -->
@@ -41,7 +46,7 @@
             <mat-error>{{ getError('className') }}</mat-error>
           </mat-form-field>
 
-          <!-- Suggestions -->
+          <!-- Quick pick suggestions -->
           <div class="suggestion-row" *ngIf="classNames.length > 0 && !isEditMode">
             <span class="suggestion-label">Quick pick:</span>
             <button *ngFor="let cn of classNames" type="button" class="suggestion-chip"
@@ -61,35 +66,41 @@
             <mat-error>{{ getError('section') }}</mat-error>
           </mat-form-field>
 
-          <!-- Academic Year -->
-          <mat-form-field appearance="outline" class="field-full">
-            <mat-label>Academic Year</mat-label>
-            <mat-icon matPrefix class="field-icon">calendar_today</mat-icon>
-            <input matInput formControlName="academicYear"
-              placeholder="e.g. 2025-26" maxlength="7" />
-            <mat-hint>Format: YYYY-YY — auto-generated if left blank</mat-hint>
-            <mat-error>{{ getError('academicYear') }}</mat-error>
-          </mat-form-field>
+          <!-- Academic Year + Room Number side-by-side on tablet/desktop -->
+          <div class="two-col-fields">
 
-          <!-- Room Number -->
-          <mat-form-field appearance="outline" class="field-full">
-            <mat-label>Room Number</mat-label>
-            <mat-icon matPrefix class="field-icon">meeting_room</mat-icon>
-            <input matInput formControlName="roomNumber"
-              placeholder="e.g. Room 5, Block-B 12" maxlength="20" />
-            <mat-error>{{ getError('roomNumber') }}</mat-error>
-          </mat-form-field>
+            <mat-form-field appearance="outline" class="field-full">
+              <mat-label>Academic Year</mat-label>
+              <mat-icon matPrefix class="field-icon">calendar_today</mat-icon>
+              <input matInput formControlName="academicYear"
+                placeholder="e.g. 2025-26" maxlength="7" />
+              <mat-hint>Format: YYYY-YY</mat-hint>
+              <mat-error>{{ getError('academicYear') }}</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="field-full">
+              <mat-label>Room Number</mat-label>
+              <mat-icon matPrefix class="field-icon">meeting_room</mat-icon>
+              <input matInput formControlName="roomNumber"
+                placeholder="e.g. Room 5, Block-B 12" maxlength="20" />
+              <mat-error>{{ getError('roomNumber') }}</mat-error>
+            </mat-form-field>
+
+          </div>
 
         </mat-card-content>
       </mat-card>
 
-      <!-- ══ Right: Teacher Assignment ════════════════════════════════════════ -->
+      <!-- ══ Card 2: Teacher Assignment ══════════════════════════════════════ -->
       <mat-card class="section-card">
         <mat-card-header>
-          <mat-icon mat-card-avatar class="section-icon icon-teal">supervisor_account</mat-icon>
+          <div mat-card-avatar class="section-icon icon-teal">
+            <mat-icon>supervisor_account</mat-icon>
+          </div>
           <mat-card-title>Class Teacher</mat-card-title>
           <mat-card-subtitle>Optional homeroom teacher for this class</mat-card-subtitle>
         </mat-card-header>
+
         <mat-card-content class="card-body">
 
           <mat-form-field appearance="outline" class="field-full">
@@ -105,7 +116,7 @@
             <mat-hint>Only active teachers in your institute are listed</mat-hint>
           </mat-form-field>
 
-          <!-- Selected teacher info -->
+          <!-- Selected teacher preview card -->
           <div class="teacher-preview" *ngIf="g('classTeacherId').value">
             <ng-container *ngFor="let t of teachers">
               <ng-container *ngIf="t._id === g('classTeacherId').value">
@@ -119,6 +130,7 @@
             </ng-container>
           </div>
 
+          <!-- No teachers available hint -->
           <div class="no-teacher-hint" *ngIf="teachers.length === 0">
             <mat-icon>info</mat-icon>
             <span>No active teachers found. Add teachers first before assigning.</span>
@@ -131,8 +143,9 @@
 
     <!-- ── Actions ─────────────────────────────────────────────────────────── -->
     <div class="form-actions">
-      <button mat-stroked-button type="button" (click)="cancel()" [disabled]="saving">
-        Cancel
+      <button mat-stroked-button type="button" (click)="cancel()" [disabled]="saving"
+        class="cancel-btn">
+        <mat-icon>close</mat-icon> Cancel
       </button>
       <button mat-raised-button color="primary" type="submit"
         [disabled]="saving" class="submit-btn">
