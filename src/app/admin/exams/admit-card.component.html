@@ -1,46 +1,82 @@
-<!-- admit-card.component.html  — preview + 2-per-A4 print wrapper -->
+<!-- admit-card.component.html  — preview + print wrapper -->
 <div class="admit-page">
 
-  <!-- ── Screen-only toolbar ──────────────────────────────────────────────── -->
+  <!-- ════════════════════════════════════════════════════════════════════════
+       SCREEN-ONLY TOOLBAR
+  ══════════════════════════════════════════════════════════════════════════ -->
   <div class="admit-toolbar no-print">
-    <button mat-icon-button (click)="goBack()" aria-label="Back"><mat-icon>arrow_back</mat-icon></button>
-    <span class="toolbar-title">
-      {{ admitCard?.student?.name || 'Admit Card' }}
-    </span>
-    <span class="spacer"></span>
-    <button
-      mat-raised-button
-      color="primary"
-      (click)="printAdmitCard()"
-      [disabled]="loading || !admitCard"
-      class="print-btn"
-    >
-      <mat-icon>print</mat-icon> Print Admit Card
-    </button>
+
+    <div class="toolbar-left">
+      <button mat-icon-button (click)="goBack()" aria-label="Back" class="back-btn">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="toolbar-info">
+        <span class="toolbar-title">
+          {{ admitCard?.student?.name || 'Admit Card' }}
+        </span>
+        <span class="toolbar-sub" *ngIf="admitCard">
+          {{ admitCard.exam?.name }}
+          <span class="sub-sep">·</span>
+          Class {{ admitCard.student?.class }}-{{ admitCard.student?.section }}
+          <span class="sub-sep">·</span>
+          Roll <strong>{{ admitCard.rollNo }}</strong>
+        </span>
+      </div>
+    </div>
+
+    <div class="toolbar-right">
+      <button mat-raised-button color="primary"
+        (click)="printAdmitCard()"
+        [disabled]="loading || !admitCard"
+        class="print-btn">
+        <mat-icon>print</mat-icon>
+        <span class="print-label">Print Admit Card</span>
+      </button>
+    </div>
+
   </div>
 
-  <!-- Loading -->
+  <!-- ════════════════════════════════════════════════════════════════════════
+       LOADING
+  ══════════════════════════════════════════════════════════════════════════ -->
   <div *ngIf="loading" class="loading-center no-print">
     <mat-spinner diameter="48"></mat-spinner>
     <p>Loading admit card…</p>
   </div>
 
-  <!--
-    Print area — NO "no-print" here.
-    This div is visible on screen (as a preview) AND on paper.
-    The global @media print rule positions it at top:0/left:0 and makes
-    its subtree visible while hiding everything else via visibility:hidden.
-  -->
-  <div *ngIf="!loading && admitCard" class="print-area admit-print-sheet">
-
-    <!-- Screen-only hint (hidden when printing) -->
-    <p class="preview-hint no-print">
-      <mat-icon>info_outline</mat-icon>
-      Print preview — 1 admit card per A4 sheet
-    </p>
-
-    <app-admit-card-print [card]="admitCard"></app-admit-card-print>
-
+  <!-- ════════════════════════════════════════════════════════════════════════
+       PREVIEW HINT BANNER
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="preview-banner no-print" *ngIf="!loading && admitCard">
+    <mat-icon>info_outline</mat-icon>
+    <div class="preview-banner-text">
+      <strong>Print Preview</strong>
+      <span>1 admit card per A4 sheet · Use your browser's print dialog to set paper size</span>
+    </div>
+    <button mat-raised-button color="primary" (click)="printAdmitCard()" class="print-btn-banner">
+      <mat-icon>print</mat-icon>
+      <span>Print</span>
+    </button>
   </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════════
+       PRINT AREA — visible on screen as preview AND on paper
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <div *ngIf="!loading && admitCard" class="print-area admit-print-sheet">
+    <app-admit-card-print [card]="admitCard"></app-admit-card-print>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════════
+       MOBILE STICKY PRINT FAB  (mobile only, screen only)
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <button
+    *ngIf="!loading && admitCard"
+    mat-fab
+    color="primary"
+    class="print-fab no-print"
+    (click)="printAdmitCard()"
+    aria-label="Print Admit Card">
+    <mat-icon>print</mat-icon>
+  </button>
 
 </div>

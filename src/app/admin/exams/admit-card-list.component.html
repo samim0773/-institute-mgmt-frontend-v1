@@ -1,90 +1,231 @@
 <!-- admit-card-list.component.html -->
 <div class="acl-page">
 
-  <!-- ── Page header (screen only) ──────────────────────────────────────── -->
+  <!-- ════════════════════════════════════════════════════════════════════════
+       PAGE HEADER
+  ══════════════════════════════════════════════════════════════════════════ -->
   <div class="acl-header no-print">
-    <button mat-icon-button (click)="goBack()" aria-label="Back">
-      <mat-icon>arrow_back</mat-icon>
-    </button>
 
-    <div class="acl-header-text">
-      <h2 class="acl-title">Admit Cards</h2>
-      <p class="acl-sub" *ngIf="examInfo">
-        {{ examInfo.name }} — Class {{ examInfo.class }}<span *ngIf="examInfo.section !== 'ALL'">-{{ examInfo.section }}</span>
-      </p>
+    <!-- Back + Title -->
+    <div class="acl-header-left">
+      <button mat-icon-button (click)="goBack()" aria-label="Back" class="back-btn">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="acl-header-text">
+        <h2 class="acl-title">Admit Cards</h2>
+        <p class="acl-sub" *ngIf="examInfo">
+          <mat-icon class="sub-icon">event_note</mat-icon>
+          {{ examInfo.name }}
+          <span class="sub-sep">·</span>
+          <mat-icon class="sub-icon">class</mat-icon>
+          Class {{ examInfo.class }}<span *ngIf="examInfo.section !== 'ALL'">-{{ examInfo.section }}</span>
+        </p>
+      </div>
     </div>
 
-    <span class="spacer"></span>
-
+    <!-- Action buttons -->
     <div class="acl-actions">
       <!-- Generate / Regenerate -->
-      <button
-        mat-stroked-button
+      <button mat-stroked-button
         (click)="generateCards()"
         [disabled]="generating || bulkPrinting"
         matTooltip="Create admit cards for all active students in this exam's class"
-      >
+        class="action-btn">
         <mat-spinner *ngIf="generating" diameter="16" class="btn-spin"></mat-spinner>
         <mat-icon *ngIf="!generating">badge</mat-icon>
-        {{ generating ? 'Generating…' : 'Generate Cards' }}
+        <span class="btn-label">{{ generating ? 'Generating…' : 'Generate' }}</span>
       </button>
 
       <!-- Print Selected -->
-      <button
-        mat-stroked-button
-        color="primary"
+      <button mat-stroked-button color="primary"
         (click)="printSelected()"
         [disabled]="selectedCount === 0 || bulkPrinting"
         matTooltip="Print admit cards for selected students"
-      >
-        <mat-icon>print</mat-icon>
-        Print Selected
-        <span class="sel-badge" *ngIf="selectedCount > 0">({{ selectedCount }})</span>
+        class="action-btn">
+        <mat-icon>checklist</mat-icon>
+        <span class="btn-label">Print Selected</span>
+        <span class="sel-badge" *ngIf="selectedCount > 0">{{ selectedCount }}</span>
       </button>
 
       <!-- Print All -->
-      <button
-        mat-raised-button
-        color="primary"
+      <button mat-raised-button color="primary"
         (click)="printAll()"
         [disabled]="activeCards.length === 0 || bulkPrinting"
-      >
+        class="action-btn print-all-btn">
         <mat-spinner *ngIf="bulkPrinting" diameter="16" class="btn-spin"></mat-spinner>
         <mat-icon *ngIf="!bulkPrinting">print</mat-icon>
-        {{ bulkPrinting ? 'Preparing…' : 'Print All' }}
+        <span class="btn-label">{{ bulkPrinting ? 'Preparing…' : 'Print All' }}</span>
       </button>
+    </div>
+
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════════
+       STATS SUMMARY BAR
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="stats-row no-print" *ngIf="!loading && cards.length > 0">
+    <div class="stat-chip stat-total">
+      <mat-icon>badge</mat-icon>
+      <span class="stat-val">{{ cards.length }}</span>
+      <span class="stat-lbl">Total</span>
+    </div>
+    <div class="stat-chip stat-active">
+      <mat-icon>check_circle</mat-icon>
+      <span class="stat-val">{{ activeCards.length }}</span>
+      <span class="stat-lbl">Active</span>
+    </div>
+    <div class="stat-chip stat-revoked" *ngIf="cards.length - activeCards.length > 0">
+      <mat-icon>block</mat-icon>
+      <span class="stat-val">{{ cards.length - activeCards.length }}</span>
+      <span class="stat-lbl">Revoked</span>
+    </div>
+    <div class="stat-chip stat-selected" *ngIf="selectedCount > 0">
+      <mat-icon>done_all</mat-icon>
+      <span class="stat-val">{{ selectedCount }}</span>
+      <span class="stat-lbl">Selected</span>
     </div>
   </div>
 
-  <!-- ── Loading bar ─────────────────────────────────────────────────────── -->
-  <mat-progress-bar *ngIf="loading" mode="indeterminate" class="no-print"></mat-progress-bar>
+  <!-- ════════════════════════════════════════════════════════════════════════
+       LOADING
+  ══════════════════════════════════════════════════════════════════��═══════ -->
+  <mat-progress-bar *ngIf="loading" mode="indeterminate" class="no-print progress-bar"></mat-progress-bar>
 
-  <!-- ── Empty state ─────────────────────────────────────────────────────── -->
+  <!-- ════════════════════════════════════════════════════════════════════════
+       EMPTY STATE
+  ══════════════════════════════════════════════════════════════════════════ -->
   <div *ngIf="!loading && cards.length === 0" class="empty-state no-print">
-    <mat-icon>badge</mat-icon>
+    <div class="empty-icon-wrap">
+      <mat-icon>badge</mat-icon>
+    </div>
     <h3>No admit cards yet</h3>
     <p>Click <strong>Generate Cards</strong> to create admit cards for all active students in this exam's class.</p>
     <button mat-raised-button color="primary" (click)="generateCards()" [disabled]="generating">
-      <mat-icon>badge</mat-icon> Generate Cards
+      <mat-spinner *ngIf="generating" diameter="18" class="btn-spin-white"></mat-spinner>
+      <mat-icon *ngIf="!generating">badge</mat-icon>
+      {{ generating ? 'Generating…' : 'Generate Cards' }}
     </button>
   </div>
 
-  <!-- ── Student table ────────────────────────────────────────────────────── -->
-  <mat-card class="acl-table-card no-print" *ngIf="!loading && cards.length > 0">
-
-    <!-- Selection summary bar -->
-    <div class="sel-bar" *ngIf="selectedCount > 0">
-      <mat-icon>check_circle</mat-icon>
-      {{ selectedCount }} student(s) selected
+  <!-- ════════════════════════════════════════════════════════════════════════
+       SELECTION BANNER  (shared — shows on both mobile + desktop)
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="sel-bar no-print" *ngIf="!loading && cards.length > 0 && selectedCount > 0">
+    <mat-icon>done_all</mat-icon>
+    <span class="sel-bar-text">{{ selectedCount }} student(s) selected</span>
+    <div class="sel-bar-actions">
       <button mat-button color="primary" (click)="printSelected()" [disabled]="bulkPrinting">
         <mat-icon>print</mat-icon> Print Selected
       </button>
-      <button mat-button (click)="selected.clear()">Clear</button>
+      <button mat-button (click)="selected.clear()">
+        <mat-icon>close</mat-icon> Clear
+      </button>
     </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════════
+       SELECT ALL ROW  (mobile only - mirrors the table header checkbox)
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="mobile-select-all no-print" *ngIf="!loading && cards.length > 0">
+    <mat-checkbox
+      color="primary"
+      [checked]="isAllSelected()"
+      [indeterminate]="isIndeterminate()"
+      (change)="toggleAll()">
+      Select all active ({{ activeCards.length }})
+    </mat-checkbox>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════════
+       MOBILE CARDS  (< 768px — hidden on desktop via CSS)
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="mobile-cards no-print" *ngIf="!loading && cards.length > 0">
+
+    <div class="admit-card-item"
+      *ngFor="let card of cards"
+      [class.item-revoked]="!card.isActive">
+
+      <!-- Checkbox col -->
+      <div class="item-check">
+        <mat-checkbox
+          *ngIf="card.isActive"
+          color="primary"
+          [checked]="selected.has(card.id)"
+          (change)="toggleOne(card)"
+          (click)="$event.stopPropagation()">
+        </mat-checkbox>
+        <div *ngIf="!card.isActive" class="check-placeholder"></div>
+      </div>
+
+      <!-- Student info -->
+      <div class="item-body">
+
+        <!-- Top: photo + name + roll -->
+        <div class="item-student">
+          <div class="item-thumb">
+            <img *ngIf="card.studentId.photo" [src]="card.studentId.photo" class="student-thumb" />
+            <div *ngIf="!card.studentId.photo" class="thumb-placeholder">
+              <mat-icon>person</mat-icon>
+            </div>
+          </div>
+          <div class="item-student-info">
+            <div class="student-name">{{ card.studentId.name }}</div>
+            <div class="student-meta">Class Roll: {{ card.studentId.rollNo }}</div>
+          </div>
+        </div>
+
+        <!-- Details row: roll no + centre + date -->
+        <div class="item-details">
+          <span class="detail-chip roll-chip-mobile">
+            <mat-icon>pin</mat-icon>
+            Exam Roll: <strong>{{ card.rollNo }}</strong>
+          </span>
+          <span class="detail-chip center-chip">
+            <mat-icon>location_on</mat-icon>
+            {{ card.center || '—' }}
+          </span>
+          <span class="detail-chip date-chip">
+            <mat-icon>calendar_today</mat-icon>
+            {{ formatDate(card.issuedDate) }}
+          </span>
+        </div>
+
+        <!-- Footer: status + actions -->
+        <div class="item-footer">
+          <span class="status-chip" [class.active]="card.isActive" [class.revoked]="!card.isActive">
+            <mat-icon>{{ card.isActive ? 'check_circle' : 'block' }}</mat-icon>
+            {{ card.isActive ? 'Active' : 'Revoked' }}
+          </span>
+          <div class="item-actions">
+            <button mat-icon-button color="primary"
+              (click)="printSingle(card)"
+              [disabled]="!card.isActive"
+              matTooltip="Preview & Print">
+              <mat-icon>print</mat-icon>
+            </button>
+            <button mat-icon-button color="warn"
+              (click)="revokeCard(card)"
+              [disabled]="!card.isActive || revokingId === card.id"
+              matTooltip="Revoke admit card">
+              <mat-spinner *ngIf="revokingId === card.id" diameter="18"></mat-spinner>
+              <mat-icon *ngIf="revokingId !== card.id">block</mat-icon>
+            </button>
+          </div>
+        </div>
+
+      </div><!-- /item-body -->
+    </div><!-- /admit-card-item -->
+
+  </div><!-- /mobile-cards -->
+
+  <!-- ════════════════════════════════════════════════════════════════════════
+       DESKTOP / TABLET TABLE  (≥ 768px — hidden on mobile via CSS)
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <mat-card class="acl-table-card no-print desktop-table" *ngIf="!loading && cards.length > 0">
 
     <mat-table [dataSource]="cards" class="acl-table">
 
-      <!-- ○ Select ─────────────────────────────────────────────────────── -->
+      <!-- ○ Select -->
       <ng-container matColumnDef="select">
         <mat-header-cell *matHeaderCellDef class="col-check">
           <mat-checkbox
@@ -92,20 +233,20 @@
             [checked]="isAllSelected()"
             [indeterminate]="isIndeterminate()"
             (change)="toggleAll()"
-            matTooltip="Select all active"
-          ></mat-checkbox>
+            matTooltip="Select all active">
+          </mat-checkbox>
         </mat-header-cell>
         <mat-cell *matCellDef="let card" class="col-check">
           <mat-checkbox
             *ngIf="card.isActive"
             color="primary"
             [checked]="selected.has(card.id)"
-            (change)="toggleOne(card)"
-          ></mat-checkbox>
+            (change)="toggleOne(card)">
+          </mat-checkbox>
         </mat-cell>
       </ng-container>
 
-      <!-- ○ Student ─────────────────────────────────────────────────── -->
+      <!-- ○ Student -->
       <ng-container matColumnDef="student">
         <mat-header-cell *matHeaderCellDef>Student</mat-header-cell>
         <mat-cell *matCellDef="let card">
@@ -118,15 +259,13 @@
             </div>
             <div>
               <div class="student-name">{{ card.studentId.name }}</div>
-              <div class="student-meta">
-                Class Roll: {{ card.studentId.rollNo }}
-              </div>
+              <div class="student-meta">Class Roll: {{ card.studentId.rollNo }}</div>
             </div>
           </div>
         </mat-cell>
       </ng-container>
 
-      <!-- ○ Exam Roll No. ──────────────────────────────────────────── -->
+      <!-- ○ Exam Roll No. -->
       <ng-container matColumnDef="rollNo">
         <mat-header-cell *matHeaderCellDef>Exam Roll No.</mat-header-cell>
         <mat-cell *matCellDef="let card">
@@ -134,19 +273,19 @@
         </mat-cell>
       </ng-container>
 
-      <!-- ○ Centre ────────────────────────────────────────────────── -->
+      <!-- ○ Centre -->
       <ng-container matColumnDef="center">
         <mat-header-cell *matHeaderCellDef>Centre</mat-header-cell>
         <mat-cell *matCellDef="let card">{{ card.center }}</mat-cell>
       </ng-container>
 
-      <!-- ○ Issue Date ─────────────────────────────────────────────── -->
+      <!-- ○ Issue Date -->
       <ng-container matColumnDef="issued">
         <mat-header-cell *matHeaderCellDef>Issued</mat-header-cell>
         <mat-cell *matCellDef="let card">{{ formatDate(card.issuedDate) }}</mat-cell>
       </ng-container>
 
-      <!-- ○ Status ────────────────────────────────────────────────── -->
+      <!-- ○ Status -->
       <ng-container matColumnDef="status">
         <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
         <mat-cell *matCellDef="let card">
@@ -157,28 +296,20 @@
         </mat-cell>
       </ng-container>
 
-      <!-- ○ Actions ───────────────────────────────────────────────── -->
+      <!-- ○ Actions -->
       <ng-container matColumnDef="actions">
         <mat-header-cell *matHeaderCellDef></mat-header-cell>
         <mat-cell *matCellDef="let card" class="actions-cell">
-          <!-- Print single: navigates to preview page -->
-          <button
-            mat-icon-button
-            color="primary"
+          <button mat-icon-button color="primary"
             (click)="printSingle(card)"
             [disabled]="!card.isActive"
-            matTooltip="Preview & Print"
-          >
+            matTooltip="Preview & Print">
             <mat-icon>print</mat-icon>
           </button>
-          <!-- Revoke -->
-          <button
-            mat-icon-button
-            color="warn"
+          <button mat-icon-button color="warn"
             (click)="revokeCard(card)"
             [disabled]="!card.isActive || revokingId === card.id"
-            matTooltip="Revoke admit card"
-          >
+            matTooltip="Revoke admit card">
             <mat-spinner *ngIf="revokingId === card.id" diameter="18"></mat-spinner>
             <mat-icon *ngIf="revokingId !== card.id">block</mat-icon>
           </button>
@@ -186,16 +317,16 @@
       </ng-container>
 
       <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
-      <mat-row
-        *matRowDef="let row; columns: displayedColumns;"
-        [class.row-revoked]="!row.isActive"
-      ></mat-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns;"
+        [class.row-revoked]="!row.isActive">
+      </mat-row>
+
     </mat-table>
 
     <div class="table-footer no-print">
-      {{ cards.length }} card(s) total · {{ activeCards.length }} active
+      {{ cards.length }} card(s) total &nbsp;·&nbsp; {{ activeCards.length }} active
     </div>
-  </mat-card>
 
+  </mat-card>
 
 </div>

@@ -1,65 +1,205 @@
-// admit-card.component.scss  — screen wrapper only; print is in global styles + print component
+// ─────────────────────────────────────────────────────────────────────────────
+//  Admit Card (Preview page) — Fully Responsive
+//  mobile < 600px  |  tablet 600–959px  |  desktop ≥ 960px
+// ─────────────────────────────────────────────────────────────────────────────
 
-.admit-page { max-width: 820px; margin: 0 auto; padding: 0 0 40px; }
+// ── Page wrapper ──────────────────────────────────────────────────────────────
+.admit-page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 0 40px;
 
+  // Extra bottom clearance on mobile so FAB doesn't cover content
+  @media (max-width: 599px)  { padding: 0 0 88px; }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  TOOLBAR
+// ════════════════════════════════════════════════════════════════════════════
 .admit-toolbar {
-  display: flex; align-items: center; gap: 8px;
-  margin-bottom: 16px; flex-wrap: wrap;
-}
-.toolbar-title { font-size: 1.1rem; font-weight: 600; color: #212121; }
-.spacer { flex: 1; }
-.print-btn { gap: 6px; }
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
 
-.loading-center {
-  display: flex; flex-direction: column; align-items: center;
-  gap: 16px; padding: 80px; color: #757575;
-  p { margin: 0; }
-}
-
-// ── Print sheet wrapper (screen view) ─────────────────────────────────────────
-.admit-print-sheet {
-  background: #fff;
-  border-radius: 4px;
-  box-shadow: 0 4px 28px rgba(0, 0, 0, 0.14);
-  padding: 20px 20px 24px;
-}
-
-.preview-hint {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 0.8rem; color: #757575; margin: 0 0 16px;
-  mat-icon { font-size: 16px; width: 16px; height: 16px; }
-}
-
-// ── Cut line between the two copies ──────────────────────────────────────────
-.ac-cut-line {
-  display: flex; align-items: center; justify-content: center;
-  margin: 10px 0;
-  border-top: 1px dashed #aaa;
-  border-bottom: 1px dashed #aaa;
-  padding: 4px 0;
-
-  .cut-text {
-    font-size: 0.75rem; color: #999; letter-spacing: 2px;
-    background: #fff; padding: 0 12px; white-space: nowrap;
+  @media (max-width: 599px) {
+    margin-bottom: 12px;
+    gap: 8px;
   }
 }
 
-// ── Print overrides ───────────────────────────────────────────────────────────
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1 1 0;
+}
+
+.back-btn { flex-shrink: 0; }
+
+.toolbar-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.toolbar-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #212121;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  @media (max-width: 599px) { font-size: 0.95rem; }
+}
+
+.toolbar-sub {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  font-size: 0.78rem;
+  color: #757575;
+
+  .sub-sep { color: #d0d0d0; margin: 0 1px; }
+}
+
+.toolbar-right {
+  flex-shrink: 0;
+  // Visible on ALL screen sizes — admin may print from any device
+}
+
+.print-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  // Show full label on desktop; icon-only on mobile to save space
+  .print-label {
+    @media (max-width: 599px) { display: none; }
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  LOADING
+// ════════════════════════════════════════════════════════════════════════════
+.loading-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 80px 24px;
+  color: #757575;
+
+  p { margin: 0; font-size: 0.9rem; }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  PREVIEW BANNER
+// ════════════════════════════════════════════════════════════════════════════
+.preview-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: #e3f2fd;
+  border: 1px solid #bbdefb;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #1976d2;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 599px) {
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+}
+
+.preview-banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+
+  strong { font-size: 0.85rem; color: #1565c0; }
+  span   { font-size: 0.78rem; color: #5c8ab5; line-height: 1.4; }
+}
+
+.print-btn-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  // Visible on ALL screen sizes
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  PRINT SHEET WRAPPER (screen view)
+// ════════════════════════════════════════════════════════════════════════════
+.admit-print-sheet {
+  background:    #fff;
+  border-radius: 10px;
+  box-shadow:    0 4px 28px rgba(0,0,0,0.13);
+  padding:       24px;
+  // No overflow-x:auto — the card is now fully responsive and fits naturally
+
+  @media (max-width: 767px) {
+    padding:       16px;
+    border-radius: 8px;
+    box-shadow:    0 2px 14px rgba(0,0,0,0.10);
+  }
+
+  @media (max-width: 599px) {
+    padding:       10px 8px;
+    border-radius: 6px;
+    box-shadow:    0 2px 10px rgba(0,0,0,0.09);
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  MOBILE STICKY PRINT FAB
+// ════════════════════════════════════════════════════════════════════════════
+.print-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 20px;
+  z-index: 100;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+  display: none;           // hidden on desktop (toolbar button is used)
+
+  @media (max-width: 599px) { display: flex; }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  PRINT OVERRIDES
+// ════════════════════════════════════════════════════════════════════════════
 @media print {
-  .admit-page { max-width: 100%; margin: 0; padding: 0; }
+  .admit-page {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
 
   .admit-print-sheet {
     box-shadow: none !important;
     border-radius: 0 !important;
     padding: 0 !important;
+    overflow: visible;
   }
 
-  .ac-cut-line {
-    margin: 0;
-    border-top: 1px dashed #888;
-    border-bottom: 1px dashed #888;
-    padding: 2px 0;
-
-    .cut-text { font-size: 8pt; color: #888; background: white; }
-  }
+  .print-fab { display: none !important; }
 }

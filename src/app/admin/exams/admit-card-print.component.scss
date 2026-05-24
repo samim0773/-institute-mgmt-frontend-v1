@@ -1,50 +1,53 @@
 // admit-card-print.component.scss
-// Screen: full-size card preview with shadow.
-// Print:  compact half-A4 (≈ 135mm tall) so two fit on one A4 page.
+// Screen : fully responsive – fits any viewport without horizontal scroll.
+// Print  : compact half-A4 (≈ 135 mm) so two cards fit on one A4 page.
+//          @media print block is unchanged from the original.
 // Class names use "ac-" prefix to match the inline template.
 
-// ══ SCREEN ════════════════════════════════════════════════════════════════════
+// ══ SCREEN — BASE (desktop ≥ 768 px) ════════════════════════════════════════
 
 :host { display: block; }
 
 .ac-card {
-  position:    relative;
-  background:  #fff;
-  border:      1px solid #c5cae9;
-  border-radius: 4px;
-  font-family: 'Times New Roman', Times, serif;
-  color:       #000;
-  font-size:   0.9rem;
+  position:       relative;
+  background:     #fff;
+  border:         1px solid #c5cae9;
+  border-radius:  6px;
+  font-family:    'Times New Roman', Times, serif;
+  color:          #000;
+  font-size:      0.9rem;
+  width:          100%;
+  box-sizing:     border-box;   // crucial — prevents padding from causing overflow
 }
 
-// Copy badge
+// ── Copy badge ────────────────────────────────────────────────────────────────
 .ac-copy-badge {
-  position:   absolute;
-  top:        8px;
-  right:      12px;
-  font-size:  0.7rem;
-  font-weight: 700;
+  position:       absolute;
+  top:            8px;
+  right:          12px;
+  font-size:      0.7rem;
+  font-weight:    700;
   text-transform: uppercase;
   letter-spacing: 1px;
-  color:      #3949ab;
-  background: #e8eaf6;
-  padding:    2px 8px;
-  border-radius: 10px;
+  color:          #3949ab;
+  background:     #e8eaf6;
+  padding:        2px 8px;
+  border-radius:  10px;
 }
 
 // ── Institute header ──────────────────────────────────────────────────────────
 .ac-header {
-  display:       flex;
-  align-items:   center;
-  gap:           14px;
-  padding:       14px 20px 10px;
-  border-bottom: 3px double #000;
+  display:        flex;
+  align-items:    center;
+  gap:            14px;
+  padding:        14px 20px 10px;
+  border-bottom:  3px double #000;
 }
 
 .ac-logo {
-  width:      60px;
-  height:     60px;
-  object-fit: contain;
+  width:       60px;
+  height:      60px;
+  object-fit:  contain;
   flex-shrink: 0;
 }
 
@@ -69,14 +72,14 @@
 
 // ── Title bar ─────────────────────────────────────────────────────────────────
 .ac-title-bar {
-  display:         flex;
-  flex-direction:  column;
-  align-items:     center;
-  padding:         8px 12px;
-  background:      #1a237e;
-  color:           #fff;
-  text-align:      center;
-  gap:             2px;
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  padding:        8px 12px;
+  background:     #1a237e;
+  color:          #fff;
+  text-align:     center;
+  gap:            2px;
   -webkit-print-color-adjust: exact;
   print-color-adjust:         exact;
 }
@@ -96,30 +99,31 @@
 
 // ── Student info + photo ──────────────────────────────────────────────────────
 .ac-student-row {
-  display:       flex;
-  gap:           12px;
-  padding:       12px 20px;
-  border-bottom: 1px solid #888;
+  display:        flex;
+  gap:            12px;
+  padding:        12px 20px;
+  border-bottom:  1px solid #888;
 }
 
 .ac-info-table {
   flex:            1;
+  min-width:       0;           // allow flex child to shrink below content size
   border-collapse: collapse;
   font-size:       0.83rem;
 
   td { padding: 3px 6px; vertical-align: top; }
 
   .ac-lbl {
-    font-weight: 600;
-    white-space: nowrap;
-    width:       120px;
-    color:       #333;
+    font-weight:  600;
+    white-space:  nowrap;
+    width:        120px;
+    color:        #333;
     &::after { content: ':'; }
   }
 
-  .ac-val         { color: #000; }
-  .ac-val--name   { font-weight: 700; font-size: 0.95rem; }
-  .ac-val--roll   { font-weight: 700; color: #1a237e; }
+  .ac-val       { color: #000; }
+  .ac-val--name { font-weight: 700; font-size: 0.95rem; }
+  .ac-val--roll { font-weight: 700; color: #1a237e; }
 }
 
 .ac-photo-box {
@@ -136,6 +140,7 @@
   height:     100px;
   object-fit: cover;
   border:     1px solid #888;
+  display:    block;
 }
 
 .ac-photo-placeholder {
@@ -177,8 +182,8 @@
   font-size:       0.78rem;
 
   th, td {
-    border:  1px solid #aaa;
-    padding: 4px 8px;
+    border:     1px solid #aaa;
+    padding:    4px 8px;
     text-align: left;
   }
 
@@ -207,17 +212,17 @@
 
 // ── Instructions ──────────────────────────────────────────────────────────────
 .ac-instructions {
-  margin:  0 20px 6px;
-  padding: 6px 10px;
-  border:  1px solid #ccc;
+  margin:        0 20px 6px;
+  padding:       6px 10px;
+  border:        1px solid #ccc;
   border-radius: 2px;
 }
 
 .ac-instr-list {
-  margin:     4px 0 0;
-  padding:    0 0 0 18px;
-  font-size:  0.75rem;
-  color:      #333;
+  margin:      4px 0 0;
+  padding:     0 0 0 18px;
+  font-size:   0.75rem;
+  color:       #333;
   line-height: 1.5;
 
   li + li { margin-top: 1px; }
@@ -260,9 +265,122 @@
   margin:     0;
 }
 
-// ══ PRINT ═════════════════════════════════════════════════════════════════════
+// ══ SCREEN — TABLET  (600 – 767 px) ═════════════════════════════════════════
+@media screen and (max-width: 767px) {
+  .ac-header     { padding: 12px 16px 8px; gap: 10px; }
+  .ac-logo       { width: 50px; height: 50px; }
+  .ac-inst-name  { font-size: 1.1rem; }
+
+  .ac-title-bar  { padding: 7px 10px; }
+  .ac-title      { font-size: 0.92rem; letter-spacing: 3px; }
+
+  .ac-student-row { padding: 10px 16px; }
+  .ac-info-table  { font-size: 0.8rem; }
+  .ac-info-table .ac-lbl { width: 108px; }
+
+  .ac-photo-box  { width: 74px; }
+  .ac-photo,
+  .ac-photo-placeholder { width: 74px; height: 88px; }
+
+  .ac-schedule   { padding: 7px 16px 5px; }
+  .ac-sched-table th, .ac-sched-table td { padding: 3px 6px; }
+  .ac-sched-table .ac-sub-name { min-width: 90px; }
+
+  .ac-instructions { margin: 0 16px 5px; }
+
+  .ac-signatures  { padding: 9px 16px 12px; }
+  .ac-sig         { min-width: 100px; }
+  .ac-sig-line    { width: 100px; }
+  .ac-sig-img     { max-width: 100px; }
+}
+
+// ══ SCREEN — MOBILE  (< 600 px) ═════════════════════════════════════════════
+@media screen and (max-width: 599px) {
+  .ac-card { font-size: 0.78rem; border-radius: 4px; }
+
+  // Header
+  .ac-header    { padding: 10px 12px 8px; gap: 8px; }
+  .ac-logo      { width: 40px; height: 40px; }
+  .ac-inst-name { font-size: 0.95rem; letter-spacing: 0.3px; }
+  .ac-inst-addr,
+  .ac-inst-phone { font-size: 0.68rem; }
+
+  // Title bar
+  .ac-title-bar { padding: 6px 10px; }
+  .ac-title     { font-size: 0.82rem; letter-spacing: 2px; }
+  .ac-exam-name { font-size: 0.7rem; }
+
+  // Student row
+  .ac-student-row { padding: 8px 12px; gap: 8px; }
+  .ac-info-table  {
+    font-size: 0.73rem;
+    td { padding: 2px 3px; }
+    .ac-lbl { width: 88px; font-size: 0.71rem; }
+    .ac-val--name { font-size: 0.82rem; }
+  }
+
+  // Photo
+  .ac-photo-box  { width: 62px; }
+  .ac-photo,
+  .ac-photo-placeholder { width: 62px; height: 74px; }
+  .ac-photo-lbl  { font-size: 0.6rem; }
+
+  // Schedule
+  .ac-schedule   { padding: 6px 12px 4px; }
+  .ac-sec-title  { font-size: 0.7rem; margin-bottom: 3px; }
+  .ac-sched-table {
+    font-size: 0.68rem;
+    th, td    { padding: 3px 4px; }
+    th        { font-size: 0.63rem; }
+    .ac-sub-name { min-width: 76px; }
+  }
+
+  // Instructions
+  .ac-instructions { margin: 0 12px 4px; padding: 5px 8px; }
+  .ac-instr-list   { font-size: 0.67rem; padding-left: 13px; line-height: 1.4; }
+
+  // Signatures
+  .ac-signatures { padding: 8px 12px 10px; }
+  .ac-sig        { min-width: 76px; }
+  .ac-sig-line   { width: 76px; height: 22px; }
+  .ac-sig-img    { max-width: 76px; max-height: 22px; }
+  .ac-sig-lbl    { font-size: 0.58rem; }
+}
+
+// ══ SCREEN — EXTRA-SMALL  (< 400 px) ════════════════════════════════════════
+@media screen and (max-width: 399px) {
+  .ac-card { font-size: 0.72rem; }
+
+  .ac-logo      { width: 34px; height: 34px; }
+  .ac-inst-name { font-size: 0.85rem; }
+
+  .ac-info-table {
+    font-size: 0.67rem;
+    .ac-lbl { width: 78px; font-size: 0.65rem; }
+  }
+
+  .ac-photo-box { width: 54px; }
+  .ac-photo,
+  .ac-photo-placeholder { width: 54px; height: 64px; }
+
+  .ac-sched-table {
+    font-size: 0.62rem;
+    th, td    { padding: 2px 3px; }
+    th        { font-size: 0.58rem; }
+    .ac-sub-name { min-width: 62px; }
+  }
+
+  .ac-instr-list { font-size: 0.62rem; }
+
+  .ac-sig       { min-width: 64px; }
+  .ac-sig-line  { width: 64px; height: 20px; }
+  .ac-sig-img   { max-width: 64px; max-height: 20px; }
+  .ac-sig-lbl   { font-size: 0.54rem; }
+}
+
+// ══ PRINT ════════════════════════════════════════════════════════════════════
+// *** THIS BLOCK IS UNCHANGED FROM THE ORIGINAL — A4 half-page layout ***
 // Each card must be compact enough so two fit on one A4 page (≈ 135mm each).
-// Reduce paddings and font sizes only in print context.
 
 @media print {
 

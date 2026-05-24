@@ -1,94 +1,368 @@
-// exam-form.component.scss
-.form-page { max-width: 860px; margin: 0 auto; }
-.form-header { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
-.form-title  { font-size: 1.4rem; font-weight: 700; color: #212121; margin: 0; }
-.form-sub    { font-size: 0.85rem; color: #757575; margin: 4px 0 0; }
-.loading-row { display: flex; align-items: center; gap: 12px; padding: 40px; color: #757575; }
-.form-card { overflow: hidden; &--loading { opacity: 0.5; pointer-events: none; } }
+// ─────────────────────────────────────────────────────────────────────────────
+//  Exam Form — Fully Responsive
+//  mobile < 600px  |  tablet 600–959px  |  desktop ≥ 960px
+// ─────────────────────────────────────────────────────────────────────────────
 
-.form-section { padding: 24px 24px 8px; @media (max-width:600px) { padding: 16px; } }
+// ── Page wrapper ──────────────────────────────────────────────────────────────
+.form-page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 0 40px;
+
+  @media (max-width: 599px) { padding: 0 0 24px; }
+}
+
+// ── Page header ───────────────────────────────────────────────────────────────
+.form-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+
+  @media (max-width: 599px) { margin-bottom: 14px; }
+}
+
+.back-btn { flex-shrink: 0; }
+
+.form-header-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.form-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #212121;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  @media (max-width: 599px) { font-size: 1.15rem; }
+}
+
+.form-sub {
+  font-size: 0.85rem;
+  color: #757575;
+  margin: 4px 0 0;
+}
+
+// ── Loading ───────────────────────────────────────────────────────────────────
+.loading-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 40px;
+  color: #757575;
+}
+
+// ── Card ──────────────────────────────────────────────────────────────────────
+.form-card {
+  overflow: hidden;
+  &--loading { opacity: 0.5; pointer-events: none; }
+}
+
+// ── Form section ──────────────────────────────────────────────────────────────
+.form-section {
+  padding: 24px 24px 12px;
+
+  @media (max-width: 767px) { padding: 18px 18px 10px; }
+  @media (max-width: 599px) { padding: 14px 14px 8px;  }
+}
+
 .section-title {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 0.95rem; font-weight: 700; color: #424242;
-  margin: 0 0 20px; text-transform: uppercase; letter-spacing: 0.4px;
-  mat-icon { font-size: 20px; width: 20px; height: 20px; color: #7986cb; }
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #424242;
+  margin: 0 0 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #7986cb;
+  }
+
+  @media (max-width: 599px) { margin-bottom: 14px; }
 }
-.section-header-row {
-  display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;
-  .section-title { margin: 0; }
-  button mat-icon { margin-right: 4px; }
-}
+
 .section-divider { margin: 0 !important; }
 
-.field-row { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 16px; align-items: flex-start; }
-.field-sm  { flex: 1; min-width: 120px; max-width: 160px; }
-.field-md  { flex: 1; min-width: 180px; max-width: 260px; }
-.field-lg  { flex: 2; min-width: 240px; }
-.field-xl  { flex: 1; min-width: 300px; }
-.field-full { width: 100%; margin-bottom: 16px; }
+// ── Standalone field helpers ───────────────────────────────────────────────────
+// Full-width standalone mat-form-field
+.field-full {
+  width: 100%;
+  display: block;
+}
 
-// Subjects section header
+.field-last { margin-bottom: 0; }
+
+// Center field — 2/3 width on desktop, full on tablet/mobile
+.field-center {
+  width: 66%;
+  display: block;
+
+  @media (max-width: 767px) { width: 100%; }
+}
+
+// ── 3-column grid ─────────────────────────────────────────────────────────────
+// Used for: Class/Section/Year  and  StartDate/EndDate/IssueDate
+.fields-3col {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  column-gap: 16px;
+  row-gap: 0;               // mat-form-field subscript provides vertical rhythm
+  margin-bottom: 4px;
+  align-items: start;
+
+  mat-form-field {
+    width: 100%;
+    min-width: 0;           // prevent overflow in narrow grid cells
+  }
+
+  // Tablet: 2 cols; 3rd item spans full row
+  @media (max-width: 767px) {
+    grid-template-columns: 1fr 1fr;
+    column-gap: 12px;
+
+    .f-third { grid-column: 1 / -1; }
+  }
+
+  // Mobile: single column stack
+  @media (max-width: 599px) {
+    grid-template-columns: 1fr;
+    column-gap: 0;
+
+    .f-third { grid-column: unset; }
+  }
+}
+
+// ── Subjects section header ────────────────────────────────────────────────────
+.section-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+
+  .section-title { margin: 0; }
+
+  @media (max-width: 599px) { gap: 6px; margin-bottom: 12px; }
+}
+
 .section-header-actions {
-  display: flex; align-items: center; gap: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
 }
+
 .subjects-loading-hint {
-  display: flex; align-items: center; gap: 6px; color: #757575; font-size: 0.82rem;
-  mat-spinner { display: inline-block; }
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #757575;
+  font-size: 0.82rem;
 }
+
 .subjects-ready-hint {
-  display: flex; align-items: center; gap: 4px; color: #388e3c; font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #388e3c;
+  font-size: 0.82rem;
+
   mat-icon { font-size: 16px; width: 16px; height: 16px; }
+
+  @media (max-width: 599px) { display: none; }   // save space on mobile
 }
+
 .subjects-limit-hint {
-  display: flex; align-items: center; gap: 4px; color: #1565c0; font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #1565c0;
+  font-size: 0.82rem;
+
   mat-icon { font-size: 16px; width: 16px; height: 16px; }
+
   &.subjects-limit-reached { color: #c62828; }
 }
 
-// Subjects array
+.hint-text {
+  @media (max-width: 479px) { display: none; }
+}
+
+.add-sub-btn   { flex-shrink: 0; }
+
+.add-sub-label {
+  @media (max-width: 479px) { display: none; }
+}
+
+// ── Subject row card ──────────────────────────────────────────────────────────
 .subject-row {
-  display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px;
-  padding: 12px 16px; background: #f8f9ff;
-  border: 1px solid #e8eaf6; border-radius: 8px;
+  background: #f8f9ff;
+  border: 1px solid #e8eaf6;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  overflow: hidden;
+
+  @media (max-width: 599px) { border-radius: 8px; margin-bottom: 10px; }
 }
+
+// Card header bar: index badge + "Subject N" label + remove button
+.subject-row-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px 8px 14px;
+  background: #eef0fb;
+  border-bottom: 1px solid #dde0f5;
+}
+
 .subject-index {
-  width: 28px; height: 28px; border-radius: 50%;
-  background: #e8eaf6; color: #3949ab; font-size: 0.8rem; font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; margin-top: 12px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #3949ab;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
+
+.subject-row-label {
+  flex: 1;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #3949ab;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+// Card body (fields area)
 .subject-fields {
-  flex: 1; display: flex; flex-direction: column; gap: 8px;
+  padding: 14px 16px 10px;
+
+  @media (max-width: 599px) { padding: 10px 12px 8px; }
+
   ::ng-deep .mat-mdc-form-field-subscript-wrapper { min-height: 16px; }
 }
-.subrow {
-  display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start;
+
+// Row 1: Subject name (wider) / Exam date / Time slot
+.sub-name-row {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1.5fr;
+  column-gap: 12px;
+  row-gap: 0;
+  align-items: start;
+
+  mat-form-field {
+    width: 100%;
+    min-width: 0;
+  }
+
+  // Tablet + mobile: name spans full width; date & time share a row
+  @media (max-width: 767px) {
+    grid-template-columns: 1fr 1fr;
+
+    .sub-name-field { grid-column: 1 / -1; }
+  }
 }
-.subfield-name    { flex: 2; min-width: 160px; }
-.subfield-teacher { flex: 2; min-width: 140px; }
-.subfield-num     { flex: 1; min-width: 90px; max-width: 120px; }
-.subfield-date    { flex: 1; min-width: 140px; }
-.subfield-time    { flex: 1; min-width: 160px; }
-.remove-subject-btn { flex-shrink: 0; margin-top: 6px; }
+
+.sub-name-field { /* fills its 2fr grid cell */ }
+
+// Row 2: Marks + oral toggle + (optional oral detail fields)
+.sub-marks-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+
+  @media (max-width: 599px) { gap: 8px; }
+}
+
+.subfield-num {
+  flex: 1;
+  min-width: 88px;
+  max-width: 140px;
+}
 
 .oral-toggle-wrap {
-  display: flex; align-items: center; padding-top: 14px;
+  display: flex;
+  align-items: center;
+  padding-top: 12px;   // visually aligns checkbox with input labels
 }
+
 .oral-mismatch-hint {
-  display: flex; align-items: center; gap: 6px;
-  color: #d32f2f; font-size: 0.82rem; margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #d32f2f;
+  font-size: 0.82rem;
+  margin-top: 6px;
+  padding: 5px 10px;
+  background: #ffebee;
+  border-radius: 4px;
+
   mat-icon { font-size: 16px; width: 16px; height: 16px; }
 }
 
 .subject-hint {
-  display: flex; align-items: center; gap: 6px;
-  color: #f57c00; font-size: 0.85rem; margin: 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #f57c00;
+  font-size: 0.85rem;
+  margin: 8px 0;
+
   mat-icon { font-size: 18px; width: 18px; height: 18px; }
 }
 
+// ── Form actions ──────────────────────────────────────────────────────────────
 .form-actions {
-  display: flex; justify-content: flex-end; gap: 12px;
-  padding: 16px 24px; border-top: 1px solid #e0e0e0; background: #fafafa;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid #e0e0e0;
+  background: #fafafa;
+
+  // Mobile: stack buttons, submit on top (column-reverse), full width
+  @media (max-width: 599px) {
+    flex-direction: column-reverse;
+    padding: 14px 16px;
+    gap: 8px;
+  }
 }
-.save-btn { display: flex; align-items: center; gap: 8px; }
-.btn-spinner { ::ng-deep circle { stroke: rgba(255,255,255,0.8) !important; } }
+
+.cancel-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  @media (max-width: 599px) { width: 100%; justify-content: center; }
+}
+
+.save-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  @media (max-width: 599px) { width: 100%; justify-content: center; }
+}
+
+.btn-spinner {
+  ::ng-deep circle { stroke: rgba(255,255,255,0.8) !important; }
+}
