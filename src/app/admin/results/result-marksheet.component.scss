@@ -1,42 +1,180 @@
-// result-marksheet.component.scss
-//
-// SCREEN: renders as a preview card with shadow.
-// PRINT:  @media print takes over — hides all chrome (toolbar, hints),
-//         prints only .print-area (the marksheet document) cleanly on A4.
+// ─────────────────────────────────────────────────────────────────────────────
+//  Marksheet Preview — Fully Responsive (screen)
+//  Print block at the bottom is COMPLETELY UNCHANGED from the original.
+//  mobile < 600px  |  tablet 600–767px  |  desktop ≥ 768px
+// ─────────────────────────────────────────────────────────────────────────────
 
 :host { display: block; }
 
-.marksheet-page { max-width: 920px; margin: 0 auto; }
+.marksheet-page {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 0 0 40px;
 
-// ── Screen-only chrome ────────────────────────────────────────────────────────
+  // Extra bottom clearance on mobile so FAB doesn't cover content
+  @media (max-width: 599px) { padding: 0 0 88px; }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  SCREEN-ONLY TOOLBAR
+// ════════════════════════════════════════════════════════════════════════════
 .ms-toolbar {
-  display: flex; align-items: center; gap: 8px;
-  margin-bottom: 12px; flex-wrap: wrap;
-}
-.toolbar-title { font-size: 1.1rem; font-weight: 600; color: #212121; }
-.spacer { flex: 1; }
-.print-btn mat-icon { margin-right: 6px; vertical-align: middle; }
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
 
+  @media (max-width: 599px) { margin-bottom: 12px; gap: 8px; }
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1 1 0;
+}
+
+.back-btn { flex-shrink: 0; }
+
+.toolbar-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.toolbar-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #212121;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  @media (max-width: 599px) { font-size: 0.95rem; }
+}
+
+.toolbar-sub {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  font-size: 0.78rem;
+  color: #757575;
+
+  .sub-sep { color: #d0d0d0; margin: 0 1px; }
+}
+
+.toolbar-right { flex-shrink: 0; }
+
+.print-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  .print-label {
+    @media (max-width: 599px) { display: none; }
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  LOADING
+// ════════════════════════════════════════════════════════════════════════════
 .loading-center {
-  display: flex; flex-direction: column; align-items: center;
-  gap: 16px; padding: 80px; color: #757575;
-  p { margin: 0; }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 80px 24px;
+  color: #757575;
+
+  p { margin: 0; font-size: 0.9rem; }
 }
 
-.preview-hint {
-  display: flex; align-items: center; gap: 6px; font-size: 0.8rem;
-  color: #757575; margin: 0 0 12px;
-  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+// ════════════════════════════════════════════════════════════════════════════
+//  PREVIEW BANNER
+// ════════════════════════════════════════════════════════════════════════════
+.preview-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: #e3f2fd;
+  border: 1px solid #bbdefb;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #1976d2;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 599px) {
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
 }
 
-// ══ MARKSHEET DOCUMENT ═══════════════════════════════════════════════════════
+.preview-banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+
+  strong { font-size: 0.85rem; color: #1565c0; }
+  span   { font-size: 0.78rem; color: #5c8ab5; line-height: 1.4; }
+}
+
+.print-btn-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  MOBILE STICKY PRINT FAB
+// ════════════════════════════════════════════════════════════════════════════
+.print-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 20px;
+  z-index: 100;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+  display: none;
+
+  @media (max-width: 599px) { display: flex; }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  MARKSHEET DOCUMENT  (screen wrapper + document content)
+// ════════════════════════════════════════════════════════════════════════════
 .marksheet-doc {
   background:    #fff;
   box-shadow:    0 4px 24px rgba(0,0,0,0.15);
-  border-radius: 4px;
+  border-radius: 10px;
   font-family:   'Times New Roman', Times, serif;
   color:         #000;
   overflow:      hidden;
+
+  @media (max-width: 767px) {
+    border-radius: 8px;
+    box-shadow:    0 2px 14px rgba(0,0,0,0.10);
+  }
+
+  @media (max-width: 599px) {
+    border-radius: 6px;
+    box-shadow:    0 2px 10px rgba(0,0,0,0.09);
+  }
 }
 
 // ── Institute header ──────────────────────────────────────────────────────────
@@ -46,20 +184,34 @@
   gap:           20px;
   padding:       20px 32px 14px;
   border-bottom: 3px double #000;
+
+  @media (max-width: 767px) { padding: 14px 20px 10px; gap: 14px; }
+  @media (max-width: 599px) { padding: 10px 12px 8px;  gap: 10px; }
 }
 
 .ms-logo {
   width: 80px; height: 80px; object-fit: contain; flex-shrink: 0;
+
+  @media (max-width: 767px) { width: 60px; height: 60px; }
+  @media (max-width: 599px) { width: 44px; height: 44px; }
 }
 
-.ms-inst-text { flex: 1; text-align: center; }
+.ms-inst-text { flex: 1; text-align: center; min-width: 0; }
 
 .ms-inst-name {
   font-size: 1.5rem; font-weight: 700;
   margin: 0 0 4px; text-transform: uppercase; letter-spacing: 1.5px; line-height: 1.2;
+
+  @media (max-width: 767px) { font-size: 1.2rem; letter-spacing: 1px; }
+  @media (max-width: 599px) { font-size: 1rem;   letter-spacing: 0.4px; }
 }
+
 .ms-inst-addr,
-.ms-inst-phone { font-size: 0.85rem; margin: 0; color: #333; line-height: 1.5; }
+.ms-inst-phone {
+  font-size: 0.85rem; margin: 0; color: #333; line-height: 1.5;
+
+  @media (max-width: 599px) { font-size: 0.7rem; }
+}
 
 // ── Title bar ─────────────────────────────────────────────────────────────────
 .ms-title-bar {
@@ -71,25 +223,68 @@
   color:          #fff;
   text-align:     center;
   gap:            2px;
-}
-.ms-title-text { font-size: 1.1rem; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; }
-.ms-exam-name  { font-size: 0.9rem; opacity: 0.9; font-style: italic; }
-.ms-ay         { font-size: 0.78rem; opacity: 0.75; }
+  -webkit-print-color-adjust: exact;
+  print-color-adjust:         exact;
 
-// ── Student section ───────────────────────────────────────────────────────────
+  @media (max-width: 599px) { padding: 7px 10px; }
+}
+
+.ms-title-text {
+  font-size: 1.1rem; font-weight: 700; letter-spacing: 4px; text-transform: uppercase;
+
+  @media (max-width: 599px) { font-size: 0.88rem; letter-spacing: 2px; }
+}
+
+.ms-exam-name {
+  font-size: 0.9rem; opacity: 0.9; font-style: italic;
+
+  @media (max-width: 599px) { font-size: 0.74rem; }
+}
+
+.ms-ay { font-size: 0.78rem; opacity: 0.75; }
+
+// ── Student row ───────────────────────────────────────────────────────────────
 .ms-student-row {
-  display:    flex;
-  gap:        16px;
-  padding:    16px 32px;
+  display:       flex;
+  gap:           16px;
+  padding:       16px 32px;
   border-bottom: 1px solid #888;
+
+  @media (max-width: 767px) { padding: 12px 20px; gap: 12px; }
+  @media (max-width: 599px) { padding: 10px 12px; gap: 8px;  }
 }
 
 .ms-student-table {
-  flex: 1; border-collapse: collapse; font-size: 0.875rem;
+  flex: 1;
+  min-width: 0;             // critical — prevents flex child from overflowing
+  border-collapse: collapse;
+  font-size: 0.875rem;
+
   td { padding: 4px 8px; vertical-align: top; }
-  .info-label { font-weight: 600; white-space: nowrap; width: 140px; color: #333;
-    &::after { content: ':'; } }
-  .info-value { color: #000; &--name { font-size: 1rem; font-weight: 700; } }
+
+  .info-label {
+    font-weight: 600;
+    white-space: nowrap;
+    width: 130px;
+    color: #333;
+    &::after { content: ':'; }
+  }
+
+  .info-value      { color: #000; }
+  .info-value--name { font-size: 1rem; font-weight: 700; }
+
+  @media (max-width: 767px) {
+    font-size: 0.8rem;
+    td { padding: 3px 6px; }
+    .info-label { width: 110px; font-size: 0.78rem; }
+  }
+
+  @media (max-width: 599px) {
+    font-size: 0.71rem;
+    td { padding: 2px 3px; }
+    .info-label { width: 86px; font-size: 0.68rem; }
+    .info-value--name { font-size: 0.84rem; }
+  }
 }
 
 .ms-right-panel {
@@ -98,30 +293,50 @@
   align-items:    center;
   gap:            12px;
   flex-shrink:    0;
+
+  @media (max-width: 599px) { gap: 8px; }
 }
 
 .ms-photo-box {
   width: 96px; height: 116px; border: 1px solid #888;
   display: flex; align-items: center; justify-content: center; overflow: hidden;
+
+  @media (max-width: 767px) { width: 80px;  height: 96px;  }
+  @media (max-width: 599px) { width: 62px;  height: 74px;  }
 }
+
 .ms-photo { width: 100%; height: 100%; object-fit: cover; }
+
 .ms-photo-placeholder {
   display: flex; flex-direction: column; align-items: center;
   gap: 4px; color: #aaa; font-size: 0.7rem; text-align: center;
+
   mat-icon { font-size: 36px; width: 36px; height: 36px; color: #ccc; }
+
+  @media (max-width: 599px) {
+    mat-icon { font-size: 26px; width: 26px; height: 26px; }
+  }
 }
 
-// PASS / FAIL stamp
 .ms-stamp {
   font-size: 1.3rem; font-weight: 900; letter-spacing: 3px;
   border: 3px solid; border-radius: 4px; padding: 4px 14px;
-  text-transform: uppercase;
+  text-transform: uppercase; text-align: center;
+
   &.stamp-pass { border-color: #2e7d32; color: #2e7d32; }
   &.stamp-fail { border-color: #c62828; color: #c62828; }
+
+  @media (max-width: 767px) { font-size: 1rem;   letter-spacing: 2px; padding: 4px 10px; }
+  @media (max-width: 599px) { font-size: 0.8rem; letter-spacing: 1px; padding: 3px 7px; border-width: 2px; }
 }
 
-// ── Marks table ───────────────────────────────────────────────────────────────
-.ms-marks-section { padding: 12px 32px 4px; }
+// ── Marks section ─────────────────────────────────────────────────────────────
+.ms-marks-section {
+  padding: 12px 32px 4px;
+
+  @media (max-width: 767px) { padding: 10px 20px 4px; }
+  @media (max-width: 599px) { padding: 8px 10px 2px;  }
+}
 
 .ms-section-title {
   font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
@@ -138,6 +353,8 @@
     background: #1a237e; color: #fff;
     font-weight: 700; font-size: 0.75rem;
     text-transform: uppercase; letter-spacing: 0.4px;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust:         exact;
   }
 
   td { color: #111; }
@@ -147,8 +364,8 @@
   .row-absent td { background: #fffde7 !important; }
 
   .col-no      { width: 36px; text-align: center; }
-  .col-subject { min-width: 140px; }
-  .col-max, .col-pass, .col-obtained, .col-grade, .col-result { width: 80px; }
+  .col-subject { min-width: 130px; }
+  .col-max, .col-pass, .col-obtained, .col-grade, .col-result { width: 76px; }
   .center      { text-align: center; }
 
   .subject-name { font-weight: 500; }
@@ -171,25 +388,57 @@
   .mini-result { font-size: 0.8rem; font-weight: 700; }
   .mini-pass   { color: #2e7d32; }
   .mini-fail   { color: #c62828; }
+
+  // Tablet
+  @media (max-width: 767px) {
+    font-size: 0.77rem;
+    th, td { padding: 5px 7px; }
+    th { font-size: 0.68rem; }
+    .col-subject { min-width: 100px; }
+    .col-max, .col-pass, .col-obtained, .col-grade, .col-result { width: 60px; }
+  }
+
+  // Mobile
+  @media (max-width: 599px) {
+    font-size: 0.67rem;
+    th, td    { padding: 3px 4px; }
+    th        { font-size: 0.59rem; letter-spacing: 0; }
+    .col-no   { width: 24px; }
+    .col-subject { min-width: 70px; }
+    .col-max, .col-pass, .col-obtained, .col-grade, .col-result { width: 40px; }
+    .grade-chip { padding: 1px 4px; font-size: 0.64rem; }
+  }
 }
 
 // ── Summary row ───────────────────────────────────────────────────────────────
 .ms-summary-row {
-  display:    flex;
-  gap:        16px;
-  padding:    12px 32px;
-  border-top: 1px solid #888;
+  display:       flex;
+  gap:           16px;
+  padding:       12px 32px;
+  border-top:    1px solid #888;
   border-bottom: 1px solid #888;
-  flex-wrap:  wrap;
+  flex-wrap:     wrap;
+
+  @media (max-width: 767px) { padding: 10px 20px; gap: 12px; }
+  @media (max-width: 599px) { padding: 8px 10px;  gap: 10px; }
 }
 
 .ms-summary-table {
-  flex: 1; border-collapse: collapse; font-size: 0.875rem; min-width: 280px;
+  flex: 1; border-collapse: collapse; font-size: 0.875rem; min-width: 220px;
+
   td { padding: 5px 8px; }
+
   .sum-label { font-weight: 600; color: #333; width: 160px;
     &::after { content: ':'; } }
   .sum-value { color: #000; }
   .fail-text { color: #c62828; font-weight: 600; }
+
+  @media (max-width: 599px) {
+    font-size: 0.78rem;
+    min-width: 0;
+    td { padding: 3px 4px; }
+    .sum-label { width: 118px; font-size: 0.75rem; }
+  }
 }
 
 .pct-high { color: #2e7d32; }
@@ -211,18 +460,28 @@
 
 // Grade scale reference box
 .grade-scale {
-  flex-shrink: 0; min-width: 180px;
-  border: 1px solid #ccc; border-radius: 4px; overflow: hidden; font-size: 0.75rem;
+  flex-shrink: 0;
+  min-width: 170px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  overflow: hidden;
+  font-size: 0.75rem;
+
+  @media (max-width: 599px) { min-width: 100%; }
 }
+
 .grade-scale-title {
   background: #333; color: #fff; font-weight: 700;
   text-align: center; padding: 4px; font-size: 0.72rem; text-transform: uppercase;
 }
+
 .grade-scale-rows { padding: 4px; display: flex; flex-direction: column; gap: 2px; }
+
 .gs-row {
   display: flex; gap: 6px; align-items: center;
   &.gs-fail .gs-range { color: #c62828; }
 }
+
 .gs-grade { font-weight: 700; min-width: 22px; color: #1a237e; }
 .gs-range { color: #555; }
 
@@ -233,22 +492,44 @@
   padding:         16px 32px 24px;
   gap:             12px;
   flex-wrap:       wrap;
+
+  @media (max-width: 767px) { padding: 12px 20px 18px; gap: 8px; }
+  @media (max-width: 599px) { padding: 10px 12px 14px; }
 }
-.sig-block { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; min-width: 120px; }
-.sig-line  { width: 120px; border-bottom: 1px solid #000; height: 36px; margin-bottom: 4px; }
-.sig-label { font-size: 0.72rem; color: #555; text-align: center; font-style: italic; }
+
+.sig-block {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 4px; flex: 1; min-width: 100px;
+
+  @media (max-width: 599px) { min-width: 70px; }
+}
+
+.sig-line {
+  width: 120px; border-bottom: 1px solid #000; height: 36px; margin-bottom: 4px;
+
+  @media (max-width: 599px) { width: 76px; height: 24px; }
+}
+
+.sig-label {
+  font-size: 0.72rem; color: #555; text-align: center; font-style: italic;
+
+  @media (max-width: 599px) { font-size: 0.6rem; }
+}
 
 // ── Footer ────────────────────────────────────────────────────────────────────
 .ms-footer {
   text-align: center; font-size: 0.7rem; color: #888;
   padding: 6px 32px 10px; border-top: 1px solid #e0e0e0;
   display: flex; justify-content: center; gap: 8px; align-items: center;
-  font-style: italic;
-}
-.footer-divider { color: #ccc; }
-.draft-watermark-footer { color: #f57c00; font-weight: 700; font-style: normal; }
+  font-style: italic; flex-wrap: wrap;
 
-// ══ @media print — THE CRITICAL SECTION ═════════════════════════════════════
+  @media (max-width: 599px) { padding: 6px 12px 10px; font-size: 0.62rem; }
+}
+
+.footer-divider          { color: #ccc; }
+.draft-watermark-footer  { color: #f57c00; font-weight: 700; font-style: normal; }
+
+// ══ @media print — COMPLETELY UNCHANGED FROM ORIGINAL ════════════════════════
 // global styles.scss already hides body > * and shows .print-area.
 // These rules fine-tune the marksheet for paper output.
 @media print {

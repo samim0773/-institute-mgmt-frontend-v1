@@ -1,23 +1,41 @@
 <!-- result-marksheet.component.html -->
 <div class="marksheet-page">
 
-  <!-- ══ SCREEN-ONLY TOOLBAR (hidden on print) ══════════════════════════════ -->
+  <!-- ════════════════════════════════════════════════════════════════════════
+       SCREEN-ONLY TOOLBAR  (hidden on print)
+  ════════════════════════════════════════════════════════════════════════════ -->
   <div class="ms-toolbar no-print">
-    <button mat-icon-button (click)="goBack()" aria-label="Back to results">
-      <mat-icon>arrow_back</mat-icon>
-    </button>
-    <span class="toolbar-title">
-      {{ marksheet?.student?.name || 'Marksheet' }}
-    </span>
-    <span class="spacer"></span>
-    <button
-      mat-raised-button color="primary"
-      (click)="print()"
-      [disabled]="loading || !marksheet"
-      class="print-btn"
-    >
-      <mat-icon>print</mat-icon> Print Marksheet
-    </button>
+
+    <div class="toolbar-left">
+      <button mat-icon-button (click)="goBack()" aria-label="Back to results" class="back-btn">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="toolbar-info">
+        <span class="toolbar-title">
+          {{ marksheet?.student?.name || 'Marksheet' }}
+        </span>
+        <span class="toolbar-sub" *ngIf="marksheet">
+          {{ marksheet.exam?.name }}
+          <span class="sub-sep">·</span>
+          Class {{ marksheet.student?.class }}-{{ marksheet.student?.section }}
+          <span class="sub-sep">·</span>
+          Roll <strong>{{ marksheet.student?.rollNo }}</strong>
+        </span>
+      </div>
+    </div>
+
+    <div class="toolbar-right">
+      <button
+        mat-raised-button color="primary"
+        (click)="print()"
+        [disabled]="loading || !marksheet"
+        class="print-btn"
+      >
+        <mat-icon>print</mat-icon>
+        <span class="print-label">Print Marksheet</span>
+      </button>
+    </div>
+
   </div>
 
   <!-- ── Loading ──────────────────────────────────────────────────────────── -->
@@ -26,13 +44,22 @@
     <p>Loading marksheet…</p>
   </div>
 
-  <!-- ── Preview hint (screen only) ──────────────────────────────────────── -->
-  <p *ngIf="!loading && marksheet" class="preview-hint no-print">
-    <mat-icon>visibility</mat-icon>
-    Print preview — exactly how it will look on paper
-  </p>
+  <!-- ── Preview banner  (screen only) ────────────────────────────────────── -->
+  <div class="preview-banner no-print" *ngIf="!loading && marksheet">
+    <mat-icon>info_outline</mat-icon>
+    <div class="preview-banner-text">
+      <strong>Print Preview</strong>
+      <span>Full A4 marksheet · Use your browser's print dialog to set paper size</span>
+    </div>
+    <button mat-raised-button color="primary" (click)="print()" class="print-btn-banner">
+      <mat-icon>print</mat-icon>
+      <span>Print</span>
+    </button>
+  </div>
 
-  <!-- ══ MARKSHEET DOCUMENT (print-area — visible on both screen and paper) -->
+  <!-- ════════════════════════════════════════════════════════════════════════
+       MARKSHEET DOCUMENT  (visible on screen + paper)
+  ════════════════════════════════════════════════════════════════════════════ -->
   <div class="marksheet-doc print-area" *ngIf="!loading && marksheet">
 
     <!-- ── Institute header ─────────────────────────────────────────────── -->
@@ -61,9 +88,8 @@
       </span>
     </div>
 
-    <!-- ── Student details + PASS/FAIL stamp ────────────────────────────── -->
+    <!-- ── Student details + PASS / FAIL stamp ──────────────────────────── -->
     <div class="ms-student-row">
-
       <table class="ms-student-table">
         <tbody>
           <tr>
@@ -101,9 +127,8 @@
         </tbody>
       </table>
 
-      <!-- Photo + PASS/FAIL stamp side-by-side -->
+      <!-- Photo + PASS/FAIL stamp -->
       <div class="ms-right-panel">
-        <!-- Photo box -->
         <div class="ms-photo-box">
           <img
             *ngIf="marksheet.student.photo"
@@ -116,12 +141,10 @@
             <small>Photo</small>
           </div>
         </div>
-        <!-- Pass/Fail stamp -->
         <div class="ms-stamp" [ngClass]="resultClass" aria-label="Result status">
           {{ resultText }}
         </div>
       </div>
-
     </div><!-- /ms-student-row -->
 
     <!-- ── Subject-wise marks table ─────────────────────────────────────── -->
@@ -160,7 +183,9 @@
               <span class="grade-chip" [ngClass]="gradeClass(sub.grade)">{{ sub.grade }}</span>
             </td>
             <td class="col-result center">
-              <span class="mini-result" [class.mini-pass]="sub.isPassed" [class.mini-fail]="!sub.isPassed">
+              <span class="mini-result"
+                    [class.mini-pass]="sub.isPassed"
+                    [class.mini-fail]="!sub.isPassed">
                 {{ sub.isPassed ? 'P' : 'F' }}
               </span>
             </td>
@@ -205,7 +230,7 @@
           <tr *ngIf="marksheet?.failedSubjects?.length">
             <td class="sum-label">Failed In</td>
             <td class="sum-value fail-text">
-             {{ marksheet!.failedSubjects.join(', ') }}
+              {{ marksheet!.failedSubjects.join(', ') }}
             </td>
           </tr>
         </tbody>
@@ -258,4 +283,19 @@
     </div>
 
   </div><!-- /marksheet-doc -->
+
+  <!-- ════════════════════════════════════════════════════════════════════════
+       MOBILE STICKY PRINT FAB  (mobile only, screen only)
+  ════════════════════════════════════════════════════════════════════════════ -->
+  <button
+    *ngIf="!loading && marksheet"
+    mat-fab
+    color="primary"
+    class="print-fab no-print"
+    (click)="print()"
+    aria-label="Print Marksheet"
+  >
+    <mat-icon>print</mat-icon>
+  </button>
+
 </div><!-- /marksheet-page -->

@@ -1,15 +1,15 @@
 <!-- result-list.component.html -->
 <div class="results-page">
 
-  <!-- ── Header ────────────────────────────────────────────────────────────── -->
+  <!-- ── Page Header ─────────────────────────────────────────────────────────── -->
   <div class="page-header">
-    <div>
+    <div class="page-header-info">
       <h2 class="page-title">Results</h2>
       <p class="page-sub">Compute, review, and publish exam results</p>
     </div>
   </div>
 
-  <!-- ── Exam + Class selector ─────────────────────────────────────────────── -->
+  <!-- ── Filter card ─────────────────────────────────────────────────────────── -->
   <mat-card class="filter-card">
     <div class="filter-row">
       <mat-form-field appearance="outline" class="filter-exam">
@@ -31,47 +31,49 @@
           <mat-option *ngFor="let c of classNames" [value]="c">Class {{ c }}</mat-option>
         </mat-select>
       </mat-form-field>
+    </div>
 
-      <span class="spacer"></span>
+    <!-- Action buttons — appear once exam is selected -->
+    <div class="filter-actions" *ngIf="hasExamSelected">
+      <button
+        mat-stroked-button color="primary"
+        (click)="computeResults()"
+        [disabled]="computing || publishing"
+        class="action-btn"
+        matTooltip="Aggregate marks into result documents"
+      >
+        <mat-spinner *ngIf="computing" diameter="16" class="btn-spinner"></mat-spinner>
+        <mat-icon *ngIf="!computing">calculate</mat-icon>
+        <span class="action-btn-label">{{ computing ? 'Computing…' : 'Compute Results' }}</span>
+      </button>
 
-      <!-- Action buttons — appear once exam is selected -->
-      <ng-container *ngIf="hasExamSelected">
-        <button
-          mat-stroked-button color="primary"
-          (click)="computeResults()"
-          [disabled]="computing || publishing"
-          matTooltip="Aggregate marks into result documents"
-        >
-          <mat-spinner *ngIf="computing" diameter="16" class="btn-spinner"></mat-spinner>
-          <mat-icon *ngIf="!computing">calculate</mat-icon>
-          {{ computing ? 'Computing…' : 'Compute Results' }}
-        </button>
+      <button
+        mat-raised-button color="primary"
+        *ngIf="hasResults && !isPublished"
+        (click)="publishResults()"
+        [disabled]="publishing || computing"
+        class="action-btn"
+        matTooltip="Make results visible to teachers"
+      >
+        <mat-spinner *ngIf="publishing" diameter="16" class="btn-spinner"></mat-spinner>
+        <mat-icon *ngIf="!publishing">publish</mat-icon>
+        <span class="action-btn-label">{{ publishing ? 'Publishing…' : 'Publish Results' }}</span>
+      </button>
 
-        <button
-          mat-raised-button color="primary"
-          *ngIf="hasResults && !isPublished"
-          (click)="publishResults()"
-          [disabled]="publishing || computing"
-          matTooltip="Make results visible to teachers"
-        >
-          <mat-spinner *ngIf="publishing" diameter="16" class="btn-spinner"></mat-spinner>
-          <mat-icon *ngIf="!publishing">publish</mat-icon>
-          {{ publishing ? 'Publishing…' : 'Publish Results' }}
-        </button>
-
-        <button
-          mat-stroked-button color="warn"
-          *ngIf="hasResults && isPublished"
-          (click)="unpublishResults()"
-          matTooltip="Hide results from teachers (for corrections)"
-        >
-          <mat-icon>unpublished</mat-icon> Unpublish
-        </button>
-      </ng-container>
+      <button
+        mat-stroked-button color="warn"
+        *ngIf="hasResults && isPublished"
+        (click)="unpublishResults()"
+        class="action-btn"
+        matTooltip="Hide results from teachers (for corrections)"
+      >
+        <mat-icon>unpublished</mat-icon>
+        <span class="action-btn-label">Unpublish</span>
+      </button>
     </div>
   </mat-card>
 
-  <!-- ── Compute summary callout ───────────────────────────────────────────── -->
+  <!-- ── Compute summary callout ──────────────────────────────────────────────── -->
   <div *ngIf="computeSummary" class="compute-summary">
     <mat-icon class="summary-icon">check_circle</mat-icon>
     <div class="summary-text">
@@ -84,13 +86,13 @@
     </div>
   </div>
 
-  <!-- ── Published banner ──────────────────────────────────────────────────── -->
+  <!-- ── Published banner ─────────────────────────────────────────────────────── -->
   <div *ngIf="hasResults && isPublished" class="published-banner">
     <mat-icon>verified</mat-icon>
-    Results for this exam are <strong>published</strong>. Teachers can view them.
+    <span>Results for this exam are <strong>published</strong>. Teachers can view them.</span>
   </div>
 
-  <!-- ── Stats strip ───────────────────────────────────────────────────────── -->
+  <!-- ── Stats strip ──────────────────────────────────────────────────────────── -->
   <div *ngIf="hasResults" class="stats-strip">
     <div class="stat-item stat-total">
       <span class="stat-val">{{ dataSource.data.length }}</span>
@@ -106,150 +108,226 @@
     </div>
     <div class="stat-item stat-avg">
       <span class="stat-val">{{ fmtPct(avgPercent) }}</span>
-      <span class="stat-lbl">Class Avg</span>
+      <span class="stat-lbl">Avg</span>
     </div>
     <div class="stat-item stat-top">
       <span class="stat-val">{{ fmtPct(topPercent) }}</span>
-      <span class="stat-lbl">Top Score</span>
+      <span class="stat-lbl">Top</span>
     </div>
   </div>
 
-  <!-- ── Loading bar ───────────────────────────────────────────────────────── -->
+  <!-- ── Loading bar ──────────────────────────────────────────────────────────── -->
   <mat-progress-bar *ngIf="loading" mode="indeterminate" class="list-progress"></mat-progress-bar>
 
-  <!-- ── Placeholder when no exam selected ─────────────────────────────────── -->
+  <!-- ── Empty: no exam selected ─────────────────────────────────────────────── -->
   <div *ngIf="!hasExamSelected && !loading" class="empty-state">
     <mat-icon>leaderboard</mat-icon>
     <h3>Select an exam to view results</h3>
     <p>Choose a completed or published exam from the dropdown above.</p>
   </div>
 
-  <!-- ── No results yet ────────────────────────────────────────────────────── -->
+  <!-- ── Empty: no results yet ───────────────────────────────────────────────── -->
   <div *ngIf="hasExamSelected && !loading && !hasResults" class="empty-state">
     <mat-icon>pending_actions</mat-icon>
     <h3>No results computed yet</h3>
     <p>Ensure all marks are entered, then click <strong>Compute Results</strong>.</p>
   </div>
 
-  <!-- ── Results table ─────────────────────────────────────────────────────── -->
-  <mat-card class="table-card" *ngIf="hasResults">
-    <div class="table-scroll">
-      <table
-        mat-table [dataSource]="dataSource" matSort
-        class="results-table" aria-label="Results"
+  <!-- ════════════════════════════════════════════════════════════════════════════
+       RESULTS DATA — mobile cards + desktop table
+  ═══════════════════════════════════════════════════════════════════════════════ -->
+  <ng-container *ngIf="hasResults">
+
+    <!-- ══ MOBILE CARDS  (< 768 px) ════════════════════════════════════════════ -->
+    <div class="mobile-cards">
+      <mat-card
+        *ngFor="let r of dataSource.data; trackBy: trackById"
+        class="result-card"
+        [class.result-card--fail]="!r.isPassed"
+        (click)="viewMarksheet(r)"
       >
-        <!-- Rank -->
-        <ng-container matColumnDef="rank">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Rank</th>
-          <td mat-cell *matCellDef="let r">
-            <span class="rank-badge" [class.rank-top3]="r.rank <= 3">
-              {{ r.rank || '—' }}
+        <!-- Card header: rank · avatar · name · pass/fail chip -->
+        <div class="rc-header">
+          <span class="rank-badge" [class.rank-top3]="r.rank <= 3">{{ r.rank || '—' }}</span>
+          <div class="student-avatar">{{ r.studentId.name[0] }}</div>
+          <div class="rc-name-block">
+            <div class="student-name">{{ r.studentId.name }}</div>
+            <div class="student-sub">
+              Class {{ r.studentId.class }}-{{ r.studentId.section }}
+              &nbsp;<span class="roll-chip">{{ r.studentId.rollNo }}</span>
+            </div>
+          </div>
+          <span class="result-chip"
+                [class.result-pass]="r.isPassed"
+                [class.result-fail]="!r.isPassed">
+            <mat-icon>{{ r.isPassed ? 'check_circle' : 'cancel' }}</mat-icon>
+            {{ r.isPassed ? 'Pass' : 'Fail' }}
+          </span>
+        </div>
+
+        <!-- Card body: marks · percent · grade · mini bar -->
+        <div class="rc-body">
+          <div class="rc-stat">
+            <span class="rc-stat-val">
+              <span class="marks-val">{{ r.totalMarks }}</span><span class="marks-max">/{{ r.maxTotalMarks }}</span>
             </span>
-          </td>
-        </ng-container>
-
-        <!-- Roll No -->
-        <ng-container matColumnDef="rollNo">
-          <th mat-header-cell *matHeaderCellDef>Roll</th>
-          <td mat-cell *matCellDef="let r">
-            <span class="roll-chip">{{ r.studentId.rollNo }}</span>
-          </td>
-        </ng-container>
-
-        <!-- Name -->
-        <ng-container matColumnDef="name">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Student</th>
-          <td mat-cell *matCellDef="let r">
-            <div class="name-cell">
-              <div class="student-avatar">{{ r.studentId.name[0] }}</div>
-              <div>
-                <div class="student-name">{{ r.studentId.name }}</div>
-                <div class="student-sub">{{ r.studentId.class }}-{{ r.studentId.section }}</div>
-              </div>
-            </div>
-          </td>
-        </ng-container>
-
-        <!-- Subjects mini-bar -->
-        <ng-container matColumnDef="subjects">
-          <th mat-header-cell *matHeaderCellDef>Subjects</th>
-          <td mat-cell *matCellDef="let r">
-            <div class="fail-subjects" *ngIf="r.failedSubjects?.length > 0">
-              <span
-                *ngFor="let s of r.failedSubjects"
-                class="fail-chip"
-                [matTooltip]="'Failed: ' + s"
-              >{{ s }}</span>
-            </div>
-            <span *ngIf="!r.failedSubjects?.length" class="all-pass">All passed</span>
-          </td>
-        </ng-container>
-
-        <!-- Total -->
-        <ng-container matColumnDef="total">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header="totalMarks">Total</th>
-          <td mat-cell *matCellDef="let r">
-            <span class="marks-val">{{ r.totalMarks }}</span>
-            <span class="marks-max">/{{ r.maxTotalMarks }}</span>
-          </td>
-        </ng-container>
-
-        <!-- Percentage -->
-        <ng-container matColumnDef="percentage">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Percent</th>
-          <td mat-cell *matCellDef="let r">
-            <div class="pct-cell">
-              <span class="pct-val">{{ fmtPct(r.percentage) }}</span>
-              <div class="pct-bar">
-                <div class="pct-fill" [style.width.%]="r.percentage"
-                     [class.pct-fill--low]="r.percentage < 40"></div>
-              </div>
-            </div>
-          </td>
-        </ng-container>
-
-        <!-- Grade -->
-        <ng-container matColumnDef="grade">
-          <th mat-header-cell *matHeaderCellDef>Grade</th>
-          <td mat-cell *matCellDef="let r">
+            <span class="rc-stat-lbl">Total</span>
+          </div>
+          <div class="rc-stat">
+            <span class="rc-stat-val">{{ fmtPct(r.percentage) }}</span>
+            <span class="rc-stat-lbl">Percent</span>
+          </div>
+          <div class="rc-stat">
             <span class="grade-badge" [ngClass]="gradeClass(r.grade)">{{ r.grade }}</span>
-          </td>
-        </ng-container>
+            <span class="rc-stat-lbl">Grade</span>
+          </div>
+          <div class="rc-bar-wrap">
+            <div class="pct-bar">
+              <div class="pct-fill" [style.width.%]="r.percentage"
+                   [class.pct-fill--low]="r.percentage < 40"></div>
+            </div>
+          </div>
+        </div>
 
-        <!-- Pass/Fail -->
-        <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef>Result</th>
-          <td mat-cell *matCellDef="let r">
-            <span class="result-chip" [class.result-pass]="r.isPassed" [class.result-fail]="!r.isPassed">
-              <mat-icon>{{ r.isPassed ? 'check_circle' : 'cancel' }}</mat-icon>
-              {{ r.isPassed ? 'Pass' : 'Fail' }}
-            </span>
-          </td>
-        </ng-container>
+        <!-- Failed subjects row -->
+        <div class="rc-footer" *ngIf="r.failedSubjects?.length">
+          <span class="fail-lbl">Failed:</span>
+          <span *ngFor="let s of r.failedSubjects" class="fail-chip">{{ s }}</span>
+        </div>
 
-        <!-- Actions -->
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef></th>
-          <td mat-cell *matCellDef="let r">
-            <button mat-icon-button color="primary"
-                    (click)="viewMarksheet(r); $event.stopPropagation()"
-                    matTooltip="View & print marksheet">
-              <mat-icon>print</mat-icon>
-            </button>
-          </td>
-        </ng-container>
+        <!-- Print action -->
+        <div class="rc-actions">
+          <button mat-stroked-button color="primary" type="button"
+                  (click)="viewMarksheet(r); $event.stopPropagation()"
+                  class="rc-print-btn">
+            <mat-icon>print</mat-icon>
+            <span>View Marksheet</span>
+          </button>
+        </div>
+      </mat-card>
+    </div><!-- /mobile-cards -->
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-        <tr mat-row *matRowDef="let r; columns: displayedColumns;"
-            class="data-row" (click)="viewMarksheet(r)"
-            [class.row-fail]="!r.isPassed"
-            [attr.aria-label]="r.studentId.name"></tr>
-      </table>
-    </div>
+    <!-- ══ DESKTOP TABLE  (≥ 768 px) ═══════════════════════════════════════════ -->
+    <mat-card class="table-card desktop-table">
+      <div class="table-scroll">
+        <table
+          mat-table [dataSource]="dataSource" matSort
+          class="results-table" aria-label="Results"
+        >
+          <!-- Rank -->
+          <ng-container matColumnDef="rank">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Rank</th>
+            <td mat-cell *matCellDef="let r">
+              <span class="rank-badge" [class.rank-top3]="r.rank <= 3">{{ r.rank || '—' }}</span>
+            </td>
+          </ng-container>
 
-    <mat-paginator
-      [pageSize]="20" [pageSizeOptions]="[10,20,50,100]"
-      showFirstLastButtons aria-label="Results pagination">
-    </mat-paginator>
-  </mat-card>
+          <!-- Roll No -->
+          <ng-container matColumnDef="rollNo">
+            <th mat-header-cell *matHeaderCellDef>Roll</th>
+            <td mat-cell *matCellDef="let r">
+              <span class="roll-chip">{{ r.studentId.rollNo }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Name -->
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Student</th>
+            <td mat-cell *matCellDef="let r">
+              <div class="name-cell">
+                <div class="student-avatar">{{ r.studentId.name[0] }}</div>
+                <div>
+                  <div class="student-name">{{ r.studentId.name }}</div>
+                  <div class="student-sub">{{ r.studentId.class }}-{{ r.studentId.section }}</div>
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Subjects -->
+          <ng-container matColumnDef="subjects">
+            <th mat-header-cell *matHeaderCellDef>Subjects</th>
+            <td mat-cell *matCellDef="let r">
+              <div class="fail-subjects" *ngIf="r.failedSubjects?.length">
+                <span
+                  *ngFor="let s of r.failedSubjects"
+                  class="fail-chip"
+                  [matTooltip]="'Failed: ' + s"
+                >{{ s }}</span>
+              </div>
+              <span *ngIf="!r.failedSubjects?.length" class="all-pass">All passed</span>
+            </td>
+          </ng-container>
+
+          <!-- Total -->
+          <ng-container matColumnDef="total">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header="totalMarks">Total</th>
+            <td mat-cell *matCellDef="let r">
+              <span class="marks-val">{{ r.totalMarks }}</span>
+              <span class="marks-max">/{{ r.maxTotalMarks }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Percentage -->
+          <ng-container matColumnDef="percentage">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Percent</th>
+            <td mat-cell *matCellDef="let r">
+              <div class="pct-cell">
+                <span class="pct-val">{{ fmtPct(r.percentage) }}</span>
+                <div class="pct-bar">
+                  <div class="pct-fill" [style.width.%]="r.percentage"
+                       [class.pct-fill--low]="r.percentage < 40"></div>
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Grade -->
+          <ng-container matColumnDef="grade">
+            <th mat-header-cell *matHeaderCellDef>Grade</th>
+            <td mat-cell *matCellDef="let r">
+              <span class="grade-badge" [ngClass]="gradeClass(r.grade)">{{ r.grade }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Pass/Fail -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Result</th>
+            <td mat-cell *matCellDef="let r">
+              <span class="result-chip"
+                    [class.result-pass]="r.isPassed"
+                    [class.result-fail]="!r.isPassed">
+                <mat-icon>{{ r.isPassed ? 'check_circle' : 'cancel' }}</mat-icon>
+                {{ r.isPassed ? 'Pass' : 'Fail' }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Actions -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let r">
+              <button mat-icon-button color="primary"
+                      (click)="viewMarksheet(r); $event.stopPropagation()"
+                      matTooltip="View & print marksheet">
+                <mat-icon>print</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+          <tr mat-row *matRowDef="let r; columns: displayedColumns;"
+              class="data-row" (click)="viewMarksheet(r)"
+              [class.row-fail]="!r.isPassed"
+              [attr.aria-label]="r.studentId.name"></tr>
+        </table>
+      </div>
+
+      <mat-paginator
+        [pageSize]="20" [pageSizeOptions]="[10,20,50,100]"
+        showFirstLastButtons aria-label="Results pagination">
+      </mat-paginator>
+    </mat-card><!-- /desktop-table -->
+
+  </ng-container>
 </div>
