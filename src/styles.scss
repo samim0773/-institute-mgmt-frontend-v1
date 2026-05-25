@@ -31,12 +31,25 @@ html, body {
   body * { visibility: hidden !important; }
   .print-area,
   .print-area * { visibility: visible !important; }
+
+  // ── Fix Angular Material sidenav offset ─────────────────────────────────
+  // The sidebar takes up space (margin-left) even when visibility:hidden.
+  // Resetting these ensures .print-area left:0 is the true page left edge.
+  .mat-drawer-container, .mat-sidenav-container { display: block !important; }
+  .mat-drawer, .mat-sidenav               { display: none !important; }
+  .mat-drawer-content, .mat-sidenav-content {
+    margin-left:  0 !important;
+    margin-right: 0 !important;
+    transform:    none !important;
+  }
+
   .print-area {
     position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
+    top:   0 !important;
+    left:  0 !important;
     width: 100% !important;
   }
+
   .no-print { display: none !important; }
 }
 

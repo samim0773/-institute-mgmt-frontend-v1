@@ -90,4 +90,18 @@ export class ResultMarksheetComponent implements OnInit, OnDestroy {
     if (pct >= 50) return 'pct-mid';
     return 'pct-low';
   }
+
+  // True when at least one subject has an oral component — drives extra columns in the table
+  get hasOralSubjects(): boolean {
+    return !!(this.marksheet?.subjects.some(s => (s.oralMaxMarks ?? 0) > 0));
+  }
+
+  // Certificate serial — CERT/YEAR/LAST8-OF-RESULT-ID
+  get certSerial(): string {
+    if (!this.marksheet) return '—';
+    const yr = this.marksheet.exam?.academicYear?.split('-')[0]
+               || new Date().getFullYear().toString();
+    const id = String(this.marksheet.resultId).slice(-8).toUpperCase();
+    return `CERT/${yr}/${id}`;
+  }
 }

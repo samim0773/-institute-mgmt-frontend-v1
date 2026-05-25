@@ -1,12 +1,13 @@
 <!-- marks-entry.component.html -->
 <div class="marks-page">
 
-  <!-- ── Header ─────────────────────────────────────────────────────────────── -->
+  <!-- ── Header ──────────────────────────────────────────────────────────────── -->
   <div class="page-header">
     <div>
       <h2 class="page-title">Mark Entry</h2>
       <p class="page-sub" *ngIf="selectedSubjectName">
         Subject: <strong>{{ selectedSubjectName }}</strong>
+        <span *ngIf="hasOral" class="oral-pill">Written {{ writtenMax }} + Oral {{ oralMax }}</span>
       </p>
     </div>
     <button
@@ -22,7 +23,7 @@
     </button>
   </div>
 
-  <!-- ── Step selectors ──────────────────────────────────────────────────────── -->
+  <!-- ── Step selectors ────────────────────────────────────────────────────────── -->
   <mat-card class="selector-card">
     <div class="selector-row">
 
@@ -61,7 +62,7 @@
         </mat-select>
       </mat-form-field>
 
-      <!-- Step 4: Subject (only when teacher is assigned to multiple subjects in this exam) -->
+      <!-- Step 4: Subject (only when teacher assigned to multiple subjects in this exam) -->
       <mat-form-field appearance="outline" class="sel-field"
         *ngIf="selectedExam && availableSubjects.length > 1">
         <mat-label>Subject</mat-label>
@@ -88,14 +89,29 @@
     </p>
   </mat-card>
 
-  <!-- ── Exam detail banner ──────────────────────────────────────────────────── -->
+  <!-- ── Exam detail banner ─────────────────────────────────────────────────── -->
   <div class="exam-banner" *ngIf="selectedExam && selectedSubjectName">
     <div class="exam-banner-info">
       <mat-icon>assignment</mat-icon>
       <div>
         <span class="exam-banner-name">{{ selectedExam.name }}</span>
-        <span class="exam-banner-sub">
+        <span class="exam-banner-sub" *ngIf="!hasOral">
           {{ selectedSubjectName }} · Max Marks: <strong>{{ maxMarks }}</strong>
+          · Pass: <strong>{{ currentSubject?.passingMarks ?? 0 }}</strong>
+        </span>
+        <!-- Oral subject breakdown in banner -->
+        <span class="exam-banner-sub" *ngIf="hasOral">
+          {{ selectedSubjectName }}
+          &nbsp;·&nbsp;
+          <span class="oral-info">
+            <span class="oral-tag oral-tag--w">W</span> Written: <strong>{{ writtenMax }}</strong>
+            &nbsp;+&nbsp;
+            <span class="oral-tag oral-tag--o">O</span> Oral: <strong>{{ oralMax }}</strong>
+            &nbsp;=&nbsp; Total: <strong>{{ maxMarks }}</strong>
+            <ng-container *ngIf="oralPassMarks > 0">
+              &nbsp;· Oral Pass: <strong>{{ oralPassMarks }}</strong>
+            </ng-container>
+          </span>
         </span>
       </div>
     </div>
@@ -111,20 +127,20 @@
     </div>
   </div>
 
-  <!-- ── Loading roster ─────────────────────────────────────────────────────── -->
+  <!-- ── Loading roster ───────────────────────────────────────────────────────── -->
   <div class="loading-center" *ngIf="loadingStudents">
     <mat-spinner diameter="40"></mat-spinner>
     <span>Loading student roster…</span>
   </div>
 
-  <!-- ── No students ────────────────────────────────────────────────────────── -->
+  <!-- ── No students ──────────────────────────────────────────────────────────── -->
   <div class="empty-state" *ngIf="!loadingStudents && selectedExam && selectedSubjectName && entries.length === 0">
     <mat-icon>people_outline</mat-icon>
     <h3>No students found</h3>
     <p>Class {{ selectedClass }}-{{ selectedSection }} has no active students.</p>
   </div>
 
-  <!-- ══ Marks entry table ═════════════════════════════════════════════════════ -->
+  <!-- ══ Marks entry table ══════════════════════════════════════════════════════ -->
   <mat-card class="table-card" *ngIf="entries.length > 0">
     <div class="table-scroll">
       <table class="marks-table" aria-label="Marks entry table">
@@ -134,9 +150,27 @@
             <th class="col-roll">Roll</th>
             <th class="col-name">Student</th>
             <th class="col-absent">Absent</th>
-            <th class="col-marks">
-              Marks <span class="max-label">(/ {{ maxMarks }})</span>
-            </th>
+
+            <!-- ── Non-oral: single Marks column ── -->
+            <ng-container *ngIf="!hasOral">
+              <th class="col-marks">
+                Marks <span class="max-label">(/ {{ maxMarks }})</span>
+              </th>
+            </ng-container>
+
+            <!-- ── Oral: Written + Oral + Total columns ── -->
+            <ng-container *ngIf="hasOral">
+              <th class="col-oral">
+                Written <span class="max-label">(/ {{ writtenMax }})</span>
+              </th>
+              <th class="col-oral">
+                Oral <span class="max-label">(/ {{ oralMax }})</span>
+              </th>
+              <th class="col-total">
+                Total <span class="max-label">(/ {{ maxMarks }})</span>
+              </th>
+            </ng-container>
+
             <th class="col-remarks">Remarks</th>
             <th class="col-save">Save</th>
           </tr>
@@ -165,7 +199,7 @@
               </div>
             </td>
 
-            <td class="col-absent">
+            <td class="col-absent tc">
               <mat-checkbox
                 [checked]="entry.isAbsent"
                 (change)="toggleAbsent(entry)"
@@ -174,35 +208,83 @@
               ></mat-checkbox>
             </td>
 
-            <td class="col-marks">
-              <input
-                type="number"
-                class="marks-input"
-                [class.marks-input--error]="!!entry.error"
-                [(ngModel)]="entry.marks"
-                (ngModelChange)="entry.saved = false; entry.error = ''"
-                [disabled]="entry.isAbsent"
-                [min]="0"
-                [max]="maxMarks"
-                placeholder="—"
-                [attr.aria-label]="'Marks for ' + entry.name"
-              />
-              <span class="row-error-msg" *ngIf="entry.error">{{ entry.error }}</span>
-            </td>
+            <!-- ── Non-oral: single marks input ── -->
+            <ng-container *ngIf="!hasOral">
+              <td class="col-marks">
+                <input
+                  type="number"
+                  class="marks-input"
+                  [class.marks-input--error]="!!entry.error"
+                  [(ngModel)]="entry.marks"
+                  (ngModelChange)="onMarkChange(entry)"
+                  [disabled]="entry.isAbsent"
+                  [min]="0"
+                  [max]="maxMarks"
+                  placeholder="—"
+                  [attr.aria-label]="'Marks for ' + entry.name"
+                />
+                <span class="row-error-msg" *ngIf="entry.error">{{ entry.error }}</span>
+              </td>
+            </ng-container>
+
+            <!-- ── Oral: Written input ── -->
+            <ng-container *ngIf="hasOral">
+              <td class="col-oral">
+                <input
+                  type="number"
+                  class="marks-input oral-input"
+                  [class.marks-input--error]="!!entry.error"
+                  [(ngModel)]="entry.writtenMarks"
+                  (ngModelChange)="onMarkChange(entry)"
+                  [disabled]="entry.isAbsent"
+                  [min]="0"
+                  [max]="writtenMax"
+                  placeholder="—"
+                  [attr.aria-label]="'Written marks for ' + entry.name"
+                />
+              </td>
+
+              <!-- ── Oral: Oral input ── -->
+              <td class="col-oral">
+                <input
+                  type="number"
+                  class="marks-input oral-input"
+                  [class.marks-input--error]="!!entry.error"
+                  [(ngModel)]="entry.oralMarks"
+                  (ngModelChange)="onMarkChange(entry)"
+                  [disabled]="entry.isAbsent"
+                  [min]="0"
+                  [max]="oralMax"
+                  placeholder="—"
+                  [attr.aria-label]="'Oral marks for ' + entry.name"
+                />
+              </td>
+
+              <!-- ── Oral: Computed total cell ── -->
+              <td class="col-total tc">
+                <span *ngIf="entry.isAbsent" class="absent-tag">AB</span>
+                <span *ngIf="!entry.isAbsent && rowTotal(entry) !== null"
+                      class="total-chip">
+                  {{ rowTotal(entry) }}
+                </span>
+                <span *ngIf="!entry.isAbsent && rowTotal(entry) === null" class="na-dash">—</span>
+                <span class="row-error-msg" *ngIf="entry.error">{{ entry.error }}</span>
+              </td>
+            </ng-container>
 
             <td class="col-remarks">
               <input
                 type="text"
                 class="remarks-input"
                 [(ngModel)]="entry.remarks"
-                (ngModelChange)="entry.saved = false"
+                (ngModelChange)="onMarkChange(entry)"
                 placeholder="optional"
                 maxlength="200"
                 [attr.aria-label]="'Remarks for ' + entry.name"
               />
             </td>
 
-            <td class="col-save">
+            <td class="col-save tc">
               <button
                 mat-icon-button
                 (click)="saveRow(entry)"

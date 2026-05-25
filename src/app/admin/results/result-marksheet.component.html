@@ -1,300 +1,421 @@
 <!-- result-marksheet.component.html -->
 <div class="marksheet-page">
 
-  <!-- ════════════════════════════════════════════════════════════════════════
-       SCREEN-ONLY TOOLBAR  (hidden on print)
-  ════════════════════════════════════════════════════════════════════════════ -->
+  <!-- ════ SCREEN TOOLBAR (no-print) ════════════════════════════════════════ -->
   <div class="ms-toolbar no-print">
-
     <div class="toolbar-left">
-      <button mat-icon-button (click)="goBack()" aria-label="Back to results" class="back-btn">
+      <button mat-icon-button (click)="goBack()" aria-label="Back" class="back-btn">
         <mat-icon>arrow_back</mat-icon>
       </button>
       <div class="toolbar-info">
-        <span class="toolbar-title">
-          {{ marksheet?.student?.name || 'Marksheet' }}
-        </span>
+        <span class="toolbar-title">{{ marksheet?.student?.name || 'Marksheet' }}</span>
         <span class="toolbar-sub" *ngIf="marksheet">
-          {{ marksheet.exam?.name }}
+          {{ marksheet.exam.name }}
           <span class="sub-sep">·</span>
-          Class {{ marksheet.student?.class }}-{{ marksheet.student?.section }}
+          Class {{ marksheet.student.class }}-{{ marksheet.student.section }}
           <span class="sub-sep">·</span>
-          Roll <strong>{{ marksheet.student?.rollNo }}</strong>
+          Roll <strong>{{ marksheet.student.rollNo }}</strong>
         </span>
       </div>
     </div>
-
     <div class="toolbar-right">
-      <button
-        mat-raised-button color="primary"
-        (click)="print()"
-        [disabled]="loading || !marksheet"
-        class="print-btn"
-      >
+      <button mat-raised-button color="primary" (click)="print()"
+              [disabled]="loading || !marksheet" class="print-btn">
         <mat-icon>print</mat-icon>
         <span class="print-label">Print Marksheet</span>
       </button>
     </div>
-
   </div>
 
-  <!-- ── Loading ──────────────────────────────────────────────────────────── -->
+  <!-- ════ LOADING ══════════════════════════════════════════════════════════ -->
   <div *ngIf="loading" class="loading-center no-print">
     <mat-spinner diameter="48"></mat-spinner>
     <p>Loading marksheet…</p>
   </div>
 
-  <!-- ── Preview banner  (screen only) ────────────────────────────────────── -->
+  <!-- ════ PREVIEW BANNER (no-print) ═══════════════════════════════════════ -->
   <div class="preview-banner no-print" *ngIf="!loading && marksheet">
-    <mat-icon>info_outline</mat-icon>
+    <mat-icon>verified_user</mat-icon>
     <div class="preview-banner-text">
-      <strong>Print Preview</strong>
-      <span>Full A4 marksheet · Use your browser's print dialog to set paper size</span>
+      <strong>Official Mark Sheet &nbsp;·&nbsp; {{ certSerial }}</strong>
+      <span>A4 portrait · click Print Marksheet or use Ctrl+P</span>
     </div>
     <button mat-raised-button color="primary" (click)="print()" class="print-btn-banner">
-      <mat-icon>print</mat-icon>
-      <span>Print</span>
+      <mat-icon>print</mat-icon><span>Print</span>
     </button>
   </div>
 
   <!-- ════════════════════════════════════════════════════════════════════════
-       MARKSHEET DOCUMENT  (visible on screen + paper)
+       MARKSHEET DOCUMENT  (the actual printable content)
   ════════════════════════════════════════════════════════════════════════════ -->
   <div class="marksheet-doc print-area" *ngIf="!loading && marksheet">
 
-    <!-- ── Institute header ─────────────────────────────────────────────── -->
-    <div class="ms-header">
-      <img
-        *ngIf="marksheet.institute.logoUrl"
-        [src]="marksheet.institute.logoUrl"
-        [alt]="marksheet.institute.name + ' logo'"
-        class="ms-logo"
-      />
-      <div class="ms-inst-text">
-        <h1 class="ms-inst-name">{{ marksheet.institute.name }}</h1>
-        <p class="ms-inst-addr">{{ marksheet.institute.address }}</p>
-        <p *ngIf="marksheet.institute.phone" class="ms-inst-phone">
-          Tel: {{ marksheet.institute.phone }}
-        </p>
-      </div>
-    </div>
+    <!-- Security diagonal watermark (CSS only) -->
+    <div class="sec-watermark" aria-hidden="true"></div>
 
-    <!-- ── Title bar ────────────────────────────────────────────────────── -->
-    <div class="ms-title-bar">
-      <span class="ms-title-text">MARK SHEET</span>
-      <span class="ms-exam-name">{{ marksheet.exam.name }}</span>
-      <span *ngIf="marksheet.exam.academicYear" class="ms-ay">
-        Academic Year: {{ marksheet.exam.academicYear }}
-      </span>
-    </div>
+    <!-- Inner gold-border wrapper — this div creates the double-border effect -->
+    <div class="ms-inner">
 
-    <!-- ── Student details + PASS / FAIL stamp ──────────────────────────── -->
-    <div class="ms-student-row">
-      <table class="ms-student-table">
-        <tbody>
-          <tr>
-            <td class="info-label">Student Name</td>
-            <td class="info-value info-value--name">{{ marksheet.student.name }}</td>
-          </tr>
-          <tr>
-            <td class="info-label">Admission No.</td>
-            <td class="info-value">{{ marksheet.student.admissionNo || '—' }}</td>
-          </tr>
-          <tr>
-            <td class="info-label">Class &amp; Section</td>
-            <td class="info-value">
-              {{ marksheet.student.class }} – {{ marksheet.student.section }}
-            </td>
-          </tr>
-          <tr>
-            <td class="info-label">Roll Number</td>
-            <td class="info-value">{{ marksheet.student.rollNo }}</td>
-          </tr>
-          <tr>
-            <td class="info-label">Date of Birth</td>
-            <td class="info-value">{{ formatDob(marksheet.student.dob) }}</td>
-          </tr>
-          <tr>
-            <td class="info-label">Father/Guardian</td>
-            <td class="info-value">{{ marksheet.student.guardianName }}</td>
-          </tr>
-          <tr>
-            <td class="info-label">Exam Period</td>
-            <td class="info-value">
-              {{ formatDate(marksheet.exam.startDate) }} to {{ formatDate(marksheet.exam.endDate) }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <!-- ── TOP FLOWER BAND ─────────────────────────────────────────────── -->
+      <div class="flower-band flower-band--top" aria-hidden="true"></div>
 
-      <!-- Photo + PASS/FAIL stamp -->
-      <div class="ms-right-panel">
-        <div class="ms-photo-box">
-          <img
-            *ngIf="marksheet.student.photo"
-            [src]="marksheet.student.photo"
-            [alt]="marksheet.student.name"
-            class="ms-photo"
-          />
-          <div *ngIf="!marksheet.student.photo" class="ms-photo-placeholder">
-            <mat-icon>person</mat-icon>
-            <small>Photo</small>
+      <!-- ── INSTITUTE HEADER ───────────────────────────────────────────── -->
+      <div class="ms-hdr">
+        <div class="ms-hdr-logo">
+          <img *ngIf="marksheet.institute.logoUrl"
+               [src]="marksheet.institute.logoUrl"
+               [alt]="marksheet.institute.name" class="ms-logo-img"/>
+          <div *ngIf="!marksheet.institute.logoUrl" class="ms-logo-placeholder">
+            <mat-icon>account_balance</mat-icon>
           </div>
         </div>
-        <div class="ms-stamp" [ngClass]="resultClass" aria-label="Result status">
-          {{ resultText }}
+
+        <div class="ms-hdr-center">
+          <div class="ms-inst-name">{{ marksheet.institute.name }}</div>
+          <div class="ms-inst-addr">{{ marksheet.institute.address }}</div>
+          <div class="ms-inst-phone" *ngIf="marksheet.institute.phone">
+            Tel: {{ marksheet.institute.phone }}
+          </div>
+        </div>
+
+        <div class="ms-hdr-code" *ngIf="marksheet.institute.code">
+          <div class="code-lbl">Inst. Code</div>
+          <div class="code-val">{{ marksheet.institute.code }}</div>
         </div>
       </div>
-    </div><!-- /ms-student-row -->
 
-    <!-- ── Subject-wise marks table ─────────────────────────────────────── -->
-    <div class="ms-marks-section">
-      <div class="ms-section-title">SUBJECT-WISE PERFORMANCE</div>
+      <!-- ── ORNAMENT RULE ──────────────────────────────────────────────── -->
+      <div class="ms-rule" aria-hidden="true">
+        <span class="rule-line"></span>
+        <span class="rule-node">❖</span>
+        <span class="rule-line"></span>
+      </div>
 
-      <table class="ms-marks-table">
-        <thead>
-          <tr>
-            <th class="col-no">S.No</th>
-            <th class="col-subject">Subject</th>
-            <th class="col-max">Max Marks</th>
-            <th class="col-pass">Pass Marks</th>
-            <th class="col-obtained">Marks Obtained</th>
-            <th class="col-grade">Grade</th>
-            <th class="col-result">Result</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            *ngFor="let sub of marksheet.subjects; let i = index"
-            [class.row-fail]="!sub.isPassed"
-            [class.row-absent]="sub.isAbsent"
-          >
-            <td class="col-no">{{ i + 1 }}</td>
-            <td class="col-subject subject-name">{{ sub.subjectName }}</td>
-            <td class="col-max center">{{ sub.maxMarks }}</td>
-            <td class="col-pass center">{{ sub.passingMarks }}</td>
-            <td class="col-obtained center">
-              <span *ngIf="!sub.isAbsent" [class.marks-fail]="!sub.isPassed">
-                {{ sub.marksObtained }}
-              </span>
-              <span *ngIf="sub.isAbsent" class="absent-label">AB</span>
-            </td>
-            <td class="col-grade center">
-              <span class="grade-chip" [ngClass]="gradeClass(sub.grade)">{{ sub.grade }}</span>
-            </td>
-            <td class="col-result center">
-              <span class="mini-result"
-                    [class.mini-pass]="sub.isPassed"
-                    [class.mini-fail]="!sub.isPassed">
-                {{ sub.isPassed ? 'P' : 'F' }}
-              </span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- ── Summary row ───────────────────────────────────────────────────── -->
-    <div class="ms-summary-row">
-
-      <table class="ms-summary-table">
-        <tbody>
-          <tr>
-            <td class="sum-label">Total Marks Obtained</td>
-            <td class="sum-value">
-              <strong>{{ marksheet.totalMarks }}</strong>
-              out of {{ marksheet.maxTotalMarks }}
-            </td>
-          </tr>
-          <tr>
-            <td class="sum-label">Percentage</td>
-            <td class="sum-value">
-              <strong [ngClass]="pctClass(marksheet.percentage)">
-                {{ marksheet.percentage | number:'1.1-1' }}%
-              </strong>
-            </td>
-          </tr>
-          <tr>
-            <td class="sum-label">Overall Grade</td>
-            <td class="sum-value">
-              <span class="overall-grade" [ngClass]="gradeClass(marksheet.grade)">
-                {{ marksheet.grade }}
-              </span>
-              <span class="grade-remarks">— {{ marksheet.gradeRemarks }}</span>
-            </td>
-          </tr>
-          <tr *ngIf="marksheet.rank">
-            <td class="sum-label">Class Rank</td>
-            <td class="sum-value"><strong>{{ marksheet.rank }}</strong></td>
-          </tr>
-          <tr *ngIf="marksheet?.failedSubjects?.length">
-            <td class="sum-label">Failed In</td>
-            <td class="sum-value fail-text">
-              {{ marksheet!.failedSubjects.join(', ') }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- Grade scale reference -->
-      <div class="grade-scale">
-        <div class="grade-scale-title">Grading Scale</div>
-        <div class="grade-scale-rows">
-          <div class="gs-row"><span class="gs-grade">A1</span><span class="gs-range">91–100 · Outstanding</span></div>
-          <div class="gs-row"><span class="gs-grade">A2</span><span class="gs-range">81–90 · Excellent</span></div>
-          <div class="gs-row"><span class="gs-grade">B1</span><span class="gs-range">71–80 · Very Good</span></div>
-          <div class="gs-row"><span class="gs-grade">B2</span><span class="gs-range">61–70 · Good</span></div>
-          <div class="gs-row"><span class="gs-grade">C1</span><span class="gs-range">51–60 · Average</span></div>
-          <div class="gs-row"><span class="gs-grade">C2</span><span class="gs-range">41–50 · Satisfactory</span></div>
-          <div class="gs-row"><span class="gs-grade">D</span><span class="gs-range">33–40 · Pass</span></div>
-          <div class="gs-row gs-fail"><span class="gs-grade">E</span><span class="gs-range">0–32 · Fail</span></div>
+      <!-- ── EXAM TITLE BOX ─────────────────────────────────────────────── -->
+      <div class="ms-title-box">
+        <div class="ms-title-main">⬥ &nbsp; STATEMENT OF MARKS &nbsp; ⬥</div>
+        <div class="ms-title-exam">{{ marksheet.exam.name }}</div>
+        <div class="ms-title-ay" *ngIf="marksheet.exam.academicYear">
+          Academic Year: {{ marksheet.exam.academicYear }}
         </div>
       </div>
-    </div>
 
-    <!-- ── Signature lines ───────────────────────────────────────────────── -->
-    <div class="ms-signatures">
-      <div class="sig-block">
-        <div class="sig-line"></div>
-        <div class="sig-label">Class Teacher</div>
+      <!-- ── CERTIFICATE / SECURITY BAR ────────────────────────────────── -->
+      <div class="ms-cert-bar">
+        <div class="cert-col">
+          <span class="cert-key">🔒 Cert No.</span>
+          <span class="cert-val">{{ certSerial }}</span>
+        </div>
+        <div class="cert-col">
+          <span class="cert-key">Class</span>
+          <span class="cert-val">
+            {{ marksheet.exam.class }}
+            <ng-container *ngIf="marksheet.exam.section !== 'ALL'">&nbsp;–&nbsp;{{ marksheet.exam.section }}</ng-container>
+          </span>
+        </div>
+        <div class="cert-col cert-col--hide-sm">
+          <span class="cert-key">Exam Period</span>
+          <span class="cert-val">
+            {{ formatDate(marksheet.exam.startDate) }} &nbsp;to&nbsp; {{ formatDate(marksheet.exam.endDate) }}
+          </span>
+        </div>
+        <div class="cert-col cert-col--hide-sm">
+          <span class="cert-key">Date Issued</span>
+          <span class="cert-val">{{ formatDate(marksheet.publishedAt) }}</span>
+        </div>
+        <div class="cert-col cert-col--draft" *ngIf="!marksheet.isPublished">
+          <span class="draft-badge">DRAFT</span>
+        </div>
       </div>
-      <div class="sig-block">
-        <div class="sig-line"></div>
-        <div class="sig-label">Examination Controller</div>
-      </div>
-      <div class="sig-block">
-        <div class="sig-line"></div>
-        <div class="sig-label">Principal</div>
-      </div>
-      <div class="sig-block">
-        <div class="sig-line"></div>
-        <div class="sig-label">Parent / Guardian</div>
-      </div>
-    </div>
 
-    <!-- ── Footer ───────────────────────────────────────────────────────── -->
-    <div class="ms-footer">
-      <span>Generated on {{ formatDate(marksheet.publishedAt) }}</span>
-      <span class="footer-divider">·</span>
-      <span>{{ marksheet.institute.name }}</span>
-      <span *ngIf="!marksheet.isPublished" class="draft-watermark-footer">
-        [DRAFT — Not Official]
-      </span>
-    </div>
+      <!-- ── STUDENT DETAILS + PHOTO ───────────────────────────────────── -->
+      <div class="ms-student-section">
 
+        <table class="ms-info-table">
+          <tbody>
+            <tr>
+              <td class="info-lbl">Student Name</td>
+              <td class="info-val info-val--name">{{ marksheet.student.name }}</td>
+            </tr>
+            <tr>
+              <td class="info-lbl">Roll Number</td>
+              <td class="info-val"><strong>{{ marksheet.student.rollNo }}</strong></td>
+            </tr>
+            <tr>
+              <td class="info-lbl">Admission No.</td>
+              <td class="info-val">{{ marksheet.student.admissionNo || '—' }}</td>
+            </tr>
+            <tr>
+              <td class="info-lbl">Class &amp; Section</td>
+              <td class="info-val">Class {{ marksheet.student.class }} – {{ marksheet.student.section }}</td>
+            </tr>
+            <tr>
+              <td class="info-lbl">Date of Birth</td>
+              <td class="info-val">{{ formatDob(marksheet.student.dob) }}</td>
+            </tr>
+            <tr>
+              <td class="info-lbl">Father / Guardian</td>
+              <td class="info-val">{{ marksheet.student.guardianName }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="ms-photo-area">
+          <div class="ms-photo-box">
+            <img *ngIf="marksheet.student.photo"
+                 [src]="marksheet.student.photo"
+                 [alt]="marksheet.student.name"
+                 class="ms-photo"/>
+            <div *ngIf="!marksheet.student.photo" class="ms-photo-ph">
+              <mat-icon>person</mat-icon>
+              <span>Photo</span>
+            </div>
+          </div>
+          <div class="ms-result-stamp" [ngClass]="resultClass">
+            {{ resultText }}
+          </div>
+        </div>
+
+      </div><!-- /ms-student-section -->
+
+      <!-- ── MARKS TABLE ────────────────────────────────────────────────── -->
+      <div class="ms-marks-section">
+
+        <div class="section-heading">
+          <span class="sh-ornament">◆</span>
+          SUBJECT-WISE PERFORMANCE
+          <span class="sh-ornament">◆</span>
+        </div>
+
+        <table class="marks-table">
+          <thead>
+            <tr>
+              <th class="col-no">S.No</th>
+              <th class="col-subj">Subject</th>
+              <th class="col-num">Max<br>Marks</th>
+              <!-- Extra oral-breakdown columns — shown only when exam has oral subjects -->
+              <ng-container *ngIf="hasOralSubjects">
+                <th class="col-num">Written<br>Max</th>
+                <th class="col-num">Oral<br>Max</th>
+              </ng-container>
+              <th class="col-num">Pass<br>Marks</th>
+              <th class="col-num">Marks<br>Obtained</th>
+              <!-- Written/Oral obtained — shown only when exam has oral subjects -->
+              <ng-container *ngIf="hasOralSubjects">
+                <th class="col-num">Written<br>Obtained</th>
+                <th class="col-num">Oral<br>Obtained</th>
+              </ng-container>
+              <th class="col-num">Grade<br>Point</th>
+              <th class="col-grd">Grade</th>
+              <th class="col-res">Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let sub of marksheet.subjects; let i = index"
+                [class.row-fail]="!sub.isPassed && !sub.isAbsent"
+                [class.row-absent]="sub.isAbsent">
+              <td class="tc">{{ i + 1 }}</td>
+              <td class="subj-name">
+                {{ sub.subjectName }}
+                <span *ngIf="(sub.oralMaxMarks ?? 0) > 0" class="oral-badge">W+O</span>
+              </td>
+              <td class="tc">{{ sub.maxMarks }}</td>
+
+              <!-- Written Max / Oral Max columns -->
+              <ng-container *ngIf="hasOralSubjects">
+                <td class="tc">
+                  <span *ngIf="(sub.oralMaxMarks ?? 0) > 0">{{ sub.writtenMaxMarks ?? '—' }}</span>
+                  <span *ngIf="(sub.oralMaxMarks ?? 0) === 0" class="na-text">—</span>
+                </td>
+                <td class="tc">
+                  <span *ngIf="(sub.oralMaxMarks ?? 0) > 0">{{ sub.oralMaxMarks }}</span>
+                  <span *ngIf="(sub.oralMaxMarks ?? 0) === 0" class="na-text">—</span>
+                </td>
+              </ng-container>
+
+              <td class="tc">{{ sub.passingMarks }}</td>
+
+              <!-- Total Marks Obtained -->
+              <td class="tc">
+                <span *ngIf="!sub.isAbsent" [class.fail-marks]="!sub.isPassed">{{ sub.marksObtained }}</span>
+                <span *ngIf="sub.isAbsent" class="absent-tag">AB</span>
+              </td>
+
+              <!-- Written Obtained / Oral Obtained columns -->
+              <ng-container *ngIf="hasOralSubjects">
+                <td class="tc">
+                  <ng-container *ngIf="(sub.oralMaxMarks ?? 0) > 0 && !sub.isAbsent">
+                    <span *ngIf="sub.writtenMarksObtained != null" [class.fail-marks]="!sub.isPassed">{{ sub.writtenMarksObtained }}</span>
+                    <span *ngIf="sub.writtenMarksObtained == null" class="na-text">—</span>
+                  </ng-container>
+                  <span *ngIf="sub.isAbsent" class="absent-tag">AB</span>
+                  <span *ngIf="(sub.oralMaxMarks ?? 0) === 0" class="na-text">—</span>
+                </td>
+                <td class="tc">
+                  <ng-container *ngIf="(sub.oralMaxMarks ?? 0) > 0 && !sub.isAbsent">
+                    <span *ngIf="sub.oralMarksObtained != null" [class.fail-marks]="!sub.isPassed">{{ sub.oralMarksObtained }}</span>
+                    <span *ngIf="sub.oralMarksObtained == null" class="na-text">—</span>
+                  </ng-container>
+                  <span *ngIf="sub.isAbsent" class="absent-tag">AB</span>
+                  <span *ngIf="(sub.oralMaxMarks ?? 0) === 0" class="na-text">—</span>
+                </td>
+              </ng-container>
+
+              <td class="tc">
+                <span *ngIf="!sub.isAbsent">{{ sub.gradePoint | number:'1.1-1' }}</span>
+                <span *ngIf="sub.isAbsent">—</span>
+              </td>
+              <td class="tc">
+                <span class="g-chip" [ngClass]="gradeClass(sub.grade)">{{ sub.grade }}</span>
+              </td>
+              <td class="tc">
+                <span class="r-badge"
+                      [class.r-pass]="sub.isPassed && !sub.isAbsent"
+                      [class.r-fail]="!sub.isPassed && !sub.isAbsent"
+                      [class.r-abs]="sub.isAbsent">
+                  {{ sub.isAbsent ? 'AB' : (sub.isPassed ? 'P' : 'F') }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="agg-row">
+              <!-- colspan adjusts: 4 base cols + 2 extra if oral columns present -->
+              <td [attr.colspan]="hasOralSubjects ? 6 : 4" class="agg-label">AGGREGATE TOTAL</td>
+              <td class="tc agg-marks">
+                <strong>{{ marksheet.totalMarks }}</strong>
+                <span class="agg-max">/{{ marksheet.maxTotalMarks }}</span>
+              </td>
+              <!-- Two empty cells for written/oral obtained columns when present -->
+              <ng-container *ngIf="hasOralSubjects">
+                <td class="tc agg-label">—</td>
+                <td class="tc agg-label">—</td>
+              </ng-container>
+              <td class="tc">{{ marksheet.gradePoint | number:'1.1-1' }}</td>
+              <td class="tc">
+                <span class="g-chip" [ngClass]="gradeClass(marksheet.grade)">{{ marksheet.grade }}</span>
+              </td>
+              <td class="tc">
+                <span class="r-badge" [class.r-pass]="marksheet.isPassed" [class.r-fail]="!marksheet.isPassed">
+                  {{ marksheet.isPassed ? 'P' : 'F' }}
+                </span>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div><!-- /ms-marks-section -->
+
+      <!-- ── SUMMARY ──────────────────────────────────────────────────────── -->
+      <div class="ms-summary-section">
+
+        <table class="sum-table">
+          <tbody>
+            <tr>
+              <td class="sum-lbl">Total Marks Obtained</td>
+              <td class="sum-val">
+                <strong>{{ marksheet.totalMarks }}</strong> out of {{ marksheet.maxTotalMarks }}
+              </td>
+            </tr>
+            <tr>
+              <td class="sum-lbl">Percentage</td>
+              <td class="sum-val">
+                <strong [ngClass]="pctClass(marksheet.percentage)">
+                  {{ marksheet.percentage | number:'1.1-1' }}%
+                </strong>
+              </td>
+            </tr>
+            <tr>
+              <td class="sum-lbl">Grade Point Average</td>
+              <td class="sum-val">
+                <strong>{{ marksheet.gradePoint | number:'1.1-1' }}</strong> / 10.0
+              </td>
+            </tr>
+            <tr>
+              <td class="sum-lbl">Overall Grade</td>
+              <td class="sum-val">
+                <span class="ovr-grade" [ngClass]="gradeClass(marksheet.grade)">{{ marksheet.grade }}</span>
+                <span class="ovr-remark">&nbsp;— {{ marksheet.gradeRemarks }}</span>
+              </td>
+            </tr>
+            <tr *ngIf="marksheet.rank">
+              <td class="sum-lbl">Class Rank</td>
+              <td class="sum-val"><strong>{{ marksheet.rank }}</strong></td>
+            </tr>
+            <tr *ngIf="marksheet.failedSubjects?.length">
+              <td class="sum-lbl">Failed In</td>
+              <td class="sum-val sum-fail">{{ marksheet.failedSubjects.join(', ') }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+      </div><!-- /ms-summary-section -->
+
+      <!-- ── COMPACT GRADE LEGEND ─────────────────────────────────────────── -->
+      <div class="grade-legend">
+        <span class="gl-label">Grade Scale</span>
+        <span class="gl-item gl-a1">A1 <em>91–100</em></span>
+        <span class="gl-item gl-a2">A2 <em>81–90</em></span>
+        <span class="gl-item gl-b1">B1 <em>71–80</em></span>
+        <span class="gl-item gl-b2">B2 <em>61–70</em></span>
+        <span class="gl-item gl-c1">C1 <em>51–60</em></span>
+        <span class="gl-item gl-c2">C2 <em>41–50</em></span>
+        <span class="gl-item gl-d">D <em>33–40</em></span>
+        <span class="gl-item gl-e">E <em>0–32 Fail</em></span>
+      </div>
+
+      <!-- ── DECLARATION ────────────────────────────────────────────────── -->
+      <div class="ms-declaration">
+        Certified that the marks recorded above are true and correct as per the official records
+        of this institution. Any alteration or unauthorised reproduction of this document is a
+        criminal offence.
+      </div>
+
+      <!-- ── SIGNATURES ─────────────────────────────────────────────────── -->
+      <div class="ms-sigs">
+        <div class="sig-block">
+          <div class="sig-space"></div>
+          <div class="sig-line"></div>
+          <div class="sig-name">Class Teacher</div>
+        </div>
+        <div class="sig-block">
+          <div class="sig-space"></div>
+          <div class="sig-line"></div>
+          <div class="sig-name">Exam Controller</div>
+        </div>
+        <div class="sig-block">
+          <div class="sig-space"></div>
+          <div class="sig-line"></div>
+          <div class="sig-name">Principal</div>
+        </div>
+        <div class="sig-block">
+          <div class="sig-space"></div>
+          <div class="sig-line"></div>
+          <div class="sig-name">Parent / Guardian</div>
+        </div>
+      </div>
+
+      <!-- ── SECURITY FOOTER ────────────────────────────────────────────── -->
+      <div class="ms-sec-footer">
+        <span class="sf-lock">🔒</span>
+        <span class="sf-text">
+          Official document issued by <strong>{{ marksheet.institute.name }}</strong>
+          [{{ marksheet.institute.code }}]. Valid only with authorised seal and signature.
+        </span>
+        <span class="sf-cert">Cert: {{ certSerial }}</span>
+      </div>
+
+      <!-- ── BOTTOM FLOWER BAND ─────────────────────────────────────────── -->
+      <div class="flower-band flower-band--bottom" aria-hidden="true"></div>
+
+    </div><!-- /ms-inner -->
   </div><!-- /marksheet-doc -->
 
-  <!-- ════════════════════════════════════════════════════════════════════════
-       MOBILE STICKY PRINT FAB  (mobile only, screen only)
-  ════════════════════════════════════════════════════════════════════════════ -->
-  <button
-    *ngIf="!loading && marksheet"
-    mat-fab
-    color="primary"
-    class="print-fab no-print"
-    (click)="print()"
-    aria-label="Print Marksheet"
-  >
+  <!-- ════ MOBILE FAB (no-print) ════════════════════════════════════════════ -->
+  <button *ngIf="!loading && marksheet"
+          mat-fab color="primary"
+          class="print-fab no-print"
+          (click)="print()"
+          aria-label="Print Marksheet">
     <mat-icon>print</mat-icon>
   </button>
 

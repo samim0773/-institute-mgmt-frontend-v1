@@ -14,6 +14,12 @@ export interface ResultSubject {
   isPassed:      boolean;
   grade:         string;
   gradePoint:    number;
+  // Oral breakdown — present only when the exam subject has an oral component
+  writtenMarksObtained?: number | null;
+  oralMarksObtained?:    number | null;
+  writtenMaxMarks?:      number | null;
+  oralMaxMarks?:         number;
+  oralPassingMarks?:     number;
 }
 
 export interface ResultSummary {

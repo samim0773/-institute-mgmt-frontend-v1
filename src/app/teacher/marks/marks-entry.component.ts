@@ -8,19 +8,26 @@ import { AuthService }             from '../../core/services/auth.service';
 import { NotificationService }     from '../../core/services/notification.service';
 import { StudentService }          from '../../admin/students/student.service';
 import { ExamService }             from '../../admin/exams/exam.service';
-import { Exam, Student, ApiResponse, SubjectAssignmentEntry } from '../../core/models';
+import {
+  Exam, ExamSubject, Student, ApiResponse, SubjectAssignmentEntry,
+} from '../../core/models';
 
+// ── Per-student row in the entry table ───────────────────────────────────────
 interface MarksEntry {
-  studentId:  string;
-  name:       string;
-  rollNo:     string;
-  section:    string;
-  marks:      number | null;
-  isAbsent:   boolean;
-  remarks:    string;
-  saved:      boolean;
-  saving:     boolean;
-  error:      string;
+  studentId:    string;
+  name:         string;
+  rollNo:       string;
+  section:      string;
+  // Non-oral subject: total marks entered here
+  marks:        number | null;
+  // Oral subject: separate written & oral components
+  writtenMarks: number | null;
+  oralMarks:    number | null;
+  isAbsent:     boolean;
+  remarks:      string;
+  saved:        boolean;
+  saving:       boolean;
+  error:        string;
 }
 
 @Component({
@@ -35,8 +42,6 @@ export class MarksEntryComponent implements OnInit, OnDestroy {
 
   // ── Available subjects for the selected exam ───────────────────────────────
   availableSubjects: string[] = [];
-
-  // The subject currently being entered
   selectedSubjectName = '';
 
   // ── Dropdowns ──────────────────────────────────────────────────────────────
@@ -67,7 +72,6 @@ export class MarksEntryComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // Always fetch fresh assignments — login token doesn't carry subjectAssignments
     this.auth.refreshMe()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -80,7 +84,6 @@ export class MarksEntryComponent implements OnInit, OnDestroy {
           this.studentSvc.getClasses().pipe(takeUntil(this.destroy$)).subscribe();
         },
         error: () => {
-          // Fall back to cached user data
           this.subjectAssignments = this.auth.currentUser?.subjectAssignments || [];
           this.buildClassNames();
           this.studentSvc.getClasses().pipe(takeUntil(this.destroy$)).subscribe();
@@ -94,7 +97,7 @@ export class MarksEntryComponent implements OnInit, OnDestroy {
     this.classNames = [...new Set(this.subjectAssignments.map(a => a.className))].sort();
   }
 
-  // ── Step 2: class changed → update sections from assignments ──────────────
+  // ── Step 2: class changed ─────────────────────────────────────────────────
   onClassChange(cls: string): void {
     this.selectedClass        = cls;
     this.selectedSection      = '';
@@ -107,7 +110,7 @@ export class MarksEntryComponent implements OnInit, OnDestroy {
       : [];
   }
 
-  // ── Step 3: section changed → load exams ──────────────────────────────────
+  // ── Step 3: section changed → load exams ─────────────────────────────────
   onSectionChange(section: string): void {
     this.selectedSection      = section;
     this.selectedExam         = null;
@@ -129,12 +132,10 @@ export class MarksEntryComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$),
     ).subscribe({
       next: res => {
-        // Subjects this teacher is assigned to in the selected class+section
         const assignedSubjects = this.subjectAssignments
           .filter(a => a.className === this.selectedClass && a.section === this.selectedSection)
           .map(a => a.subjectName.toLowerCase());
 
-        // Show only exams that contain at least one of the teacher's assigned subjects
         this.exams = (res.data || []).filter(e =>
           e.subjects?.some(s => assignedSubjects.includes(s.name.toLowerCase()))
         );
@@ -170,13 +171,12 @@ export class MarksEntryComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Auto-select if only one subject available
     if (this.availableSubjects.length === 1) {
       this.onSubjectChange(this.availableSubjects[0]);
     }
   }
 
-  // ── Step 5: subject selected → load roster ─────────────────────────────────
+  // ── Step 5: subject selected → load roster ───────────────────────────────
   onSubjectChange(subjectName: string): void {
     this.selectedSubjectName = subjectName;
     this.entries             = [];
@@ -216,72 +216,102 @@ export class MarksEntryComponent implements OnInit, OnDestroy {
             const existingRow  = roster.find((r: any) => r.student?.id === s._id);
             const existingMark = existingRow?.marks?.[this.selectedSubjectName];
             return {
-              studentId: s._id,
-              name:      s.name,
-              rollNo:    s.rollNo,
-              section:   s.section,
-              marks:     existingMark?.marksObtained ?? null,
-              isAbsent:  existingMark?.isAbsent      ?? false,
-              remarks:   existingMark?.remarks        ?? '',
-              saved:     !!existingMark,
-              saving:    false,
-              error:     '',
+              studentId:    s._id,
+              name:         s.name,
+              rollNo:       s.rollNo,
+              section:      s.section,
+              marks:        existingMark?.marksObtained     ?? null,
+              writtenMarks: existingMark?.writtenMarksObtained ?? null,
+              oralMarks:    existingMark?.oralMarksObtained    ?? null,
+              isAbsent:     existingMark?.isAbsent          ?? false,
+              remarks:      existingMark?.remarks            ?? '',
+              saved:        !!existingMark,
+              saving:       false,
+              error:        '',
             } as MarksEntry;
           });
+          this.savedCount = this.entries.filter(e => e.saved).length;
         },
         error: () => {
           this.entries = students.map(s => ({
-            studentId: s._id,
-            name:      s.name,
-            rollNo:    s.rollNo,
-            section:   s.section,
-            marks:     null,
-            isAbsent:  false,
-            remarks:   '',
-            saved:     false,
-            saving:    false,
-            error:     '',
+            studentId:    s._id,
+            name:         s.name,
+            rollNo:       s.rollNo,
+            section:      s.section,
+            marks:        null,
+            writtenMarks: null,
+            oralMarks:    null,
+            isAbsent:     false,
+            remarks:      '',
+            saved:        false,
+            saving:       false,
+            error:        '',
           }));
+          this.savedCount = 0;
         },
       });
   }
 
-  // ── Absent toggle ──────────────────────────────────────────────────────────
+  // ── Absent toggle ─────────────────────────────────────────────────────────
   toggleAbsent(entry: MarksEntry): void {
     entry.isAbsent = !entry.isAbsent;
-    if (entry.isAbsent) entry.marks = null;
+    if (entry.isAbsent) {
+      entry.marks        = null;
+      entry.writtenMarks = null;
+      entry.oralMarks    = null;
+    }
     entry.saved = false;
     entry.error = '';
   }
 
-  // ── Save single row ────────────────────────────────────────────────────────
+  // ── Mark a row dirty when any input changes ───────────────────────────────
+  onMarkChange(entry: MarksEntry): void {
+    entry.saved = false;
+    entry.error = '';
+  }
+
+  // ── Save single row ───────────────────────────────────────────────────────
   saveRow(entry: MarksEntry): void {
     if (!this.selectedExam || !this.selectedSubjectName) return;
 
+    // Validate
     if (!entry.isAbsent) {
-      if (entry.marks === null || entry.marks === undefined) {
-        entry.error = 'Enter marks or mark as absent';
-        return;
-      }
-      if (entry.marks < 0 || entry.marks > this.maxMarks) {
-        entry.error = `Marks must be 0–${this.maxMarks}`;
-        return;
+      if (this.hasOral) {
+        if (entry.writtenMarks === null || entry.writtenMarks === undefined) {
+          entry.error = 'Enter written marks or mark as absent';
+          return;
+        }
+        if (entry.writtenMarks < 0 || entry.writtenMarks > this.writtenMax) {
+          entry.error = `Written marks must be 0–${this.writtenMax}`;
+          return;
+        }
+        if (entry.oralMarks === null || entry.oralMarks === undefined) {
+          entry.error = 'Enter oral marks or mark as absent';
+          return;
+        }
+        if (entry.oralMarks < 0 || entry.oralMarks > this.oralMax) {
+          entry.error = `Oral marks must be 0–${this.oralMax}`;
+          return;
+        }
+      } else {
+        if (entry.marks === null || entry.marks === undefined) {
+          entry.error = 'Enter marks or mark as absent';
+          return;
+        }
+        if (entry.marks < 0 || entry.marks > this.maxMarks) {
+          entry.error = `Marks must be 0–${this.maxMarks}`;
+          return;
+        }
       }
     }
 
     entry.saving = true;
     entry.error  = '';
 
+    const payload = this.buildSinglePayload(entry);
+
     this.http.post<ApiResponse<any>>(
-      `${environment.apiUrl}/marks`,
-      {
-        examId:        this.selectedExam._id,
-        studentId:     entry.studentId,
-        subjectName:   this.selectedSubjectName,
-        marksObtained: entry.isAbsent ? 0 : Number(entry.marks),
-        isAbsent:      entry.isAbsent,
-        remarks:       entry.remarks || undefined,
-      },
+      `${environment.apiUrl}/marks`, payload,
     ).pipe(
       finalize(() => entry.saving = false),
       takeUntil(this.destroy$),
@@ -296,40 +326,113 @@ export class MarksEntryComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ── Save all rows ──────────────────────────────────────────────────────────
+  // ── Save all rows ─────────────────────────────────────────────────────────
   saveAll(): void {
     if (!this.selectedExam || !this.selectedSubjectName) return;
 
-    const entries = this.entries.map(e => ({
-      studentId:     e.studentId,
-      marksObtained: e.isAbsent ? 0 : (e.marks ?? 0),
-      isAbsent:      e.isAbsent,
-      remarks:       e.remarks || undefined,
-    }));
+    const bulkEntries = this.entries.map(e => this.buildBulkEntry(e));
 
     this.savingAll = true;
     this.http.post<ApiResponse<any>>(
       `${environment.apiUrl}/marks/bulk`,
-      { examId: this.selectedExam._id, subjectName: this.selectedSubjectName, entries },
+      { examId: this.selectedExam._id, subjectName: this.selectedSubjectName, entries: bulkEntries },
     ).pipe(
       finalize(() => this.savingAll = false),
       takeUntil(this.destroy$),
     ).subscribe({
       next: res => {
         const d = res.data;
-        this.notify.success(`Saved: ${d?.saved ?? 0} marks.${d?.errors?.length ? ` ${d.errors.length} errors.` : ''}`);
+        this.notify.success(
+          `Saved: ${d?.saved ?? 0} marks.${d?.errors?.length ? ` ${d.errors.length} errors.` : ''}`
+        );
         this.entries.forEach(e => { if (!e.error) e.saved = true; });
         this.savedCount = this.entries.filter(e => e.saved).length;
       },
     });
   }
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
-  get maxMarks(): number {
-    if (!this.selectedExam || !this.selectedSubjectName) return 100;
+  // ── Payload builders ──────────────────────────────────────────────────────
+  private buildSinglePayload(entry: MarksEntry): Record<string, any> {
+    const base: Record<string, any> = {
+      examId:      this.selectedExam!._id,
+      studentId:   entry.studentId,
+      subjectName: this.selectedSubjectName,
+      isAbsent:    entry.isAbsent,
+      remarks:     entry.remarks || undefined,
+    };
+
+    if (entry.isAbsent) {
+      base['marksObtained'] = 0;
+    } else if (this.hasOral) {
+      base['writtenMarksObtained'] = Number(entry.writtenMarks);
+      base['oralMarksObtained']    = Number(entry.oralMarks);
+      base['marksObtained']        = Number(entry.writtenMarks) + Number(entry.oralMarks);
+    } else {
+      base['marksObtained'] = Number(entry.marks);
+    }
+    return base;
+  }
+
+  private buildBulkEntry(entry: MarksEntry): Record<string, any> {
+    const e: Record<string, any> = {
+      studentId: entry.studentId,
+      isAbsent:  entry.isAbsent,
+      remarks:   entry.remarks || undefined,
+    };
+
+    if (entry.isAbsent) {
+      e['marksObtained'] = 0;
+    } else if (this.hasOral) {
+      e['writtenMarksObtained'] = entry.writtenMarks ?? 0;
+      e['oralMarksObtained']    = entry.oralMarks    ?? 0;
+      e['marksObtained']        = (entry.writtenMarks ?? 0) + (entry.oralMarks ?? 0);
+    } else {
+      e['marksObtained'] = entry.marks ?? 0;
+    }
+    return e;
+  }
+
+  // ── Current exam subject (drive oral UI) ──────────────────────────────────
+  get currentSubject(): ExamSubject | null {
+    if (!this.selectedExam || !this.selectedSubjectName) return null;
     return this.selectedExam.subjects.find(
       s => s.name.toLowerCase() === this.selectedSubjectName.toLowerCase()
-    )?.maxMarks ?? 100;
+    ) ?? null;
+  }
+
+  /** True when the currently selected subject has an oral component */
+  get hasOral(): boolean {
+    return (this.currentSubject?.oralMaxMarks ?? 0) > 0;
+  }
+
+  /** Max marks for the written component */
+  get writtenMax(): number {
+    const sub = this.currentSubject;
+    if (!sub) return 0;
+    // Use explicit writtenMaxMarks if set, otherwise derive it
+    return sub.writtenMaxMarks ?? (sub.maxMarks - (sub.oralMaxMarks ?? 0));
+  }
+
+  /** Max marks for the oral component */
+  get oralMax(): number {
+    return this.currentSubject?.oralMaxMarks ?? 0;
+  }
+
+  /** Passing marks for the oral component */
+  get oralPassMarks(): number {
+    return this.currentSubject?.oralPassingMarks ?? 0;
+  }
+
+  /** Total max marks (written + oral) */
+  get maxMarks(): number {
+    return this.currentSubject?.maxMarks ?? 100;
+  }
+
+  /** Live total for a row when both written + oral are entered */
+  rowTotal(entry: MarksEntry): number | null {
+    if (!this.hasOral || entry.isAbsent) return null;
+    if (entry.writtenMarks === null || entry.oralMarks === null) return null;
+    return (entry.writtenMarks ?? 0) + (entry.oralMarks ?? 0);
   }
 
   get completionPct(): number {

@@ -124,7 +124,12 @@ export interface Marks {
   teacherId: string;
   marksObtained: number;
   maxMarks: number;
+  isAbsent?: boolean;
+  remarks?: string;
   enteredAt: string;
+  // Oral breakdown — present only when the subject has an oral component
+  writtenMarksObtained?: number | null;
+  oralMarksObtained?:    number | null;
 }
 
 // ─── Result ───────────────────────────────────────────────────────────────────
