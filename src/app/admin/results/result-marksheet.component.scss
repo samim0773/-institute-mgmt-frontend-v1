@@ -15,8 +15,7 @@ $cream:     #fffcf0;
 $amber:     #fff8e7;
 $tan:       #d4b07a;
 
-// ── Flower SVG tile (24×24, 4-petal, gold centre) — used in flower-band ──────
-// 4 ellipse petals rotated around (12,12), gold circle centre, dark dot
+// ── Flower SVG tile (24×24, 4-petal, gold centre)
 $flower-tile: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cellipse cx='12' cy='4' rx='3.5' ry='7' fill='%238b1a1a' opacity='0.82'/%3E%3Cellipse cx='12' cy='4' rx='3.5' ry='7' fill='%238b1a1a' opacity='0.82' transform='rotate(90 12 12)'/%3E%3Cellipse cx='12' cy='4' rx='3.5' ry='7' fill='%238b1a1a' opacity='0.82' transform='rotate(180 12 12)'/%3E%3Cellipse cx='12' cy='4' rx='3.5' ry='7' fill='%238b1a1a' opacity='0.82' transform='rotate(270 12 12)'/%3E%3Ccircle cx='12' cy='12' r='4' fill='%23c9a227'/%3E%3Ccircle cx='12' cy='12' r='1.8' fill='%235d0e0e'/%3E%3C/svg%3E";
 
 :host { display: block; }
@@ -96,7 +95,6 @@ $flower-tile: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' widt
 
 // ════════════════════════════════════════════════════════════════════════════
 //  OUTER DOCUMENT WRAPPER  (.marksheet-doc)
-//  ── outer maroon border + cream background + watermark holder ──
 // ════════════════════════════════════════════════════════════════════════════
 .marksheet-doc {
   position: relative;
@@ -105,7 +103,7 @@ $flower-tile: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' widt
   box-shadow: 0 8px 36px rgba(0,0,0,0.18);
   font-family: 'Times New Roman', Times, serif;
   color: #000;
-  padding: 6px;   // gap between outer maroon border and inner gold border
+  padding: 6px;
 
   @media (max-width: 767px) { box-shadow: 0 4px 20px rgba(0,0,0,0.13); padding: 5px; border-width: 3px; }
   @media (max-width: 599px) { box-shadow: 0 2px 12px rgba(0,0,0,0.10); padding: 4px; border-width: 2px; }
@@ -122,24 +120,23 @@ $flower-tile: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' widt
 
 // ════════════════════════════════════════════════════════════════════════════
 //  INNER WRAPPER  (.ms-inner)
-//  ── gold border — the "inner line" of the double border frame ──
 // ════════════════════════════════════════════════════════════════════════════
 .ms-inner {
   position: relative; z-index: 1;
   border: 1.5px solid $gold;
   background: #fff;
-  overflow: hidden;   // ensures flower bands don't overflow the gold border
+  overflow: hidden;
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-//  FLOWER BANDS  (top + bottom)
+//  FLOWER BANDS
 // ════════════════════════════════════════════════════════════════════════════
 .flower-band {
-  height: 26px;
+  height: 24px;
   background-color: $amber;
   background-image: url($flower-tile);
   background-repeat: repeat-x;
-  background-size: 26px 26px;
+  background-size: 24px 24px;
   background-position: center center;
   border-bottom: 1px solid $gold;
   -webkit-print-color-adjust: exact;
@@ -150,7 +147,7 @@ $flower-tile: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' widt
     border-top: 1px solid $gold;
   }
 
-  @media (max-width: 599px) { height: 20px; background-size: 20px 20px; }
+  @media (max-width: 599px) { height: 18px; background-size: 18px 18px; }
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -158,61 +155,59 @@ $flower-tile: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' widt
 // ════════════════════════════════════════════════════════════════════════════
 .ms-hdr {
   display: flex; align-items: center; gap: 16px;
-  padding: 16px 24px 12px;
+  padding: 14px 24px 10px;
   border-bottom: 2px solid $maroon;
   background: linear-gradient(180deg, #fffdf5 0%, #fff 100%);
 
-  @media (max-width: 767px) { padding: 12px 16px 10px; gap: 12px; }
-  @media (max-width: 599px) { padding: 10px 10px 8px;  gap: 8px;  }
+  @media (max-width: 767px) { padding: 10px 16px 8px; gap: 12px; }
+  @media (max-width: 599px) { padding: 8px 10px 6px; gap: 8px; }
 }
 
 .ms-hdr-logo { flex-shrink: 0; }
 
 .ms-logo-img {
-  width: 80px; height: 80px; object-fit: contain;
+  width: 72px; height: 72px; object-fit: contain;
   display: block; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.12));
-  @media (max-width: 767px) { width: 58px; height: 58px; }
-  @media (max-width: 599px) { width: 40px; height: 40px; }
+  @media (max-width: 767px) { width: 54px; height: 54px; }
+  @media (max-width: 599px) { width: 38px; height: 38px; }
 }
 
 .ms-logo-placeholder {
-  width: 80px; height: 80px; border: 2px solid $gold; border-radius: 3px;
+  width: 72px; height: 72px; border: 2px solid $gold; border-radius: 3px;
   display: flex; align-items: center; justify-content: center; background: #fffbf0;
-  mat-icon { font-size: 44px; width: 44px; height: 44px; color: $gold; }
+  mat-icon { font-size: 40px; width: 40px; height: 40px; color: $gold; }
   @media (max-width: 599px) {
-    width: 40px; height: 40px;
-    mat-icon { font-size: 24px; width: 24px; height: 24px; }
+    width: 38px; height: 38px;
+    mat-icon { font-size: 22px; width: 22px; height: 22px; }
   }
 }
 
-.ms-hdr-center {
-  flex: 1; text-align: center; min-width: 0;
-}
+.ms-hdr-center { flex: 1; text-align: center; min-width: 0; }
 
 .ms-inst-name {
-  font-size: 1.45rem; font-weight: 900; color: $maroon;
+  font-size: 1.4rem; font-weight: 900; color: $maroon;
   text-transform: uppercase; letter-spacing: 2px; line-height: 1.2;
-  margin-bottom: 4px;
-  @media (max-width: 767px) { font-size: 1.1rem; letter-spacing: 1px; }
-  @media (max-width: 599px) { font-size: 0.85rem; letter-spacing: 0.4px; }
+  margin-bottom: 3px;
+  @media (max-width: 767px) { font-size: 1.05rem; letter-spacing: 1px; }
+  @media (max-width: 599px) { font-size: 0.82rem; letter-spacing: 0.3px; }
 }
 
 .ms-inst-addr {
-  font-size: 0.82rem; color: #444; line-height: 1.5;
-  @media (max-width: 599px) { font-size: 0.64rem; }
+  font-size: 0.8rem; color: #444; line-height: 1.5;
+  @media (max-width: 599px) { font-size: 0.62rem; }
 }
 
 .ms-inst-phone {
-  font-size: 0.76rem; color: #555; margin-top: 2px;
-  @media (max-width: 599px) { font-size: 0.6rem; }
+  font-size: 0.74rem; color: #555; margin-top: 2px;
+  @media (max-width: 599px) { font-size: 0.58rem; }
 }
 
 .ms-hdr-code {
   flex-shrink: 0; border: 2px solid $maroon; border-radius: 3px;
-  padding: 6px 12px; text-align: center; background: #fff;
-  .code-lbl { font-size: 0.56rem; text-transform: uppercase; letter-spacing: 1px; color: #888; display: block; }
-  .code-val  { font-size: 0.95rem; font-weight: 900; color: $maroon; letter-spacing: 2px; display: block; }
-  @media (max-width: 767px) { padding: 4px 8px; .code-val { font-size: 0.8rem; } }
+  padding: 5px 10px; text-align: center; background: #fff;
+  .code-lbl { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 1px; color: #888; display: block; }
+  .code-val  { font-size: 0.9rem;  font-weight: 900; color: $maroon; letter-spacing: 2px; display: block; }
+  @media (max-width: 767px) { padding: 4px 8px; .code-val { font-size: 0.78rem; } }
   @media (max-width: 599px) { display: none; }
 }
 
@@ -220,16 +215,13 @@ $flower-tile: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' widt
 //  ORNAMENT RULE
 // ════════════════════════════════════════════════════════════════════════════
 .ms-rule {
-  display: flex; align-items: center; gap: 8px; padding: 4px 20px;
+  display: flex; align-items: center; gap: 8px; padding: 3px 20px;
 
   .rule-line {
     flex: 1; height: 1px;
     background: linear-gradient(90deg, transparent, $gold 25%, $gold 75%, transparent);
   }
-
-  .rule-node {
-    font-size: 0.9rem; color: $maroon; flex-shrink: 0; letter-spacing: 2px;
-  }
+  .rule-node { font-size: 0.9rem; color: $maroon; flex-shrink: 0; letter-spacing: 2px; }
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -237,29 +229,27 @@ $flower-tile: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' widt
 // ════════════════════════════════════════════════════════════════════════════
 .ms-title-box {
   display: flex; flex-direction: column; align-items: center;
-  padding: 10px 20px 9px; gap: 3px; text-align: center;
+  padding: 8px 20px 7px; gap: 2px; text-align: center;
   background: linear-gradient(135deg, $navy 0%, $navy-mid 50%, $navy 100%);
   color: #fff;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
-  @media (max-width: 599px) { padding: 8px 12px 7px; }
+  @media (max-width: 599px) { padding: 7px 12px 6px; }
 }
 
 .ms-title-main {
-  font-size: 1.1rem; font-weight: 700; letter-spacing: 5px;
+  font-size: 1.05rem; font-weight: 700; letter-spacing: 5px;
   color: $gold; text-transform: uppercase;
-  @media (max-width: 767px) { font-size: 0.9rem; letter-spacing: 3px; }
-  @media (max-width: 599px) { font-size: 0.75rem; letter-spacing: 2px; }
+  @media (max-width: 767px) { font-size: 0.88rem; letter-spacing: 3px; }
+  @media (max-width: 599px) { font-size: 0.72rem; letter-spacing: 2px; }
 }
 
 .ms-title-exam {
-  font-size: 0.88rem; opacity: 0.9; font-style: italic;
-  @media (max-width: 599px) { font-size: 0.7rem; }
+  font-size: 0.85rem; opacity: 0.9; font-style: italic;
+  @media (max-width: 599px) { font-size: 0.68rem; }
 }
 
-.ms-title-ay {
-  font-size: 0.72rem; opacity: 0.7; letter-spacing: 0.3px;
-}
+.ms-title-ay { font-size: 0.7rem; opacity: 0.7; letter-spacing: 0.3px; }
 
 // ════════════════════════════════════════════════════════════════════════════
 //  CERTIFICATE / SECURITY BAR
@@ -267,81 +257,95 @@ $flower-tile: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' widt
 .ms-cert-bar {
   display: flex; flex-wrap: wrap; align-items: center;
   background: $amber; border-top: 1px solid $gold; border-bottom: 1px solid $gold;
-  padding: 5px 20px;
+  padding: 4px 20px;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
-  @media (max-width: 599px) { padding: 4px 10px; }
+  @media (max-width: 599px) { padding: 3px 10px; }
 }
 
 .cert-col {
   display: flex; align-items: center; gap: 5px;
-  padding: 3px 14px; border-right: 1px solid $tan;
-  font-size: 0.78rem;
+  padding: 2px 12px; border-right: 1px solid $tan;
+  font-size: 0.76rem;
   &:first-child { padding-left: 0; }
   &:last-child  { border-right: none; }
   &--hide-sm { @media (max-width: 767px) { display: none; } }
-  &--draft   { padding-left: 14px; }
-  @media (max-width: 599px) { padding: 2px 8px; font-size: 0.66rem; }
+  &--draft   { padding-left: 12px; }
+  @media (max-width: 599px) { padding: 2px 7px; font-size: 0.64rem; }
 }
 
-.cert-key { font-size: 0.63rem; color: #777; text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; }
+.cert-key { font-size: 0.62rem; color: #777; text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; }
 .cert-val { font-weight: 700; color: $maroon; white-space: nowrap; }
 
 .draft-badge {
   background: #ff6f00; color: #fff;
-  font-size: 0.65rem; font-weight: 700; font-family: Arial, sans-serif;
+  font-size: 0.64rem; font-weight: 700; font-family: Arial, sans-serif;
   padding: 2px 7px; border-radius: 3px; letter-spacing: 0.5px;
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-//  STUDENT SECTION
+//  STUDENT SECTION  —  2-column info grid + photo
 // ════════════════════════════════════════════════════════════════════════════
 .ms-student-section {
-  display: flex; gap: 16px; align-items: flex-start;
-  padding: 14px 24px;
+  display: flex; gap: 14px; align-items: flex-start;
+  padding: 10px 24px 8px;
   border-bottom: 1.5px solid $tan;
-  @media (max-width: 767px) { padding: 12px 16px; gap: 12px; }
-  @media (max-width: 599px) { padding: 10px 10px; gap: 8px;  }
+  @media (max-width: 767px) { padding: 8px 16px; gap: 10px; }
+  @media (max-width: 599px) { padding: 8px 10px;  gap: 8px;  }
 }
 
-.ms-info-table {
-  flex: 1; min-width: 0; border-collapse: collapse; font-size: 0.875rem;
-  td { padding: 4px 8px; vertical-align: top; }
+// ── 2-column info grid ──────────────────────────────────────────────────────
+.ms-info-grid {
+  flex: 1; min-width: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px 16px;
 
-  .info-lbl {
-    font-weight: 600; white-space: nowrap; width: 130px;
-    color: $maroon-dk; font-size: 0.76rem;
-    text-transform: uppercase; letter-spacing: 0.3px;
-    &::after { content: ':'; }
-  }
-  .info-val     { color: #000; }
-  .info-val--name { font-size: 1.05rem; font-weight: 700; }
-
-  @media (max-width: 767px) {
-    font-size: 0.8rem;
-    td { padding: 3px 6px; }
-    .info-lbl { width: 108px; font-size: 0.7rem; }
-  }
   @media (max-width: 599px) {
-    font-size: 0.67rem;
-    td { padding: 2px 3px; }
-    .info-lbl { width: 76px; font-size: 0.6rem; }
-    .info-val--name { font-size: 0.82rem; }
+    // single column on mobile — avoids cramped text
+    grid-template-columns: 1fr;
+    gap: 1px;
   }
 }
 
+.ig-item {
+  display: flex; flex-direction: column;
+  padding: 4px 0;
+  border-bottom: 1px solid #f0e8d8;
+}
+
+.ig-lbl {
+  font-size: 0.6rem; font-weight: 700; color: $maroon-dk;
+  text-transform: uppercase; letter-spacing: 0.35px;
+  margin-bottom: 1px;
+  @media (max-width: 599px) { font-size: 0.55rem; }
+}
+
+.ig-val {
+  font-size: 0.83rem; color: #000; line-height: 1.35;
+  @media (max-width: 767px) { font-size: 0.76rem; }
+  @media (max-width: 599px) { font-size: 0.68rem; }
+}
+
+.ig-val--name {
+  font-size: 0.97rem; font-weight: 700;
+  @media (max-width: 767px) { font-size: 0.88rem; }
+  @media (max-width: 599px) { font-size: 0.78rem; }
+}
+
+// ── Photo + Stamp ────────────────────────────────────────────────────────────
 .ms-photo-area {
-  flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 8px;
-  @media (max-width: 599px) { gap: 6px; }
+  flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 7px;
+  @media (max-width: 599px) { gap: 5px; }
 }
 
 .ms-photo-box {
-  width: 90px; height: 110px;
+  width: 82px; height: 100px;
   border: 2px solid $maroon;
   overflow: hidden; display: flex; align-items: center; justify-content: center;
   background: #f5f5f5;
-  @media (max-width: 767px) { width: 74px; height: 90px; }
-  @media (max-width: 599px) { width: 56px; height: 68px; border-width: 1.5px; }
+  @media (max-width: 767px) { width: 68px; height: 84px; }
+  @media (max-width: 599px) { width: 52px; height: 64px; border-width: 1.5px; }
 }
 
 .ms-photo { width: 100%; height: 100%; object-fit: cover; }
@@ -349,60 +353,60 @@ $flower-tile: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' widt
 .ms-photo-ph {
   display: flex; flex-direction: column; align-items: center; gap: 3px;
   color: #bbb; font-size: 0.65rem;
-  mat-icon { font-size: 30px; width: 30px; height: 30px; color: #ccc; }
-  @media (max-width: 599px) { mat-icon { font-size: 22px; width: 22px; height: 22px; } }
+  mat-icon { font-size: 28px; width: 28px; height: 28px; color: #ccc; }
+  @media (max-width: 599px) { mat-icon { font-size: 20px; width: 20px; height: 20px; } }
 }
 
 .ms-result-stamp {
-  font-size: 1.1rem; font-weight: 900; letter-spacing: 3px;
-  border: 3px solid; padding: 4px 10px; text-align: center;
+  font-size: 1rem; font-weight: 900; letter-spacing: 3px;
+  border: 3px solid; padding: 3px 8px; text-align: center;
   text-transform: uppercase; font-style: italic;
   transform: rotate(-8deg);
   &.stamp-pass { border-color: #2e7d32; color: #2e7d32; background: rgba(46,125,50,0.04); }
   &.stamp-fail { border-color: #c62828; color: #c62828; background: rgba(198,40,40,0.04); }
-  @media (max-width: 767px) { font-size: 0.9rem; letter-spacing: 2px; padding: 3px 8px; }
-  @media (max-width: 599px) { font-size: 0.68rem; letter-spacing: 1px; padding: 2px 5px; border-width: 2px; transform: rotate(-6deg); }
+  @media (max-width: 767px) { font-size: 0.86rem; letter-spacing: 2px; padding: 3px 7px; }
+  @media (max-width: 599px) { font-size: 0.65rem; letter-spacing: 1px; padding: 2px 4px; border-width: 2px; transform: rotate(-6deg); }
 }
 
 // ════════════════════════════════════════════════════════════════════════════
 //  MARKS SECTION
 // ════════════════════════════════════════════════════════════════════════════
 .ms-marks-section {
-  padding: 10px 24px 4px;
-  @media (max-width: 767px) { padding: 8px 16px 3px; }
-  @media (max-width: 599px) { padding: 6px 6px 2px; }
+  padding: 8px 24px 3px;
+  @media (max-width: 767px) { padding: 6px 16px 2px; }
+  @media (max-width: 599px) { padding: 5px 6px 2px; }
 }
 
 .section-heading {
-  font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+  font-size: 0.76rem; font-weight: 700; text-transform: uppercase;
   letter-spacing: 1.2px; color: $maroon; text-align: center;
-  margin-bottom: 7px;
+  margin-bottom: 5px;
   display: flex; align-items: center; justify-content: center; gap: 10px;
-  .sh-ornament { color: $gold; font-size: 0.68rem; }
+  .sh-ornament { color: $gold; font-size: 0.65rem; }
 }
 
 .marks-table {
-  width: 100%; border-collapse: collapse; font-size: 0.83rem;
+  width: 100%; border-collapse: collapse; font-size: 0.82rem;
 
   th, td { border: 1px solid #b5a090; }
 
   thead th {
-    padding: 7px 8px;
+    padding: 6px 6px;
     background: linear-gradient(135deg, $navy 0%, $navy-mid 100%);
-    color: #fff; font-weight: 700; font-size: 0.69rem;
+    color: #fff; font-weight: 700; font-size: 0.67rem;
     text-transform: uppercase; letter-spacing: 0.3px;
-    text-align: center; line-height: 1.3;
+    text-align: center; line-height: 1.25;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
 
-  tbody td { padding: 6px 8px; color: #111; vertical-align: middle; }
+  tbody td  { padding: 5px 6px; color: #111; vertical-align: middle; }
   tbody tr:nth-child(even) td { background: #faf5ec; }
   .row-fail   td { background: #fff5f5 !important; }
   .row-absent td { background: #fffde7 !important; }
 
   tfoot .agg-row td {
-    padding: 7px 8px;
+    padding: 5px 6px;
     background: $amber !important;
     border-top: 2px solid $maroon;
     font-weight: 600;
@@ -410,39 +414,28 @@ $flower-tile: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' widt
     print-color-adjust: exact;
   }
 
-  .col-no   { width: 36px; }
-  .col-subj { min-width: 120px; }
-  .col-num  { width: 66px; }
-  .col-grd  { width: 62px; }
-  .col-res  { width: 54px; }
+  .col-no   { width: 32px; }
+  .col-subj { min-width: 110px; }
+  .col-num  { width: 60px; }
+  .col-grd  { width: 58px; }
+  .col-res  { width: 50px; }
   .tc       { text-align: center; }
 
-  .subj-name  { font-weight: 500; padding: 6px 10px; }
+  .subj-name  { font-weight: 500; padding: 5px 8px; }
   .fail-marks { color: #c62828; font-weight: 700; }
   .absent-tag { color: #e65100; font-weight: 700; font-style: italic; }
-
-  // "W+O" pill shown next to subject name when it has an oral component
-  .oral-badge {
-    display: inline-block; margin-left: 5px;
-    padding: 1px 5px; border-radius: 3px;
-    background: $navy-mid; color: #fff;
-    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.3px;
-    vertical-align: middle;
-  }
-
-  // Placeholder dash for non-applicable oral columns
-  .na-text { color: #bbb; font-size: 0.8rem; }
+  .na-text    { color: #bbb; font-size: 0.78rem; }
 
   .agg-label {
-    font-weight: 700; font-size: 0.75rem; text-transform: uppercase;
-    letter-spacing: 0.5px; color: $maroon; padding-left: 12px !important;
+    font-weight: 700; font-size: 0.73rem; text-transform: uppercase;
+    letter-spacing: 0.5px; color: $maroon; padding-left: 10px !important;
   }
-  .agg-marks { font-size: 0.95rem; font-weight: 700; }
-  .agg-max   { font-size: 0.7rem; color: #777; }
+  .agg-marks { font-size: 0.92rem; font-weight: 700; }
+  .agg-max   { font-size: 0.68rem; color: #777; }
 
   // Grade chip
   .g-chip {
-    font-size: 0.72rem; font-weight: 800; padding: 2px 7px; border-radius: 4px;
+    font-size: 0.7rem; font-weight: 800; padding: 2px 6px; border-radius: 4px;
     display: inline-block;
     &.grade-a1 { background: #e8f5e9; color: #1b5e20; }
     &.grade-a2 { background: #f1f8e9; color: #33691e; }
@@ -456,73 +449,139 @@ $flower-tile: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' widt
   }
 
   // Result badge
-  .r-badge { font-size: 0.78rem; font-weight: 700; }
+  .r-badge { font-size: 0.76rem; font-weight: 700; }
   .r-pass  { color: #2e7d32; }
   .r-fail  { color: #c62828; }
   .r-abs   { color: #e65100; }
 
   // Tablet
   @media (max-width: 767px) {
-    font-size: 0.75rem;
-    thead th, tbody td, tfoot td { padding: 5px 5px; }
-    thead th { font-size: 0.61rem; }
-    .col-subj { min-width: 86px; }
-    .col-num  { width: 52px; }
-    .col-grd, .col-res { width: 44px; }
+    font-size: 0.73rem;
+    thead th, tbody td, tfoot td { padding: 4px 4px; }
+    thead th { font-size: 0.6rem; }
+    .col-subj { min-width: 82px; }
+    .col-num  { width: 48px; }
+    .col-grd, .col-res { width: 42px; }
   }
 
   // Mobile
   @media (max-width: 599px) {
-    font-size: 0.59rem;
-    thead th, tbody td, tfoot td { padding: 3px 3px; }
-    thead th { font-size: 0.51rem; letter-spacing: 0; }
-    .col-no   { width: 20px; }
-    .col-subj { min-width: 54px; }
-    .col-num  { width: 34px; }
-    .col-grd, .col-res { width: 28px; }
-    .g-chip   { padding: 1px 3px; font-size: 0.55rem; border-radius: 3px; }
+    font-size: 0.57rem;
+    thead th, tbody td, tfoot td { padding: 3px 2px; }
+    thead th { font-size: 0.49rem; letter-spacing: 0; }
+    .col-no   { width: 18px; }
+    .col-subj { min-width: 50px; }
+    .col-num  { width: 30px; }
+    .col-grd, .col-res { width: 26px; }
+    .g-chip   { padding: 1px 3px; font-size: 0.52rem; border-radius: 3px; }
   }
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-//  SUMMARY SECTION
+//  SUMMARY — horizontal stat-box row
 // ════════════════════════════════════════════════════════════════════════════
 .ms-summary-section {
-  padding: 10px 24px;
-  border-top: 1.5px solid $tan;
-  background: #fefbf4;
+  border-top: 2px solid $maroon;
+  background: $amber;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
-  @media (max-width: 767px) { padding: 8px 16px; }
-  @media (max-width: 599px) { padding: 7px 10px; }
 }
 
-.sum-table {
-  width: 100%; border-collapse: collapse; font-size: 0.86rem;
+// The flex row that holds all stat boxes
+.sum-stats-row {
+  display: flex;
+  align-items: stretch;
+  flex-wrap: wrap;
+  border-bottom: 1px solid $tan;
+}
 
-  td { padding: 4px 8px; }
-  .sum-lbl {
-    font-weight: 600; color: $maroon-dk;
-    font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.3px;
-    width: 158px;
-    &::after { content: ':'; }
-  }
-  .sum-val  { color: #000; }
-  .sum-fail { color: #c62828; font-weight: 600; }
+// Each stat box
+.sum-stat {
+  flex: 1;
+  min-width: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 8px 10px;
+  text-align: center;
+  gap: 3px;
+
+  &--wide  { flex: 1.5; }
+  &--rank  { flex: 0.8; }
 
   @media (max-width: 599px) {
-    font-size: 0.74rem; min-width: 0;
-    td { padding: 3px 4px; }
-    .sum-lbl { width: 106px; font-size: 0.65rem; }
+    flex: 0 0 50%;   // 2-per-row on mobile
+    padding: 6px 6px;
+    border-bottom: 1px solid $tan;
   }
 }
 
+// Thin vertical divider between stat boxes
+.ss-divider {
+  width: 1px;
+  background: $tan;
+  align-self: stretch;
+  margin: 6px 0;
+  flex-shrink: 0;
+
+  @media (max-width: 599px) { display: none; }  // dividers hidden on mobile (borders do the job)
+}
+
+.ss-lbl {
+  font-size: 0.6rem; font-weight: 700; color: $maroon-dk;
+  text-transform: uppercase; letter-spacing: 0.4px;
+  line-height: 1.2; white-space: nowrap;
+  @media (max-width: 767px) { font-size: 0.56rem; }
+  @media (max-width: 599px) { font-size: 0.52rem; }
+}
+
+.ss-val {
+  display: flex; align-items: baseline; justify-content: center;
+  gap: 3px; flex-wrap: wrap;
+  font-size: 0.98rem; color: #000; font-weight: 600;
+
+  strong { font-size: 1.05rem; }
+
+  @media (max-width: 767px) { font-size: 0.88rem; strong { font-size: 0.95rem; } }
+  @media (max-width: 599px) { font-size: 0.78rem; strong { font-size: 0.85rem; } }
+}
+
+// "out of …" / "/ 10.0" suffix
+.ss-of {
+  font-size: 0.72rem; color: #777; font-weight: 400;
+  @media (max-width: 599px) { font-size: 0.62rem; }
+}
+
+// Large # rank number
+.rank-num {
+  font-size: 1.35rem; color: $maroon; font-weight: 900;
+  font-family: 'Times New Roman', serif;
+  @media (max-width: 767px) { font-size: 1.1rem; }
+}
+
+// Failed-subjects sub-row
+.sum-fail-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 20px;
+  background: #fff5f5;
+  border-top: 1px dashed #f5c6c6;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.sfr-lbl {
+  font-size: 0.65rem; font-weight: 700; color: $maroon-dk;
+  text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap;
+  &::after { content: ':'; }
+}
+.sfr-val { font-size: 0.82rem; color: #c62828; font-weight: 600; }
+
+// Percentage colour helpers (used in .ss-val strong)
 .pct-high { color: #2e7d32; }
 .pct-mid  { color: #1565c0; }
 .pct-low  { color: #c62828; }
 
+// Grade chip sizes inside summary
 .ovr-grade {
-  font-size: 0.98rem; font-weight: 800; padding: 2px 10px; border-radius: 5px;
+  font-size: 0.98rem; font-weight: 800; padding: 2px 9px; border-radius: 5px;
   &.grade-a1 { background: #e8f5e9; color: #1b5e20; }
   &.grade-a2 { background: #f1f8e9; color: #33691e; }
   &.grade-b1 { background: #e3f2fd; color: #0d47a1; }
@@ -532,33 +591,33 @@ $flower-tile: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' widt
   &.grade-d  { background: #fce4ec; color: #880e4f; }
   &.grade-e  { background: #ffebee; color: #b71c1c; }
 }
-.ovr-remark { font-size: 0.8rem; color: #555; font-style: italic; }
+.ovr-remark { font-size: 0.76rem; color: #555; font-style: italic; }
 
 // ── Compact horizontal grade legend ───────────────────────────────────────────
 .grade-legend {
   display: flex; align-items: center; flex-wrap: wrap; gap: 4px;
-  padding: 6px 24px;
+  padding: 5px 24px;
   border-top: 1px solid $tan; border-bottom: 1.5px solid $tan;
   background: #fefbf4;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
-  @media (max-width: 767px) { padding: 5px 16px; gap: 3px; }
+  @media (max-width: 767px) { padding: 4px 16px; gap: 3px; }
   @media (max-width: 599px) { padding: 4px 10px; gap: 2px; }
 }
 
 .gl-label {
   font-weight: 700; color: $maroon-dk; text-transform: uppercase;
-  letter-spacing: 0.4px; font-size: 0.6rem; white-space: nowrap;
+  letter-spacing: 0.4px; font-size: 0.59rem; white-space: nowrap;
   margin-right: 5px;
   &::after { content: ':'; }
-  @media (max-width: 599px) { font-size: 0.52rem; margin-right: 3px; }
+  @media (max-width: 599px) { font-size: 0.51rem; margin-right: 3px; }
 }
 
 .gl-item {
   display: inline-flex; align-items: center; gap: 2px;
-  padding: 2px 6px; border-radius: 3px; font-weight: 700;
-  font-size: 0.63rem; white-space: nowrap; line-height: 1.5;
-  em { font-style: normal; font-weight: 400; font-size: 0.56rem; opacity: 0.82; margin-left: 1px; }
+  padding: 2px 5px; border-radius: 3px; font-weight: 700;
+  font-size: 0.61rem; white-space: nowrap; line-height: 1.5;
+  em { font-style: normal; font-weight: 400; font-size: 0.54rem; opacity: 0.82; margin-left: 1px; }
 
   &.gl-a1 { background: #e8f5e9; color: #1b5e20; }
   &.gl-a2 { background: #f1f8e9; color: #33691e; }
@@ -570,8 +629,8 @@ $flower-tile: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' widt
   &.gl-e  { background: #ffebee; color: #b71c1c; }
 
   @media (max-width: 599px) {
-    font-size: 0.52rem; padding: 1px 4px;
-    em { font-size: 0.46rem; }
+    font-size: 0.5rem; padding: 1px 3px;
+    em { font-size: 0.44rem; }
   }
 }
 
@@ -579,9 +638,9 @@ $flower-tile: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' widt
 //  DECLARATION
 // ════════════════════════════════════════════════════════════════════════════
 .ms-declaration {
-  font-size: 0.7rem; font-style: italic; color: #555; text-align: center;
-  padding: 7px 28px 5px; border-bottom: 1px solid #e0d5c0;
-  @media (max-width: 599px) { padding: 5px 12px 4px; font-size: 0.58rem; }
+  font-size: 0.68rem; font-style: italic; color: #555; text-align: center;
+  padding: 6px 28px 4px; border-bottom: 1px solid #e0d5c0;
+  @media (max-width: 599px) { padding: 4px 12px 3px; font-size: 0.56rem; }
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -589,28 +648,28 @@ $flower-tile: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' widt
 // ════════════════════════════════════════════════════════════════════════════
 .ms-sigs {
   display: flex; justify-content: space-between;
-  padding: 14px 28px 18px; gap: 12px; flex-wrap: wrap;
-  @media (max-width: 767px) { padding: 12px 18px 14px; gap: 8px; }
-  @media (max-width: 599px) { padding: 10px 10px 12px; }
+  padding: 12px 28px 14px; gap: 10px; flex-wrap: wrap;
+  @media (max-width: 767px) { padding: 10px 18px 12px; gap: 8px; }
+  @media (max-width: 599px) { padding: 8px 10px 10px; }
 }
 
 .sig-block {
-  flex: 1; min-width: 90px;
+  flex: 1; min-width: 80px;
   display: flex; flex-direction: column; align-items: center; gap: 0;
-  @media (max-width: 599px) { min-width: 60px; }
+  @media (max-width: 599px) { min-width: 56px; }
 }
 
-.sig-space { height: 32px; @media (max-width: 599px) { height: 20px; } }
+.sig-space { height: 28px; @media (max-width: 599px) { height: 18px; } }
 
 .sig-line {
-  width: 110px; border-top: 1px dashed #777;
-  @media (max-width: 599px) { width: 68px; }
+  width: 100px; border-top: 1px dashed #777;
+  @media (max-width: 599px) { width: 62px; }
 }
 
 .sig-name {
-  font-size: 0.68rem; color: #444; text-align: center; margin-top: 4px;
+  font-size: 0.65rem; color: #444; text-align: center; margin-top: 3px;
   font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;
-  @media (max-width: 599px) { font-size: 0.55rem; }
+  @media (max-width: 599px) { font-size: 0.52rem; }
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -619,14 +678,14 @@ $flower-tile: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' widt
 .ms-sec-footer {
   display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
   justify-content: space-between;
-  padding: 7px 20px;
+  padding: 6px 20px;
   background: $maroon; color: rgba(255,255,255,0.85);
-  font-size: 0.64rem; font-family: Arial, sans-serif;
+  font-size: 0.62rem; font-family: Arial, sans-serif;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
 
   strong { color: #fff; }
-  @media (max-width: 599px) { padding: 6px 10px; font-size: 0.55rem; }
+  @media (max-width: 599px) { padding: 5px 10px; font-size: 0.53rem; }
 }
 
 .sf-lock { flex-shrink: 0; }
@@ -634,18 +693,19 @@ $flower-tile: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' widt
 .sf-cert { flex-shrink: 0; font-weight: 700; color: $gold-lt; white-space: nowrap; }
 
 // ════════════════════════════════════════════════════════════════════════════
-//  @media print  — A4 portrait, compact, force all backgrounds
+//  @media print  — A4 portrait, aggressively compact for 12+ subjects
 // ════════════════════════════════════════════════════════════════════════════
 @media print {
 
-  // Remove screen-only chrome
+  // Remove screen chrome
   .marksheet-page { padding: 0 !important; max-width: 100% !important; }
 
-  // Outer document: no screen shadow, keep maroon border
+  // Outer doc
   .marksheet-doc {
     box-shadow: none !important;
     border: 3px solid $maroon !important;
     padding: 4px !important;
+    font-size: 8.5pt !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
@@ -653,72 +713,135 @@ $flower-tile: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' widt
   // Inner gold border
   .ms-inner { border-color: $gold !important; }
 
-  // Flower bands MUST print — force background
+  // Flower bands
   .flower-band {
+    height: 16px !important;
+    background-size: 16px !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     background-color: $amber !important;
     background-image: url($flower-tile) !important;
   }
 
-  // Header background
+  // Header — compact
   .ms-hdr {
+    padding: 8px 18px 6px !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
+  .ms-logo-img { width: 56px !important; height: 56px !important; }
+  .ms-inst-name { font-size: 1.1rem !important; letter-spacing: 1.5px !important; }
+  .ms-inst-addr { font-size: 0.72rem !important; }
 
-  // Title navy bar
+  // Title bar
   .ms-title-box {
+    padding: 5px 16px 4px !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     background: linear-gradient(135deg, $navy, $navy-mid) !important;
   }
+  .ms-title-main { font-size: 0.9rem !important; }
+  .ms-title-exam { font-size: 0.76rem !important; }
 
   // Cert bar
   .ms-cert-bar {
+    padding: 2px 16px !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     background: $amber !important;
-    .cert-col--hide-sm { display: flex !important; }  // show all cols in print
+    .cert-col--hide-sm { display: flex !important; }
   }
 
-  // Table header
-  .marks-table thead th {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-    background: $navy-mid !important;
-    color: #fff !important;
+  // Student section — 2-col grid stays; reduce padding
+  .ms-student-section { padding: 6px 18px 5px !important; }
+  .ig-item { padding: 2px 0 !important; }
+  .ig-lbl  { font-size: 0.55rem !important; }
+  .ig-val  { font-size: 0.76rem !important; }
+  .ig-val--name { font-size: 0.88rem !important; }
+  .ms-photo-box { width: 64px !important; height: 78px !important; }
+  .ms-result-stamp { font-size: 0.78rem !important; padding: 2px 5px !important; border-width: 2px !important; }
+
+  // Marks section — tightest possible rows
+  .ms-marks-section { padding: 4px 18px 2px !important; }
+  .section-heading  { margin-bottom: 3px !important; font-size: 0.65rem !important; }
+
+  .marks-table {
+    font-size: 7.5pt !important;
+
+    thead th {
+      padding: 3px 4px !important;
+      font-size: 0.58rem !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      background: $navy-mid !important;
+      color: #fff !important;
+    }
+
+    tbody td, tfoot td { padding: 3px 4px !important; }
+
+    .col-no   { width: 24px !important; }
+    .col-subj { min-width: 90px !important; }
+    .col-num  { width: 48px !important; }
+    .col-grd  { width: 44px !important; }
+    .col-res  { width: 38px !important; }
+
+    // Force alternating + special row backgrounds
+    tbody tr:nth-child(even) td,
+    .row-fail   td,
+    .row-absent td,
+    .agg-row    td {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .agg-row td {
+      background: $amber !important;
+      padding: 4px 4px !important;
+    }
   }
 
-  // Alternating rows
-  .marks-table tbody tr:nth-child(even) td,
-  .marks-table .row-fail td,
-  .marks-table .row-absent td,
-  .marks-table .agg-row td {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-
-  // Summary background
+  // Summary stat row — compact but keep horizontal layout
   .ms-summary-section {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
-    background: #fefbf4 !important;
+    background: $amber !important;
+    border-top: 2px solid $maroon !important;
   }
+  .sum-stats-row { flex-wrap: nowrap !important; }
+  .sum-stat { padding: 5px 6px !important; }
+  .ss-lbl  { font-size: 0.53rem !important; }
+  .ss-val  { font-size: 0.82rem !important; strong { font-size: 0.9rem !important; } }
+  .ss-of   { font-size: 0.62rem !important; }
+  .rank-num { font-size: 1.05rem !important; }
+  .ovr-grade { font-size: 0.85rem !important; padding: 1px 7px !important; }
+  .ovr-remark { font-size: 0.66rem !important; }
 
-  // Compact grade legend
+  // Grade legend
   .grade-legend {
+    padding: 3px 18px !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     background: #fefbf4 !important;
   }
   .gl-item {
+    font-size: 0.54rem !important;
+    padding: 1px 4px !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
+  .gl-label { font-size: 0.52rem !important; }
+
+  // Declaration
+  .ms-declaration { padding: 4px 20px 3px !important; font-size: 0.6rem !important; }
+
+  // Signatures
+  .ms-sigs { padding: 7px 22px 8px !important; }
+  .sig-space { height: 20px !important; }
+  .sig-name  { font-size: 0.58rem !important; }
 
   // Security footer
   .ms-sec-footer {
+    padding: 4px 16px !important;
+    font-size: 0.56rem !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     background: $maroon !important;
@@ -735,16 +858,13 @@ $flower-tile: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' widt
   .ms-result-stamp.stamp-pass { border-color: #2e7d32 !important; color: #2e7d32 !important; }
   .ms-result-stamp.stamp-fail { border-color: #c62828 !important; color: #c62828 !important; }
 
-  // Compact print font — ensures content fits on A4
-  .marksheet-doc { font-size: 9.5pt !important; }
-
   // Avoid page breaks inside key blocks
   .ms-hdr, .ms-student-section, .ms-marks-section,
   .ms-summary-section, .grade-legend, .ms-sigs { page-break-inside: avoid; }
 
-  // A4 portrait with comfortable margins
+  // A4 portrait with tight margins — maximises usable height
   @page {
     size: A4 portrait;
-    margin: 8mm 10mm;
+    margin: 7mm 9mm;
   }
 }

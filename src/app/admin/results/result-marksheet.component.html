@@ -53,7 +53,7 @@
     <!-- Security diagonal watermark (CSS only) -->
     <div class="sec-watermark" aria-hidden="true"></div>
 
-    <!-- Inner gold-border wrapper — this div creates the double-border effect -->
+    <!-- Inner gold-border wrapper -->
     <div class="ms-inner">
 
       <!-- ── TOP FLOWER BAND ─────────────────────────────────────────────── -->
@@ -131,34 +131,33 @@
       <!-- ── STUDENT DETAILS + PHOTO ───────────────────────────────────── -->
       <div class="ms-student-section">
 
-        <table class="ms-info-table">
-          <tbody>
-            <tr>
-              <td class="info-lbl">Student Name</td>
-              <td class="info-val info-val--name">{{ marksheet.student.name }}</td>
-            </tr>
-            <tr>
-              <td class="info-lbl">Roll Number</td>
-              <td class="info-val"><strong>{{ marksheet.student.rollNo }}</strong></td>
-            </tr>
-            <tr>
-              <td class="info-lbl">Admission No.</td>
-              <td class="info-val">{{ marksheet.student.admissionNo || '—' }}</td>
-            </tr>
-            <tr>
-              <td class="info-lbl">Class &amp; Section</td>
-              <td class="info-val">Class {{ marksheet.student.class }} – {{ marksheet.student.section }}</td>
-            </tr>
-            <tr>
-              <td class="info-lbl">Date of Birth</td>
-              <td class="info-val">{{ formatDob(marksheet.student.dob) }}</td>
-            </tr>
-            <tr>
-              <td class="info-lbl">Father / Guardian</td>
-              <td class="info-val">{{ marksheet.student.guardianName }}</td>
-            </tr>
-          </tbody>
-        </table>
+        <!-- 2-column info grid — saves ~40% vertical vs old table -->
+        <div class="ms-info-grid">
+          <div class="ig-item">
+            <span class="ig-lbl">Student Name</span>
+            <span class="ig-val ig-val--name">{{ marksheet.student.name }}</span>
+          </div>
+          <div class="ig-item">
+            <span class="ig-lbl">Roll Number</span>
+            <span class="ig-val"><strong>{{ marksheet.student.rollNo }}</strong></span>
+          </div>
+          <div class="ig-item">
+            <span class="ig-lbl">Admission No.</span>
+            <span class="ig-val">{{ marksheet.student.admissionNo || '—' }}</span>
+          </div>
+          <div class="ig-item">
+            <span class="ig-lbl">Class &amp; Section</span>
+            <span class="ig-val">Class {{ marksheet.student.class }} – {{ marksheet.student.section }}</span>
+          </div>
+          <div class="ig-item">
+            <span class="ig-lbl">Date of Birth</span>
+            <span class="ig-val">{{ formatDob(marksheet.student.dob) }}</span>
+          </div>
+          <div class="ig-item">
+            <span class="ig-lbl">Father / Guardian</span>
+            <span class="ig-val">{{ marksheet.student.guardianName }}</span>
+          </div>
+        </div>
 
         <div class="ms-photo-area">
           <div class="ms-photo-box">
@@ -170,9 +169,6 @@
               <mat-icon>person</mat-icon>
               <span>Photo</span>
             </div>
-          </div>
-          <div class="ms-result-stamp" [ngClass]="resultClass">
-            {{ resultText }}
           </div>
         </div>
 
@@ -202,8 +198,8 @@
               <th class="col-num">Marks<br>Obtained</th>
               <!-- Written/Oral obtained — shown only when exam has oral subjects -->
               <ng-container *ngIf="hasOralSubjects">
-                <th class="col-num">Written<br>Obtained</th>
-                <th class="col-num">Oral<br>Obtained</th>
+                <th class="col-num">Written<br>Obt.</th>
+                <th class="col-num">Oral<br>Obt.</th>
               </ng-container>
               <th class="col-num">Grade<br>Point</th>
               <th class="col-grd">Grade</th>
@@ -215,10 +211,7 @@
                 [class.row-fail]="!sub.isPassed && !sub.isAbsent"
                 [class.row-absent]="sub.isAbsent">
               <td class="tc">{{ i + 1 }}</td>
-              <td class="subj-name">
-                {{ sub.subjectName }}
-                <span *ngIf="(sub.oralMaxMarks ?? 0) > 0" class="oral-badge">W+O</span>
-              </td>
+              <td class="subj-name">{{ sub.subjectName }}</td>
               <td class="tc">{{ sub.maxMarks }}</td>
 
               <!-- Written Max / Oral Max columns -->
@@ -305,48 +298,72 @@
         </table>
       </div><!-- /ms-marks-section -->
 
-      <!-- ── SUMMARY ──────────────────────────────────────────────────────── -->
+      <!-- ── SUMMARY — horizontal stat-box row ─────────────────────────── -->
       <div class="ms-summary-section">
 
-        <table class="sum-table">
-          <tbody>
-            <tr>
-              <td class="sum-lbl">Total Marks Obtained</td>
-              <td class="sum-val">
-                <strong>{{ marksheet.totalMarks }}</strong> out of {{ marksheet.maxTotalMarks }}
-              </td>
-            </tr>
-            <tr>
-              <td class="sum-lbl">Percentage</td>
-              <td class="sum-val">
-                <strong [ngClass]="pctClass(marksheet.percentage)">
-                  {{ marksheet.percentage | number:'1.1-1' }}%
-                </strong>
-              </td>
-            </tr>
-            <tr>
-              <td class="sum-lbl">Grade Point Average</td>
-              <td class="sum-val">
-                <strong>{{ marksheet.gradePoint | number:'1.1-1' }}</strong> / 10.0
-              </td>
-            </tr>
-            <tr>
-              <td class="sum-lbl">Overall Grade</td>
-              <td class="sum-val">
-                <span class="ovr-grade" [ngClass]="gradeClass(marksheet.grade)">{{ marksheet.grade }}</span>
-                <span class="ovr-remark">&nbsp;— {{ marksheet.gradeRemarks }}</span>
-              </td>
-            </tr>
-            <tr *ngIf="marksheet.rank">
-              <td class="sum-lbl">Class Rank</td>
-              <td class="sum-val"><strong>{{ marksheet.rank }}</strong></td>
-            </tr>
-            <tr *ngIf="marksheet.failedSubjects?.length">
-              <td class="sum-lbl">Failed In</td>
-              <td class="sum-val sum-fail">{{ marksheet.failedSubjects.join(', ') }}</td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="sum-stats-row">
+
+          <!-- Total Marks -->
+          <div class="sum-stat">
+            <div class="ss-lbl">Total Marks Obtained</div>
+            <div class="ss-val">
+              <strong>{{ marksheet.totalMarks }}</strong>
+              <span class="ss-of">out of {{ marksheet.maxTotalMarks }}</span>
+            </div>
+          </div>
+
+          <div class="ss-divider"></div>
+
+          <!-- Percentage -->
+          <div class="sum-stat">
+            <div class="ss-lbl">Percentage</div>
+            <div class="ss-val">
+              <strong [ngClass]="pctClass(marksheet.percentage)">
+                {{ marksheet.percentage | number:'1.1-1' }}%
+              </strong>
+            </div>
+          </div>
+
+          <div class="ss-divider"></div>
+
+          <!-- GPA -->
+          <div class="sum-stat">
+            <div class="ss-lbl">Grade Point Average</div>
+            <div class="ss-val">
+              <strong>{{ marksheet.gradePoint | number:'1.1-1' }}</strong>
+              <span class="ss-of">/ 10.0</span>
+            </div>
+          </div>
+
+          <div class="ss-divider"></div>
+
+          <!-- Overall Grade -->
+          <div class="sum-stat sum-stat--wide">
+            <div class="ss-lbl">Overall Grade</div>
+            <div class="ss-val">
+              <span class="ovr-grade" [ngClass]="gradeClass(marksheet.grade)">{{ marksheet.grade }}</span>
+              <span class="ovr-remark">&nbsp;—&nbsp;{{ marksheet.gradeRemarks }}</span>
+            </div>
+          </div>
+
+          <!-- Class Rank (optional) -->
+          <ng-container *ngIf="marksheet.rank">
+            <div class="ss-divider"></div>
+            <div class="sum-stat sum-stat--rank">
+              <div class="ss-lbl">Class Rank</div>
+              <div class="ss-val">
+                <strong class="rank-num">#{{ marksheet.rank }}</strong>
+              </div>
+            </div>
+          </ng-container>
+
+        </div><!-- /sum-stats-row -->
+
+        <!-- Failed subjects — shown below stat row if any -->
+        <div class="sum-fail-row" *ngIf="marksheet.failedSubjects?.length">
+          <span class="sfr-lbl">Failed In:</span>
+          <span class="sfr-val">{{ marksheet.failedSubjects.join(', ') }}</span>
+        </div>
 
       </div><!-- /ms-summary-section -->
 
