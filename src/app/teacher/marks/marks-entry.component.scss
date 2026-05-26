@@ -1,67 +1,147 @@
 // marks-entry.component.scss
+
 .marks-page { max-width: 1100px; margin: 0 auto; }
+
+// ── Page header ───────────────────────────────────────────────────────────────
 .page-header {
-  display: flex; align-items: flex-start; justify-content: space-between;
-  flex-wrap: wrap; gap: 12px; margin-bottom: 16px;
+  display:         flex;
+  align-items:     flex-start;
+  justify-content: space-between;
+  flex-wrap:       wrap;
+  gap:             12px;
+  margin-bottom:   16px;
 }
+
 .page-title { font-size: 1.3rem; font-weight: 700; color: #212121; margin: 0 0 2px; }
 .page-sub   { font-size: 0.85rem; color: #757575; margin: 0; }
 
-.selector-card { margin-bottom: 12px; padding: 16px 20px !important; }
-.selector-row  { display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
-  ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; } }
+// ── Selector card ─────────────────────────────────────────────────────────────
+.selector-card {
+  margin-bottom:  12px;
+  padding:        16px 20px !important;
+  border-radius:  12px !important;
+}
+
+.selector-row {
+  display:   flex;
+  flex-wrap: wrap;
+  gap:       12px;
+  align-items: center;
+
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
+}
+
 .sel-field    { width: 140px; }
 .sel-field-lg { flex: 1; min-width: 220px; }
-.loading-hint { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #757575; }
+
+.loading-hint {
+  display:     flex;
+  align-items: center;
+  gap:         8px;
+  font-size:   0.85rem;
+  color:       #757575;
+}
+
 .no-exam-hint {
-  display: flex; align-items: flex-start; gap: 6px; margin: 8px 0 0;
-  font-size: 0.82rem; color: #757575;
+  display:     flex;
+  align-items: flex-start;
+  gap:         6px;
+  margin:      8px 0 0;
+  font-size:   0.82rem;
+  color:       #757575;
+
   mat-icon { font-size: 16px; width: 16px; height: 16px; margin-top: 1px; }
 }
 
-// Exam banner
+// ── Exam banner ───────────────────────────────────────────────────────────────
 .exam-banner {
-  background: #e8eaf6; border-radius: 8px; padding: 12px 16px;
-  margin-bottom: 12px; display: flex; align-items: center;
-  flex-wrap: wrap; gap: 16px;
+  background:    #e8eaf6;
+  border-radius: 10px;
+  padding:       12px 16px;
+  margin-bottom: 12px;
+  display:       flex;
+  align-items:   center;
+  flex-wrap:     wrap;
+  gap:           12px;
 }
-.exam-banner-info { display: flex; align-items: center; gap: 10px; flex: 1;
-  mat-icon { color: #3949ab; font-size: 24px; }
+
+.exam-banner-info {
+  display:     flex;
+  align-items: center;
+  gap:         10px;
+  flex:        1;
+  min-width:   0;
+
+  mat-icon { color: #3949ab; font-size: 24px; flex-shrink: 0; }
 }
+
 .exam-banner-name { font-weight: 700; color: #212121; display: block; }
 .exam-banner-sub  { font-size: 0.8rem; color: #616161; }
-.progress-section { display: flex; align-items: center; gap: 8px; min-width: 200px; }
-.progress-label   { font-size: 0.78rem; color: #616161; white-space: nowrap; }
-.progress-bar     { flex: 1; border-radius: 4px; }
-.progress-pct     { font-size: 0.78rem; font-weight: 700; color: #3949ab; min-width: 36px; }
 
-.loading-center { display: flex; align-items: center; gap: 12px; padding: 40px; color: #757575; }
+.progress-section {
+  display:     flex;
+  align-items: center;
+  gap:         8px;
+  min-width:   180px;
+}
+
+.progress-label { font-size: 0.78rem; color: #616161; white-space: nowrap; }
+.progress-bar   { flex: 1; border-radius: 4px; }
+.progress-pct   { font-size: 0.78rem; font-weight: 700; color: #3949ab; min-width: 36px; text-align: right; }
+
+// ── Loading / empty ───────────────────────────────────────────────────────────
+.loading-center {
+  display:     flex;
+  align-items: center;
+  gap:         12px;
+  padding:     40px;
+  color:       #757575;
+  justify-content: center;
+}
+
 .empty-state {
-  display: flex; flex-direction: column; align-items: center;
-  padding: 56px 24px; color: #9e9e9e; text-align: center; gap: 8px;
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  padding:        56px 24px;
+  color:          #9e9e9e;
+  text-align:     center;
+  gap:            8px;
+
   mat-icon { font-size: 56px; width: 56px; height: 56px; opacity: 0.35; }
   h3 { margin: 8px 0 0; color: #616161; }
 }
 
-// Table card
-.table-card { overflow: hidden; }
-.table-scroll { overflow-x: auto; }
+// ── Table card ────────────────────────────────────────────────────────────────
+.table-card   { overflow: hidden; border-radius: 12px !important; }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
 .marks-table {
-  width: 100%; border-collapse: collapse; min-width: 640px;
+  width:            100%;
+  border-collapse:  collapse;
+  min-width:        640px;
 
   th {
-    background: #3949ab; color: #fff; font-weight: 700;
-    font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.4px;
-    padding: 10px 12px; text-align: left;
+    background:     #3949ab;
+    color:          #fff;
+    font-weight:    700;
+    font-size:      0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    padding:        10px 12px;
+    text-align:     left;
+    white-space:    nowrap;
   }
 
-  td { padding: 8px 12px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+  td {
+    padding:       8px 12px;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
+  }
 
   .col-roll    { width: 70px; }
   .col-absent  { width: 70px; text-align: center; }
   .col-marks   { width: 130px; }
-  // Oral-subject columns — narrower since two sit side-by-side
   .col-oral    { width: 110px; }
   .col-total   { width: 90px; text-align: center; }
   .col-remarks { min-width: 160px; }
@@ -72,72 +152,124 @@
 
 .entry-row {
   transition: background 0.1s;
-  &:hover   { background: #f8f9ff !important; }
+
+  &:hover       { background: #f8f9ff !important; }
   &.row-absent  { background: #fff8f8; td { opacity: 0.65; } }
   &.row-saved   { td:first-child { border-left: 3px solid #66bb6a; } }
   &.row-error   { td:first-child { border-left: 3px solid #ef5350; } }
 }
 
+// Roll chip
 .roll-chip {
-  background: #e8eaf6; color: #3949ab;
-  font-size: 0.78rem; font-weight: 700; padding: 2px 8px; border-radius: 8px;
+  background:    #e8eaf6;
+  color:         #3949ab;
+  font-size:     0.78rem;
+  font-weight:   700;
+  padding:       2px 8px;
+  border-radius: 8px;
 }
 
+// Student cell
 .student-cell { display: flex; align-items: center; gap: 10px; }
+
 .s-avatar {
-  width: 32px; height: 32px; border-radius: 50%;
-  background: linear-gradient(135deg, #26a69a, #004d40);
-  color: #fff; font-size: 0.85rem; font-weight: 700;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width:           32px;
+  height:          32px;
+  border-radius:   50%;
+  background:      linear-gradient(135deg, #26a69a, #004d40);
+  color:           #fff;
+  font-size:       0.85rem;
+  font-weight:     700;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  flex-shrink:     0;
 }
-.s-name    { font-weight: 600; font-size: 0.875rem; display: block; }
+
+.s-name    { font-weight: 600; font-size: 0.875rem; display: block; white-space: nowrap; }
 .s-section { font-size: 0.72rem; color: #9e9e9e; }
 
-// Mark input
+// Mark inputs
 .marks-input {
-  width: 80px; padding: 6px 8px; border: 1px solid #bdbdbd; border-radius: 6px;
-  font-size: 0.95rem; font-weight: 600; text-align: center; outline: none;
-  transition: border-color 0.15s;
-  &:focus        { border-color: #3949ab; box-shadow: 0 0 0 2px #e8eaf6; }
-  &:disabled     { background: #f5f5f5; color: #9e9e9e; cursor: not-allowed; }
-  &--error       { border-color: #ef5350 !important; background: #fff8f8; }
-  &[type=number] { -moz-appearance: textfield; &::-webkit-inner-spin-button { -webkit-appearance: none; } }
+  width:       80px;
+  padding:     6px 8px;
+  border:      1px solid #bdbdbd;
+  border-radius: 6px;
+  font-size:   0.95rem;
+  font-weight: 600;
+  text-align:  center;
+  outline:     none;
+  transition:  border-color 0.15s;
 
-  // Oral variant — slightly narrower to fit in the split column
+  &:focus    { border-color: #3949ab; box-shadow: 0 0 0 2px #e8eaf6; }
+  &:disabled { background: #f5f5f5; color: #9e9e9e; cursor: not-allowed; }
+  &--error   { border-color: #ef5350 !important; background: #fff8f8; }
+
+  &[type=number] {
+    -moz-appearance: textfield;
+    &::-webkit-inner-spin-button { -webkit-appearance: none; }
+  }
+
   &.oral-input { width: 72px; font-size: 0.9rem; }
 }
+
 .row-error-msg { display: block; font-size: 0.7rem; color: #ef5350; margin-top: 2px; }
 
-// Computed total badge shown in the Total column for oral subjects
+// Total / absent / na chips
 .total-chip {
-  display: inline-block; padding: 3px 10px; border-radius: 20px;
-  background: #e8eaf6; color: #283593; font-weight: 700; font-size: 0.88rem;
-  min-width: 38px; text-align: center;
+  display:      inline-block;
+  padding:      3px 10px;
+  border-radius: 20px;
+  background:   #e8eaf6;
+  color:        #283593;
+  font-weight:  700;
+  font-size:    0.88rem;
+  min-width:    38px;
+  text-align:   center;
 }
+
 .absent-tag { color: #e65100; font-weight: 700; font-style: italic; font-size: 0.85rem; }
 .na-dash    { color: #bdbdbd; font-size: 0.85rem; }
 
-// "W+O" pill in the page-sub line
+// Oral pill in page-sub
 .oral-pill {
-  display: inline-block; margin-left: 8px;
-  padding: 2px 8px; border-radius: 12px;
-  background: #3949ab; color: #fff;
-  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.3px;
+  display:       inline-block;
+  margin-left:   8px;
+  padding:       2px 8px;
+  border-radius: 12px;
+  background:    #3949ab;
+  color:         #fff;
+  font-size:     0.72rem;
+  font-weight:   700;
+  letter-spacing: 0.3px;
   vertical-align: middle;
 }
 
-// Written / Oral tags inside the exam banner
+// Oral tags in exam banner
 .oral-info { display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+
 .oral-tag {
-  display: inline-block; padding: 1px 6px; border-radius: 4px;
-  font-size: 0.7rem; font-weight: 800; letter-spacing: 0.4px;
+  display:      inline-block;
+  padding:      1px 6px;
+  border-radius: 4px;
+  font-size:    0.7rem;
+  font-weight:  800;
+  letter-spacing: 0.4px;
+
   &--w { background: #1565c0; color: #fff; }
   &--o { background: #6a1b9a; color: #fff; }
 }
 
+// Remarks input
 .remarks-input {
-  width: 100%; padding: 6px 8px; border: 1px solid #e0e0e0; border-radius: 6px;
-  font-size: 0.82rem; outline: none; background: transparent;
+  width:      100%;
+  padding:    6px 8px;
+  border:     1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size:  0.82rem;
+  outline:    none;
+  background: transparent;
+
   &:focus { border-color: #3949ab; }
 }
 
@@ -145,13 +277,101 @@
 
 // Table footer
 .table-footer {
-  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
-  gap: 12px; padding: 14px 20px; border-top: 1px solid #e0e0e0; background: #fafafa;
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  flex-wrap:       wrap;
+  gap:             12px;
+  padding:         14px 20px;
+  border-top:      1px solid #e0e0e0;
+  background:      #fafafa;
 }
+
 .footer-count {
-  display: flex; align-items: center; gap: 6px; font-size: 0.875rem; color: #616161;
-  mat-icon { font-size: 18px; width: 18px; height: 18px; color: #bdbdbd;
-    &.all-done { color: #66bb6a; } }
+  display:     flex;
+  align-items: center;
+  gap:         6px;
+  font-size:   0.875rem;
+  color:       #616161;
+
+  mat-icon {
+    font-size: 18px; width: 18px; height: 18px; color: #bdbdbd;
+    &.all-done { color: #66bb6a; }
+  }
 }
-.save-all-btn { display: flex; align-items: center; gap: 6px; }
-.btn-spinner  { ::ng-deep circle { stroke: rgba(255,255,255,.8) !important; } }
+
+.save-all-btn {
+  display:     flex;
+  align-items: center;
+  gap:         6px;
+}
+
+.btn-spinner { ::ng-deep circle { stroke: rgba(255,255,255,.8) !important; } }
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+// RESPONSIVE — TABLET  (≤ 768px)
+// ══════════════════════════════════════════════════════════════════════════════
+@media screen and (max-width: 768px) {
+
+  .sel-field    { width: 120px; }
+  .sel-field-lg { min-width: 180px; }
+
+  .progress-section { min-width: 140px; }
+}
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+// RESPONSIVE — MOBILE  (≤ 600px)
+// ══════════════════════════════════════════════════════════════════════════════
+@media screen and (max-width: 600px) {
+
+  /* Header */
+  .page-header   { margin-bottom: 12px; }
+  .page-title    { font-size: 1.15rem; }
+
+  /* Save All button in header — full width */
+  .save-all-btn { width: 100%; justify-content: center; }
+
+  /* Selector card — full-width fields */
+  .selector-card { padding: 12px 14px !important; }
+  .sel-field     { width: 100%; }
+  .sel-field-lg  { width: 100%; min-width: unset; flex: unset; }
+
+  /* Exam banner — stack info & progress */
+  .exam-banner {
+    flex-direction: column;
+    align-items:    flex-start;
+    padding:        12px 14px;
+    gap:            10px;
+  }
+  .exam-banner-info { width: 100%; }
+  .progress-section { width: 100%; min-width: unset; }
+
+  /* Table card — still scrollable */
+  .table-card { border-radius: 8px !important; }
+
+  /* Table footer — stack */
+  .table-footer {
+    flex-direction: column;
+    align-items:    stretch;
+    padding:        12px 14px;
+    gap:            8px;
+  }
+  .table-footer .save-all-btn { width: 100%; justify-content: center; }
+
+  .empty-state { padding: 40px 16px; }
+  .loading-center { padding: 30px 16px; }
+}
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+// RESPONSIVE — SMALL MOBILE  (≤ 400px)
+// ══════════════════════════════════════════════════════════════════════════════
+@media screen and (max-width: 400px) {
+
+  .selector-card { padding: 10px 12px !important; }
+  .exam-banner   { padding: 10px 12px; }
+
+  .page-title { font-size: 1.05rem; }
+}

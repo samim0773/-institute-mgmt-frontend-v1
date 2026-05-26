@@ -1,5 +1,6 @@
 <!-- teacher-results.component.html -->
 <div class="results-page">
+
   <div class="page-header">
     <h2 class="page-title">Published Results</h2>
     <p class="page-sub">View and print student marksheets for published exams</p>
@@ -29,6 +30,7 @@
     <p>Only published results are shown here.</p>
   </div>
 
+  <!-- ══ Desktop table ══════════════════════════════════════════════════════ -->
   <mat-card class="table-card" *ngIf="results.length > 0">
     <div class="table-scroll">
       <table mat-table [dataSource]="results" class="results-table">
@@ -62,7 +64,7 @@
         <ng-container matColumnDef="grade">
           <th mat-header-cell *matHeaderCellDef>Grade</th>
           <td mat-cell *matCellDef="let r">
-            <span class="grade-badge grade-{{ r.grade?.toLowerCase() }}">{{ r.grade }}</span>
+            <span class="grade-badge">{{ r.grade }}</span>
           </td>
         </ng-container>
 
@@ -92,4 +94,50 @@
       </table>
     </div>
   </mat-card>
+
+  <!-- ══ Mobile cards (shown ≤ 600px via CSS) ══════════════════════════════ -->
+  <div class="mobile-results" *ngIf="results.length > 0">
+    <mat-card
+      *ngFor="let r of results"
+      class="result-mobile-card"
+      [class.card-fail]="!r.isPassed"
+    >
+      <mat-card-content>
+
+        <!-- Top: rank + student name + result chip -->
+        <div class="rmc-top">
+          <div class="rmc-rank" [class.rank-top]="r.rank <= 3">{{ r.rank }}</div>
+          <div class="rmc-student">
+            <div class="rmc-name">{{ r.studentId?.name || '—' }}</div>
+            <div class="rmc-roll">Roll {{ r.studentId?.rollNo }}</div>
+          </div>
+          <div class="rmc-badges">
+            <span class="result-chip" [class.chip-pass]="r.isPassed" [class.chip-fail]="!r.isPassed">
+              {{ r.isPassed ? 'PASS' : 'FAIL' }}
+            </span>
+            <span class="grade-badge">{{ r.grade }}</span>
+          </div>
+        </div>
+
+        <!-- Percentage row -->
+        <div class="rmc-detail-row">
+          <span class="rmc-label">Percentage</span>
+          <span class="pct" [class.pct-pass]="r.isPassed" [class.pct-fail]="!r.isPassed">
+            {{ r.percentage?.toFixed(1) }}%
+          </span>
+        </div>
+
+        <!-- Print action -->
+        <div class="rmc-print">
+          <button mat-stroked-button color="primary"
+            (click)="printMarksheet(r.studentId?._id)">
+            <mat-icon>print</mat-icon>
+            Print Marksheet
+          </button>
+        </div>
+
+      </mat-card-content>
+    </mat-card>
+  </div>
+
 </div>

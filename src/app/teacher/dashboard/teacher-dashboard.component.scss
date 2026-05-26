@@ -1,4 +1,5 @@
 // teacher-dashboard.component.scss
+
 .dashboard-page { max-width: 860px; margin: 0 auto; }
 
 // ── Institute hero banner ─────────────────────────────────────────────────────
@@ -14,14 +15,12 @@
   &::after {
     content:       '';
     position:      absolute;
-    top:           -50px; right: -50px;
-    width:         180px; height: 180px;
+    top: -50px; right: -50px;
+    width: 180px; height: 180px;
     border-radius: 50%;
     background:    radial-gradient(circle, rgba(255,255,255,0.07) 0%, transparent 70%);
     pointer-events: none;
   }
-
-  @media (max-width: 480px) { padding: 18px 20px; border-radius: 12px; }
 }
 
 .teacher-hero-inner {
@@ -33,10 +32,10 @@
 }
 
 .hero-school-icon {
-  font-size:  36px !important;
-  width:      36px !important;
-  height:     36px !important;
-  color:      rgba(255,255,255,0.85);
+  font-size: 36px !important;
+  width:     36px !important;
+  height:    36px !important;
+  color:     rgba(255,255,255,0.85);
   flex-shrink: 0;
 }
 
@@ -44,6 +43,7 @@
   display:        flex;
   flex-direction: column;
   gap:            2px;
+  min-width:      0;
 }
 
 .hero-inst-name {
@@ -51,142 +51,356 @@
   font-weight: 700;
   color:       #fff;
   letter-spacing: 0.2px;
+  white-space:   nowrap;
+  overflow:      hidden;
+  text-overflow: ellipsis;
 }
 
 .hero-tagline {
-  font-size:  0.78rem;
-  color:      rgba(255,255,255,0.65);
-  font-weight: 400;
+  font-size:      0.78rem;
+  color:          rgba(255,255,255,0.65);
+  font-weight:    400;
   text-transform: uppercase;
   letter-spacing: 0.8px;
 }
 
-// ── Profile card ────────────────────────────────────────────────────────────
+// ── Profile card ─────────────────────────────────────────────────────────────
 .profile-card {
   margin-bottom: 24px;
-  padding: 24px !important;
+  border-radius: 14px !important;
+  padding:       24px !important;
 }
-.profile-top { display: flex; align-items: flex-start; gap: 20px; flex-wrap: wrap; }
+
+.profile-top {
+  display:     flex;
+  align-items: flex-start;
+  gap:         20px;
+  flex-wrap:   wrap;
+}
 
 .avatar-wrap { position: relative; flex-shrink: 0; }
+
 .avatar-circle {
-  width: 72px; height: 72px; border-radius: 50%;
-  background: linear-gradient(135deg, #00695c, #26c6da);
-  color: #fff; font-size: 1.8rem; font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
+  width:           72px;
+  height:          72px;
+  border-radius:   50%;
+  background:      linear-gradient(135deg, #00695c, #26c6da);
+  color:           #fff;
+  font-size:       1.8rem;
+  font-weight:     700;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
 }
+
 .status-dot {
-  position: absolute; bottom: 3px; right: 3px;
-  width: 14px; height: 14px; border-radius: 50%; border: 2px solid #fff;
+  position:      absolute;
+  bottom:        3px;
+  right:         3px;
+  width:         14px;
+  height:        14px;
+  border-radius: 50%;
+  border:        2px solid #fff;
+
   &.dot-active   { background: #43a047; }
   &.dot-inactive { background: #e53935; }
 }
 
 .profile-info { flex: 1; min-width: 0; }
-.teacher-name { margin: 0 0 10px; font-size: 1.3rem; font-weight: 700; color: #212121; }
-.info-row {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 0.85rem; color: #616161; margin-bottom: 6px;
+
+.teacher-name {
+  margin:      0 0 10px;
+  font-size:   1.3rem;
+  font-weight: 700;
+  color:       #212121;
 }
-.info-icon { font-size: 16px; width: 16px; height: 16px; color: #00695c; }
+
+.info-row {
+  display:       flex;
+  align-items:   center;
+  gap:           6px;
+  font-size:     0.85rem;
+  color:         #616161;
+  margin-bottom: 6px;
+  flex-wrap:     wrap;
+}
+
+.info-icon { font-size: 16px; width: 16px; height: 16px; color: #00695c; flex-shrink: 0; }
+
 .subject-text { font-weight: 600; color: #00695c; }
 
 .status-badge {
-  display: inline-flex; align-items: center; gap: 4px; margin-top: 6px;
-  font-size: 0.75rem; font-weight: 600; padding: 3px 10px; border-radius: 10px;
+  display:     inline-flex;
+  align-items: center;
+  gap:         4px;
+  margin-top:  6px;
+  font-size:   0.75rem;
+  font-weight: 600;
+  padding:     3px 10px;
+  border-radius: 10px;
+
   mat-icon { font-size: 13px; width: 13px; height: 13px; }
+
   &.badge-active   { background: #e8f5e9; color: #2e7d32; }
   &.badge-inactive { background: #ffebee; color: #c62828; }
 }
 
-// ── Section titles ───────────────────────────────────────────────────────────
+// ── Section titles ────────────────────────────────────────────────────────────
 .section-title {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.6px; color: #757575; margin: 0 0 10px;
+  display:        flex;
+  align-items:    center;
+  gap:            6px;
+  font-size:      0.78rem;
+  font-weight:    700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color:          #757575;
+  margin:         0 0 10px;
+
   .section-icon { font-size: 16px; width: 16px; height: 16px; color: #00695c; }
+
   .section-count {
-    background: #e0f2f1; color: #00695c; font-size: 0.72rem; font-weight: 700;
-    padding: 1px 7px; border-radius: 10px; margin-left: 2px;
+    background:   #e0f2f1;
+    color:        #00695c;
+    font-size:    0.72rem;
+    font-weight:  700;
+    padding:      1px 7px;
+    border-radius: 10px;
+    margin-left:  2px;
   }
 }
 
-// ── Quick action cards ───────────────────────────────────────────────────────
+// ── Quick action cards ────────────────────────────────────────────────────────
 .actions-row {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 12px; margin-bottom: 24px;
+  display:               grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:                   12px;
+  margin-bottom:         24px;
 }
+
 .action-card {
-  display: flex; align-items: center; gap: 14px;
-  padding: 16px 14px !important;
-  cursor: pointer; transition: box-shadow 0.15s, transform 0.15s;
-  &:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12) !important; transform: translateY(-1px); }
+  display:    flex;
+  align-items: center;
+  gap:        14px;
+  padding:    16px 14px !important;
+  cursor:     pointer;
+  transition: box-shadow 0.15s, transform 0.15s;
+  border-radius: 12px !important;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12) !important;
+    transform:  translateY(-1px);
+  }
 }
+
 .primary-action { border-left: 4px solid #00695c; }
 
 .action-icon-wrap {
-  width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
+  width:         44px;
+  height:        44px;
+  border-radius: 12px;
+  flex-shrink:   0;
+  display:       flex;
+  align-items:   center;
+  justify-content: center;
+
   mat-icon { color: #fff; font-size: 22px; }
+
   &.teal   { background: linear-gradient(135deg, #00695c, #26c6da); }
   &.purple { background: linear-gradient(135deg, #5e35b1, #9c27b0); }
   &.orange { background: linear-gradient(135deg, #e65100, #ff9800); }
 }
+
 .action-body { flex: 1; min-width: 0; }
-.action-label { font-weight: 700; font-size: 0.9rem; color: #212121; }
-.action-sub   { font-size: 0.75rem; color: #9e9e9e; margin-top: 2px;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.action-label {
+  font-weight: 700;
+  font-size:   0.9rem;
+  color:       #212121;
+}
+
+.action-sub {
+  font-size:     0.75rem;
+  color:         #9e9e9e;
+  margin-top:    2px;
+  white-space:   nowrap;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+}
+
 .action-arrow { color: #bdbdbd; flex-shrink: 0; }
 
-// ── Homeroom class cards ─────────────────────────────────────────────────────
+// ── Homeroom class cards ──────────────────────────────────────────────────────
 .class-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 12px; margin-bottom: 24px;
+  display:               grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap:                   12px;
+  margin-bottom:         24px;
 }
+
 .class-card {
-  display: flex; align-items: center; gap: 12px;
-  padding: 14px 16px !important; position: relative; overflow: hidden;
+  display:    flex;
+  align-items: center;
+  gap:        12px;
+  padding:    14px 16px !important;
+  position:   relative;
+  overflow:   hidden;
+  border-radius: 12px !important;
 }
+
 .class-card-icon {
-  width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
-  background: #fce4ec; display: flex; align-items: center; justify-content: center;
+  width:         40px;
+  height:        40px;
+  border-radius: 10px;
+  flex-shrink:   0;
+  background:    #fce4ec;
+  display:       flex;
+  align-items:   center;
+  justify-content: center;
+
   mat-icon { color: #880e4f; font-size: 20px; }
 }
+
 .class-card-body { flex: 1; min-width: 0; }
 .class-display { font-weight: 700; font-size: 0.9rem; color: #212121; }
 .class-meta    { font-size: 0.75rem; color: #9e9e9e; margin-top: 2px; }
+
 .homeroom-badge {
-  position: absolute; top: 8px; right: 8px;
-  background: #fce4ec; color: #880e4f;
-  font-size: 0.65rem; font-weight: 700; padding: 2px 6px; border-radius: 6px;
-  text-transform: uppercase; letter-spacing: 0.4px;
+  position:       absolute;
+  top:            8px;
+  right:          8px;
+  background:     #fce4ec;
+  color:          #880e4f;
+  font-size:      0.65rem;
+  font-weight:    700;
+  padding:        2px 6px;
+  border-radius:  6px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
 }
 
 // ── Subject assignments card ──────────────────────────────────────────────────
 .assignments-card {
   margin-bottom: 24px;
-  padding: 0 !important;
-  overflow: hidden;
+  padding:       0 !important;
+  overflow:      hidden;
+  border-radius: 12px !important;
 }
+
 .assign-row {
-  display: flex; align-items: center; gap: 14px;
-  padding: 14px 18px; position: relative;
+  display:     flex;
+  align-items: center;
+  gap:         14px;
+  padding:     14px 18px;
+  position:    relative;
+  flex-wrap:   wrap;
+
   &:last-child mat-divider { display: none; }
   mat-divider { position: absolute; bottom: 0; left: 18px; right: 18px; }
 }
+
 .assign-subject-chip {
-  background: #e0f2f1; color: #004d40;
-  font-size: 0.8rem; font-weight: 700; padding: 4px 12px; border-radius: 12px;
-  flex-shrink: 0; min-width: 100px; text-align: center;
+  background:    #e0f2f1;
+  color:         #004d40;
+  font-size:     0.8rem;
+  font-weight:   700;
+  padding:       4px 12px;
+  border-radius: 12px;
+  flex-shrink:   0;
+  min-width:     90px;
+  text-align:    center;
 }
-.assign-detail { flex: 1; }
+
+.assign-detail { flex: 1; min-width: 120px; }
 .assign-class  { font-weight: 600; font-size: 0.875rem; color: #212121; display: block; }
 .assign-year   { font-size: 0.75rem; color: #9e9e9e; }
 
-// ── Empty state ──────────────────────────────────────────────────────────────
+// ── Empty state ───────────────────────────────────────────────────────────────
 .no-assignments {
-  display: flex; align-items: center; gap: 8px;
-  padding: 24px; color: #9e9e9e; font-size: 0.875rem;
-  mat-icon { font-size: 20px; width: 20px; height: 20px; }
+  display:     flex;
+  align-items: center;
+  gap:         8px;
+  padding:     24px;
+  color:       #9e9e9e;
+  font-size:   0.875rem;
+  background:  #fff8e1;
+  border-radius: 10px;
+
+  mat-icon { font-size: 20px; width: 20px; height: 20px; flex-shrink: 0; color: #f57f17; }
   p { margin: 0; }
+}
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+// RESPONSIVE — TABLET  (≤ 700px)
+// ══════════════════════════════════════════════════════════════════════════════
+@media screen and (max-width: 700px) {
+
+  .teacher-hero { padding: 18px 20px; border-radius: 13px; }
+
+  .hero-inst-name { font-size: 1rem; }
+
+  /* Actions: 1 column */
+  .actions-row { grid-template-columns: 1fr; gap: 10px; }
+
+  .action-card { padding: 14px 12px !important; }
+}
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+// RESPONSIVE — MOBILE  (≤ 600px)
+// ══════════════════════════════════════════════════════════════════════════════
+@media screen and (max-width: 600px) {
+
+  .dashboard-page { padding: 0; }
+
+  /* Hero */
+  .teacher-hero { padding: 16px 16px 18px; border-radius: 12px; margin-bottom: 18px; }
+  .hero-school-icon { font-size: 28px !important; width: 28px !important; height: 28px !important; }
+  .hero-inst-name   { font-size: 0.95rem; }
+  .hero-tagline     { font-size: 0.72rem; }
+
+  /* Profile card */
+  .profile-card { padding: 16px !important; margin-bottom: 18px; }
+  .avatar-circle { width: 56px; height: 56px; font-size: 1.4rem; }
+  .teacher-name  { font-size: 1.1rem; margin-bottom: 8px; }
+  .info-row      { font-size: 0.8rem; }
+
+  /* Action cards — 1 column, show icon + text side-by-side (already default) */
+  .actions-row { margin-bottom: 18px; }
+
+  /* Homeroom class cards: 2-col  */
+  .class-grid {
+    grid-template-columns: 1fr 1fr;
+    gap:                   10px;
+  }
+  .class-card      { padding: 12px 10px !important; gap: 8px; }
+  .class-card-icon { width: 34px; height: 34px; border-radius: 8px;
+    mat-icon { font-size: 17px; } }
+  .class-display   { font-size: 0.82rem; }
+  .homeroom-badge  { font-size: 0.6rem; padding: 1px 5px; }
+
+  /* Assignments */
+  .assign-row    { padding: 12px 14px; gap: 10px; }
+  .assign-subject-chip { min-width: 72px; font-size: 0.75rem; padding: 3px 10px; }
+}
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+// RESPONSIVE — SMALL MOBILE  (≤ 400px)
+// ══════════════════════════════════════════════════════════════════════════════
+@media screen and (max-width: 400px) {
+
+  .teacher-hero { padding: 14px 12px 16px; }
+
+  .profile-card  { padding: 12px !important; }
+  .avatar-circle { width: 48px; height: 48px; font-size: 1.2rem; }
+  .profile-top   { gap: 14px; }
+
+  /* Actions: still 1 col */
+  .action-icon-wrap { width: 38px; height: 38px;
+    mat-icon { font-size: 18px; } }
+
+  /* Classes: stack to 1 col on very small */
+  .class-grid { grid-template-columns: 1fr; }
 }

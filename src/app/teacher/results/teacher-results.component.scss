@@ -1,33 +1,203 @@
+// teacher-results.component.scss
+
 .results-page { max-width: 900px; margin: 0 auto; }
-.page-header  { margin-bottom: 16px; }
-.page-title   { font-size: 1.3rem; font-weight: 700; color: #212121; margin: 0 0 2px; }
-.page-sub     { font-size: 0.85rem; color: #757575; margin: 0; }
-.filter-card  { margin-bottom: 12px; padding: 14px 18px !important; }
-.filter-row   { display: flex; align-items: center; gap: 12px;
-  ::ng-deep .mat-mdc-form-field-subscript-wrapper { min-height: 16px; } }
-.filter-field { flex: 1; max-width: 400px; }
-.empty-state {
-  display: flex; flex-direction: column; align-items: center;
-  padding: 56px 24px; color: #9e9e9e; text-align: center; gap: 8px;
-  mat-icon { font-size: 56px; width: 56px; height: 56px; opacity: 0.35; }
-  h3 { margin: 8px 0 0; color: #616161; } p { margin: 0; font-size: 0.875rem; }
+
+// ── Page header ───────────────────────────────────────────────────────────────
+.page-header { margin-bottom: 16px; }
+.page-title  { font-size: 1.3rem; font-weight: 700; color: #212121; margin: 0 0 2px; }
+.page-sub    { font-size: 0.85rem; color: #757575; margin: 0; }
+
+// ── Filter card ───────────────────────────────────────────────────────────────
+.filter-card {
+  margin-bottom: 12px;
+  padding:       14px 18px !important;
+  border-radius: 12px !important;
 }
-.table-card { overflow: hidden; }
-.table-scroll { overflow-x: auto; }
+
+.filter-row {
+  display:     flex;
+  align-items: center;
+  gap:         12px;
+
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper { min-height: 16px; }
+}
+
+.filter-field { flex: 1; max-width: 400px; }
+
+// ── Empty state ───────────────────────────────────────────────────────────────
+.empty-state {
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  padding:        56px 24px;
+  color:          #9e9e9e;
+  text-align:     center;
+  gap:            8px;
+
+  mat-icon { font-size: 56px; width: 56px; height: 56px; opacity: 0.35; }
+  h3 { margin: 8px 0 0; color: #616161; }
+  p  { margin: 0; font-size: 0.875rem; }
+}
+
+// ── Desktop table ─────────────────────────────────────────────────────────────
+.table-card   { overflow: hidden; border-radius: 12px !important; }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
 .results-table {
   width: 100%;
+
   ::ng-deep th.mat-header-cell {
-    background: #004d40; color: #fff; font-weight: 700;
-    font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.4px;
+    background:     #004d40;
+    color:          #fff;
+    font-weight:    700;
+    font-size:      0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    white-space:    nowrap;
   }
 }
+
 .data-row { &:hover { background: #e0f7fa1a !important; } }
-.rank-badge { font-weight: 700; color: #616161; &.rank-top { color: #f57f17; font-size: 1rem; } }
+
+// Shared cell styles (used in both table and mobile cards)
+.rank-badge {
+  font-weight: 700;
+  color:       #616161;
+  &.rank-top { color: #f57f17; font-size: 1rem; }
+}
+
 .student-cell { display: flex; flex-direction: column; }
 .s-name { font-weight: 600; font-size: 0.875rem; }
 .s-roll { font-size: 0.72rem; color: #9e9e9e; }
-.pct { font-weight: 700; &.pct-pass { color: #2e7d32; } &.pct-fail { color: #c62828; } }
-.grade-badge { font-size: 0.8rem; font-weight: 700; padding: 3px 10px; border-radius: 10px; background: #e8eaf6; color: #3949ab; }
-.result-chip { font-size: 0.75rem; font-weight: 700; padding: 3px 10px; border-radius: 10px;
+
+.pct {
+  font-weight: 700;
+  &.pct-pass { color: #2e7d32; }
+  &.pct-fail { color: #c62828; }
+}
+
+.grade-badge {
+  font-size:    0.8rem;
+  font-weight:  700;
+  padding:      3px 10px;
+  border-radius: 10px;
+  background:   #e8eaf6;
+  color:        #3949ab;
+}
+
+.result-chip {
+  font-size:   0.75rem;
+  font-weight: 700;
+  padding:     3px 10px;
+  border-radius: 10px;
+
   &.chip-pass { background: #e8f5e9; color: #2e7d32; }
-  &.chip-fail { background: #ffebee; color: #c62828; } }
+  &.chip-fail { background: #ffebee; color: #c62828; }
+}
+
+// Hide mobile cards on desktop
+.mobile-results { display: none; }
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+// RESPONSIVE — MOBILE  (≤ 600px)
+// ══════════════════════════════════════════════════════════════════════════════
+@media screen and (max-width: 600px) {
+
+  .page-title  { font-size: 1.15rem; }
+
+  /* Filter: full width */
+  .filter-card  { padding: 12px 14px !important; }
+  .filter-field { max-width: unset; }
+
+  /* Hide desktop table, show mobile cards */
+  .table-card     { display: none !important; }
+
+  .mobile-results {
+    display:        flex;
+    flex-direction: column;
+    gap:            10px;
+  }
+
+  /* Individual result card */
+  .result-mobile-card {
+    border-radius:  10px !important;
+    overflow:       hidden;
+    border-left:    4px solid #004d40 !important;
+
+    ::ng-deep mat-card-content { padding: 0 !important; }
+  }
+
+  .rmc-top {
+    display:     flex;
+    align-items: center;
+    gap:         10px;
+    padding:     12px 14px 10px;
+  }
+
+  .rmc-rank {
+    width:         36px;
+    height:        36px;
+    border-radius: 50%;
+    background:    #e0f2f1;
+    color:         #00695c;
+    font-size:     0.9rem;
+    font-weight:   800;
+    display:       flex;
+    align-items:   center;
+    justify-content: center;
+    flex-shrink:   0;
+
+    &.rank-top { background: #fff8e1; color: #f57f17; font-size: 1rem; }
+  }
+
+  .rmc-student { flex: 1; min-width: 0; }
+  .rmc-name { font-weight: 700; font-size: 0.9rem; color: #212121; }
+  .rmc-roll { font-size: 0.72rem; color: #9e9e9e; }
+
+  .rmc-badges {
+    display:   flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap:        4px;
+    flex-shrink: 0;
+  }
+
+  .rmc-detail-row {
+    display:     flex;
+    align-items: center;
+    gap:         10px;
+    padding:     8px 14px;
+    border-top:  1px solid #f5f5f5;
+  }
+
+  .rmc-label {
+    font-size:   0.7rem;
+    font-weight: 700;
+    color:       #9e9e9e;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    min-width:   70px;
+    flex-shrink: 0;
+  }
+
+  .rmc-print {
+    display:     flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding:     8px 10px 10px;
+    border-top:  1px solid #f0f0f0;
+    background:  #fafafa;
+  }
+
+  .empty-state { padding: 40px 16px; }
+}
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+// RESPONSIVE — SMALL MOBILE  (≤ 400px)
+// ══════════════════════════════════════════════════════════════════════════════
+@media screen and (max-width: 400px) {
+  .rmc-top { padding: 10px 12px 8px; gap: 8px; }
+  .rmc-detail-row { padding: 7px 12px; }
+}
