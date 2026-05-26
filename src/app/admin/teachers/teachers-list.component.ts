@@ -120,7 +120,7 @@ export class TeachersListComponent implements OnInit, OnDestroy {
 
   openResetPassword(teacher: Teacher): void {
     const data: ResetPasswordDialogData = { userId: teacher._id, userName: teacher.name };
-    this.dialog.open(ResetPasswordDialogComponent, { data, width: '420px' });
+    this.dialog.open(ResetPasswordDialogComponent, { data, width: '420px', maxWidth: '95vw' });
   }
 
   formatDate(d: string): string {

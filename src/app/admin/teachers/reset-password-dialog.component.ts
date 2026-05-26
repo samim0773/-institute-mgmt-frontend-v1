@@ -58,7 +58,7 @@ function passwordMatch(group: AbstractControl): ValidationErrors | null {
 
     <style>
       .rp-subtitle { margin: 0 0 16px; color: #616161; font-size: 14px; }
-      .rp-form { display: flex; flex-direction: column; min-width: 340px; }
+      .rp-form { display: flex; flex-direction: column; width: 100%; min-width: min(320px, 80vw); }
       .rp-field { width: 100%; margin-bottom: 8px; }
     </style>
   `,
