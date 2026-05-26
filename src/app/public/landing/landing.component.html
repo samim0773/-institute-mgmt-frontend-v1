@@ -1,6 +1,6 @@
 <!-- ─── Announcement Bar ────────────────────────────────────────────────────── -->
 <div class="announce-bar" *ngIf="showAnnouncementBar">
-  <span>🎉 <strong>20-Day Free Trial</strong> — Full access, zero cost, no credit card needed.</span>
+  <span>🎉 <strong>{{ brand.trialDays }}-Day Free Trial</strong> — Full access, zero cost, no credit card needed.</span>
   <button class="announce-cta" (click)="goToRegister()">Start Free →</button>
   <button class="announce-close" (click)="showAnnouncementBar = false">✕</button>
 </div>
@@ -10,7 +10,7 @@
   <div class="nav-container">
     <div class="nav-brand">
       <mat-icon class="brand-icon">school</mat-icon>
-      <span class="brand-name">EduManage<span class="brand-accent"> Pro</span></span>
+      <span class="brand-name">{{ brand.nameMain }}<span class="brand-accent">{{ brand.nameAccent }}</span></span>
     </div>
 
     <div class="nav-links" [class.open]="mobileMenuOpen">
@@ -42,7 +42,7 @@
   <div class="hero-content">
     <div class="hero-badge">
       <mat-icon>verified</mat-icon>
-      <span>Trusted by 20+ institutes across India</span>
+      <span>Trusted by {{ brand.institutesCount }} institutes across India</span>
     </div>
 
     <h1 class="hero-title">
@@ -58,7 +58,7 @@
     <div class="hero-cta">
       <button mat-flat-button class="cta-primary" (click)="goToRegister()">
         <mat-icon>rocket_launch</mat-icon>
-        Start Free Trial — 20 Days
+        Start Free Trial — {{ brand.trialDays }} Days
       </button>
       <button mat-stroked-button class="cta-secondary" (click)="scrollTo('features')">
         <mat-icon>play_circle</mat-icon>
@@ -69,15 +69,9 @@
     <p class="hero-note">No credit card required &nbsp;•&nbsp; Setup in 2 minutes &nbsp;•&nbsp; Cancel anytime</p>
 
     <div class="hero-trust-row">
-      <div class="trust-badge">
-        <mat-icon>lock</mat-icon><span>Secure & Encrypted</span>
-      </div>
-      <div class="trust-badge">
-        <mat-icon>cloud_done</mat-icon><span>99% Uptime</span>
-      </div>
-      <div class="trust-badge">
-        <mat-icon>support_agent</mat-icon><span>24/7 Support</span>
-      </div>
+      <div class="trust-badge"><mat-icon>lock</mat-icon><span>Secure & Encrypted</span></div>
+      <div class="trust-badge"><mat-icon>cloud_done</mat-icon><span>{{ brand.uptimePercent }}% Uptime</span></div>
+      <div class="trust-badge"><mat-icon>support_agent</mat-icon><span>{{ brand.supportHours }} Support</span></div>
     </div>
   </div>
 
@@ -134,9 +128,7 @@
     <div class="features-grid">
       <div class="feature-card" *ngFor="let f of features; let i = index"
            #animateOnScroll [style.animationDelay]="(i * 0.1) + 's'">
-        <div class="feature-icon">
-          <mat-icon>{{ f.icon }}</mat-icon>
-        </div>
+        <div class="feature-icon"><mat-icon>{{ f.icon }}</mat-icon></div>
         <h3>{{ f.title }}</h3>
         <p>{{ f.desc }}</p>
       </div>
@@ -144,13 +136,13 @@
   </div>
 </section>
 
-<!-- ─── Comparison Section (NEW) ──────────────────────────────────────────── -->
+<!-- ─── Comparison Section ─────────────────────────────────────────────────── -->
 <section class="section comparison-section" id="comparison">
   <div class="section-inner">
     <div class="section-header" #animateOnScroll>
       <span class="section-tag">Why Switch?</span>
-      <h2>EduManage Pro vs The Old Way</h2>
-      <p>See why 20+ institutes have already made the switch from spreadsheets and paper.</p>
+      <h2>{{ brand.name }} vs The Old Way</h2>
+      <p>See why {{ brand.institutesCount }} institutes have already made the switch from spreadsheets and paper.</p>
     </div>
 
     <div class="comparison-table-wrap" #animateOnScroll>
@@ -158,7 +150,7 @@
         <thead>
           <tr>
             <th class="feature-col">Feature</th>
-            <th class="our-col"><mat-icon>school</mat-icon> EduManage Pro</th>
+            <th class="our-col"><mat-icon>school</mat-icon> {{ brand.name }}</th>
             <th>📊 Spreadsheets</th>
             <th>📝 Paper / Manual</th>
           </tr>
@@ -167,14 +159,8 @@
           <tr *ngFor="let row of comparisonRows; let i = index" [class.alt]="i % 2 === 1">
             <td class="feature-name">{{ row.feature }}</td>
             <td class="our-val"><mat-icon class="check">check_circle</mat-icon> {{ row.us }}</td>
-            <td class="other-val">
-              <mat-icon [class]="row.spreadsheetClass">{{ row.spreadsheetIcon }}</mat-icon>
-              {{ row.spreadsheet }}
-            </td>
-            <td class="other-val">
-              <mat-icon [class]="row.paperClass">{{ row.paperIcon }}</mat-icon>
-              {{ row.paper }}
-            </td>
+            <td class="other-val"><mat-icon [class]="row.spreadsheetClass">{{ row.spreadsheetIcon }}</mat-icon> {{ row.spreadsheet }}</td>
+            <td class="other-val"><mat-icon [class]="row.paperClass">{{ row.paperIcon }}</mat-icon> {{ row.paper }}</td>
           </tr>
         </tbody>
       </table>
@@ -186,7 +172,7 @@
       <p>Ready to leave spreadsheets behind?</p>
       <button mat-flat-button class="cta-primary" (click)="goToRegister()">
         <mat-icon>rocket_launch</mat-icon>
-        Try It Free for 20 Days
+        Try It Free for {{ brand.trialDays }} Days
       </button>
     </div>
   </div>
@@ -196,7 +182,7 @@
 <section class="section why-section" id="why-us">
   <div class="section-inner">
     <div class="section-header" #animateOnScroll>
-      <span class="section-tag">Why EduManage Pro</span>
+      <span class="section-tag">Why {{ brand.name }}</span>
       <h2>More Than Just Software</h2>
       <p>We're a consultancy — we partner with your institute for long-term success.</p>
     </div>
@@ -204,9 +190,7 @@
     <div class="why-grid">
       <div class="why-card" *ngFor="let w of whyUs; let i = index"
            #animateOnScroll [style.animationDelay]="(i * 0.12) + 's'">
-        <div class="why-icon-wrap">
-          <mat-icon>{{ w.icon }}</mat-icon>
-        </div>
+        <div class="why-icon-wrap"><mat-icon>{{ w.icon }}</mat-icon></div>
         <h3>{{ w.title }}</h3>
         <p>{{ w.desc }}</p>
       </div>
@@ -219,7 +203,7 @@
   <div class="section-inner">
     <div class="section-header" #animateOnScroll>
       <span class="section-tag">Simple Process</span>
-      <h2>Up & Running in Minutes</h2>
+      <h2>Up &amp; Running in Minutes</h2>
       <p>No technical expertise needed. We guide you every step of the way.</p>
     </div>
 
@@ -235,13 +219,13 @@
   </div>
 </section>
 
-<!-- ─── Testimonials Section (NEW) ───────────────────────────────────────── -->
+<!-- ─── Testimonials ──────────────────────────────────────────────────────── -->
 <section class="section testimonials-section" id="testimonials">
   <div class="section-inner">
     <div class="section-header" #animateOnScroll>
       <span class="section-tag">Success Stories</span>
       <h2>Real Institutes, Real Results</h2>
-      <p>Don't take our word for it — hear from the institutes already using EduManage Pro.</p>
+      <p>Don't take our word for it — hear from the institutes already using {{ brand.name }}.</p>
     </div>
 
     <div class="testimonials-grid">
@@ -264,7 +248,7 @@
 
     <div class="testimonial-highlight" #animateOnScroll>
       <mat-icon>format_quote</mat-icon>
-      <p>Join <strong>20+ institutes</strong> across India who are already saving time and running more efficiently with EduManage Pro.</p>
+      <p>Join <strong>{{ brand.institutesCount }} institutes</strong> across India who are already saving time and running more efficiently with {{ brand.name }}.</p>
       <button mat-flat-button class="cta-primary" (click)="goToRegister()">Join Them — Start Free</button>
     </div>
   </div>
@@ -276,22 +260,22 @@
     <div class="section-header" #animateOnScroll>
       <span class="section-tag">Pricing</span>
       <h2>Start Free, Scale When Ready</h2>
-      <p>Try the full platform for 20 days at no cost. Upgrade when you're convinced.</p>
+      <p>Try the full platform for {{ brand.trialDays }} days at no cost. Upgrade when you're convinced.</p>
     </div>
 
     <div class="pricing-grid">
       <!-- Trial Plan -->
       <div class="price-card" #animateOnScroll>
         <div class="plan-badge trial">Free Trial</div>
-        <div class="plan-price">₹0<span>/20 days</span></div>
+        <div class="plan-price">₹0<span>/{{ brand.trialDays }} days</span></div>
         <h3>Trial Plan</h3>
         <p>Get the full experience with no commitment.</p>
         <ul class="plan-features">
-          <li><mat-icon>check_circle</mat-icon> Up to 50 students</li>
+          <li><mat-icon>check_circle</mat-icon> Up to {{ brand.trialMaxStudents }} students</li>
           <li><mat-icon>check_circle</mat-icon> All core features unlocked</li>
           <li><mat-icon>check_circle</mat-icon> Admin + Teacher access</li>
-          <li><mat-icon>check_circle</mat-icon> Exams, Fees & Notices</li>
-          <li><mat-icon>check_circle</mat-icon> Email & chat support</li>
+          <li><mat-icon>check_circle</mat-icon> Exams, Fees &amp; Notices</li>
+          <li><mat-icon>check_circle</mat-icon> Email &amp; chat support</li>
           <li><mat-icon>check_circle</mat-icon> No credit card needed</li>
         </ul>
         <button mat-flat-button class="plan-btn trial-btn" (click)="goToRegister()">
@@ -310,7 +294,7 @@
           <li><mat-icon>check_circle</mat-icon> 100 – 2000+ students</li>
           <li><mat-icon>check_circle</mat-icon> All trial features</li>
           <li><mat-icon>check_circle</mat-icon> Custom feature development</li>
-          <li><mat-icon>check_circle</mat-icon> Priority 24/7 support</li>
+          <li><mat-icon>check_circle</mat-icon> Priority {{ brand.supportHours }} support</li>
           <li><mat-icon>check_circle</mat-icon> Dedicated onboarding session</li>
           <li><mat-icon>check_circle</mat-icon> Data migration assistance</li>
         </ul>
@@ -325,26 +309,25 @@
       </div>
     </div>
 
-    <!-- Money-back guarantee badge -->
     <div class="pricing-guarantee" #animateOnScroll>
       <mat-icon>verified_user</mat-icon>
       <div>
         <strong>100% Risk-Free</strong>
-        <span>20 days free with full features. No hidden charges. Cancel before it ends — no questions asked.</span>
+        <span>{{ brand.trialDays }} days free with full features. No hidden charges. Cancel before it ends — no questions asked.</span>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ─── About / Consultancy ───────────────────────────────────────────────── -->
+<!-- ─── About ─────────────────────────────────────────────────────────────── -->
 <section class="section about-section" id="about">
   <div class="section-inner about-inner">
     <div class="about-text" #animateOnScroll>
       <span class="section-tag">About Us</span>
-      <h2>We're EduManage Pro Consultancy</h2>
+      <h2>We're {{ brand.consultancyName }}</h2>
       <p>
         We are a technology consultancy specialising in educational management solutions.
-        Our team has built EduManage Pro to solve the real operational challenges faced by
+        Our team has built {{ brand.name }} to solve the real operational challenges faced by
         schools, coaching institutes, and tutoring centres across India.
       </p>
       <p>
@@ -355,7 +338,7 @@
       <div class="about-highlights">
         <div class="highlight"><mat-icon>handshake</mat-icon><span>Partnership-first approach</span></div>
         <div class="highlight"><mat-icon>engineering</mat-icon><span>Custom development available</span></div>
-        <div class="highlight"><mat-icon>language</mat-icon><span>Serving institutes across India</span></div>
+        <div class="highlight"><mat-icon>language</mat-icon><span>Serving {{ brand.servingText }}</span></div>
         <div class="highlight"><mat-icon>translate</mat-icon><span>Multilingual support available</span></div>
       </div>
     </div>
@@ -379,13 +362,13 @@
   </div>
 </section>
 
-<!-- ─── FAQ Section (NEW) ─────────────────────────────────────────────────── -->
+<!-- ─── FAQ ───────────────────────────────────────────────────────────────── -->
 <section class="section faq-section" id="faq">
   <div class="section-inner">
     <div class="section-header" #animateOnScroll>
       <span class="section-tag">FAQ</span>
       <h2>Frequently Asked Questions</h2>
-      <p>Everything you need to know before getting started. Can't find your answer? Contact us — we reply within 2 hours.</p>
+      <p>Everything you need to know before getting started. Can't find your answer? Contact us — we reply {{ brand.responseTime }}.</p>
     </div>
 
     <div class="faq-list" #animateOnScroll>
@@ -403,7 +386,7 @@
     <div class="faq-footer" #animateOnScroll>
       <p>Still have questions?</p>
       <div class="faq-footer-actions">
-        <a href="mailto:edumanagepro@gmail.com" class="faq-action-btn email">
+        <a [href]="'mailto:' + brand.email" class="faq-action-btn email">
           <mat-icon>email</mat-icon> Email Us
         </a>
         <a [href]="whatsappLink" target="_blank" class="faq-action-btn whatsapp">
@@ -420,7 +403,7 @@
     <div class="section-header" #animateOnScroll>
       <span class="section-tag">Get In Touch</span>
       <h2>Ready to Transform Your Institute?</h2>
-      <p>Reach out for a demo, pricing details, or custom feature enquiries. We reply within 2 hours.</p>
+      <p>Reach out for a demo, pricing details, or custom feature enquiries. We reply {{ brand.responseTime }}.</p>
     </div>
 
     <div class="contact-grid">
@@ -429,7 +412,7 @@
           <mat-icon>email</mat-icon>
           <div>
             <strong>Email Us</strong>
-            <a href="mailto:edumanagepro&#64;gmail.com">edumanagepro&#64;gmail.com</a>
+            <a [href]="'mailto:' + brand.email">{{ brand.email }}</a>
           </div>
         </div>
         <div class="contact-item whatsapp-item">
@@ -440,25 +423,32 @@
             <small>Fastest response channel</small>
           </div>
         </div>
+        <div class="contact-item" *ngIf="brand.phone">
+          <mat-icon>phone</mat-icon>
+          <div>
+            <strong>Call Us</strong>
+            <a [href]="'tel:' + brand.phone">{{ brand.phone }}</a>
+          </div>
+        </div>
         <div class="contact-item">
           <mat-icon>schedule</mat-icon>
           <div>
             <strong>Support Hours</strong>
-            <span>24 / 7 — Always available</span>
+            <span>{{ brand.supportHours }} — Always available</span>
           </div>
         </div>
         <div class="contact-item">
           <mat-icon>location_on</mat-icon>
           <div>
             <strong>Serving</strong>
-            <span>Institutes across India</span>
+            <span>{{ brand.servingText }}</span>
           </div>
         </div>
         <div class="contact-item">
           <mat-icon>timer</mat-icon>
           <div>
             <strong>Response Time</strong>
-            <span>Within 2 hours guaranteed</span>
+            <span>{{ brand.responseTime }} guaranteed</span>
           </div>
         </div>
       </div>
@@ -466,7 +456,7 @@
       <div class="contact-cta-box" #animateOnScroll [style.animationDelay]="'0.15s'">
         <h3>Start Your Free Trial Now</h3>
         <p>
-          Register your institute in 2 minutes. Get 20 days of full access — completely free.
+          Register your institute in 2 minutes. Get {{ brand.trialDays }} days of full access — completely free.
           After your trial, simply contact us and we'll set up your paid plan within 24 hours.
         </p>
         <button mat-flat-button class="cta-primary large" (click)="goToRegister()">
@@ -475,7 +465,7 @@
         </button>
         <p class="or-divider">— or reach us directly —</p>
         <div class="contact-direct-row">
-          <a href="mailto:edumanagepro&#64;gmail.com" class="email-link">
+          <a [href]="'mailto:' + brand.email" class="email-link">
             <mat-icon>mail_outline</mat-icon>
             Email us
           </a>
@@ -495,10 +485,10 @@
     <div class="footer-brand">
       <div class="nav-brand">
         <mat-icon class="brand-icon">school</mat-icon>
-        <span class="brand-name">EduManage<span class="brand-accent"> Pro</span></span>
+        <span class="brand-name">{{ brand.nameMain }}<span class="brand-accent">{{ brand.nameAccent }}</span></span>
       </div>
-      <p>Modern institute management for the modern educator.</p>
-      <p class="footer-tagline">Trusted by 20+ institutes across India 🇮🇳</p>
+      <p>{{ brand.description }}</p>
+      <p class="footer-tagline">Trusted by {{ brand.institutesCount }} institutes across India 🇮🇳</p>
     </div>
 
     <div class="footer-links">
@@ -521,32 +511,32 @@
 
     <div class="footer-contact">
       <strong>Contact</strong>
-      <a href="mailto:edumanagepro&#64;gmail.com">
-        <mat-icon>email</mat-icon> edumanagepro&#64;gmail.com
+      <a [href]="'mailto:' + brand.email">
+        <mat-icon>email</mat-icon> {{ brand.email }}
       </a>
       <a [href]="whatsappLink" target="_blank">
         <span class="footer-wa">💬</span> WhatsApp Chat
       </a>
-      <span><mat-icon>support_agent</mat-icon> 24/7 Support</span>
+      <span><mat-icon>support_agent</mat-icon> {{ brand.supportHours }} Support</span>
     </div>
   </div>
 
   <div class="footer-bottom">
-    <span>© 2026 EduManage Pro Consultancy. All rights reserved.</span>
-    <span>Crafted with ❤️ for Indian Educators</span>
+    <span>© {{ brand.copyrightYear }} {{ brand.consultancyName }}. All rights reserved.</span>
+    <span>{{ brand.footerTagline }}</span>
   </div>
 </footer>
 
-<!-- ─── WhatsApp Floating Button (NEW) ───────────────────────────────────── -->
+<!-- ─── WhatsApp Floating Button ──────────────────────────────────────────── -->
 <a [href]="whatsappLink" target="_blank" class="whatsapp-float" title="Chat with us on WhatsApp">
   <span class="wa-float-icon">💬</span>
   <span class="wa-float-label">Chat with us</span>
 </a>
 
-<!-- ─── Mobile Sticky CTA Bar (NEW) ──────────────────────────────────────── -->
+<!-- ─── Mobile Sticky CTA Bar ─────────────────────────────────────────────── -->
 <div class="mobile-sticky-cta">
   <button mat-flat-button class="mobile-cta-btn" (click)="goToRegister()">
     <mat-icon>rocket_launch</mat-icon>
-    Start Free — 20 Days No Credit Card
+    Start Free — {{ brand.trialDays }} Days · No Credit Card
   </button>
 </div>

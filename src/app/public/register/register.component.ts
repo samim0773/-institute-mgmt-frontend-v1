@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil, finalize } from 'rxjs/operators';
 import { PublicService } from '../../core/services/public.service';
+import { BRAND, WA_LINK } from '../../core/config/brand.config';
 
 // Validator: no spaces in code
 function noSpaces(c: AbstractControl) {
@@ -16,6 +17,10 @@ function noSpaces(c: AbstractControl) {
   styleUrls: ['./register.component.scss'],
 })
 export class RegisterComponent implements OnDestroy {
+
+  // ── Brand config — edit brand.config.ts to change name/email/WhatsApp ────
+  readonly brand       = BRAND;
+  readonly whatsappLink = WA_LINK;
 
   step         = 1; // 1 = institute details, 2 = admin account, 3 = success
   loading      = false;

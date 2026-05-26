@@ -4,12 +4,7 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 
-// ─── WhatsApp Configuration ──────────────────────────────────────────────────
-// Replace with your actual WhatsApp business number (with country code, no +)
-const WA_NUMBER = '919999999999'; // e.g. 91XXXXXXXXXX for India
-const WA_MESSAGE = encodeURIComponent(
-  'Hi! I\'m interested in EduManage Pro for my institute. Can you tell me more?'
-);
+import { BRAND, WA_LINK } from '../../core/config/brand.config';
 
 @Component({
   selector: 'app-landing',
@@ -18,15 +13,17 @@ const WA_MESSAGE = encodeURIComponent(
 })
 export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  navScrolled      = false;
-  mobileMenuOpen   = false;
+  navScrolled         = false;
+  mobileMenuOpen      = false;
   showAnnouncementBar = true;
   private observer!: IntersectionObserver;
 
-  /** WhatsApp deep-link — update WA_NUMBER constant at top of file */
-  readonly whatsappLink = `https://wa.me/${WA_NUMBER}?text=${WA_MESSAGE}`;
+  // ── Brand config exposed to template ──────────────────────────────────────
+  // To change name / email / WhatsApp / phone: edit brand.config.ts only.
+  readonly brand       = BRAND;
+  readonly whatsappLink = WA_LINK;
 
-  // ─── Features ─────────────────────────────────────────────────────────────
+  // ── Features ──────────────────────────────────────────────────────────────
   readonly features = [
     {
       icon: 'school',
@@ -60,17 +57,17 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
     },
   ];
 
-  // ─── Why Us ───────────────────────────────────────────────────────────────
+  // ── Why Us ────────────────────────────────────────────────────────────────
   readonly whyUs = [
     {
       icon: 'support_agent',
-      title: '24/7 Support',
-      desc: 'Round-the-clock assistance via email and WhatsApp. We never leave you stuck.',
+      title: `${BRAND.supportHours} Support`,
+      desc: `Round-the-clock assistance via email and WhatsApp. Response time: ${BRAND.responseTime}.`,
     },
     {
       icon: 'build',
       title: 'Custom Features',
-      desc: "Need something specific? We customise the platform to fit your institute's exact workflow.",
+      desc: `Need something specific? We customise ${BRAND.name} to fit your institute's exact workflow.`,
     },
     {
       icon: 'cloud_done',
@@ -80,16 +77,16 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
     {
       icon: 'trending_up',
       title: 'Grow With Confidence',
-      desc: 'Start small with our trial, scale up as you grow. Plans built around your student count.',
+      desc: `Start small with our ${BRAND.trialDays}-day trial, scale up as you grow. Plans built around your student count.`,
     },
   ];
 
-  // ─── How It Works ─────────────────────────────────────────────────────────
+  // ── How It Works ──────────────────────────────────────────────────────────
   readonly steps = [
     {
       number: '01',
       title: 'Register Your Institute',
-      desc: 'Fill in your institute details and create an admin account in under 2 minutes — completely free.',
+      desc: `Fill in your institute details and create an admin account in under 2 minutes — completely free.`,
     },
     {
       number: '02',
@@ -103,24 +100,24 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
     },
   ];
 
-  // ─── Stats ────────────────────────────────────────────────────────────────
+  // ── Stats (animated counter) ───────────────────────────────────────────────
   readonly stats = [
-    { value: 500,  suffix: '+',  label: 'Students Managed' },
-    { value: 20,   suffix: '+',  label: 'Institutes Onboarded' },
-    { value: 99,   suffix: '%',  label: 'Uptime Guaranteed' },
-    { value: 24,   suffix: '/7', label: 'Support Available' },
+    { value: 500,                    suffix: '+',  label: 'Students Managed' },
+    { value: parseInt(BRAND.institutesCount, 10), suffix: '+',  label: 'Institutes Onboarded' },
+    { value: BRAND.uptimePercent,    suffix: '%',  label: 'Uptime Guaranteed' },
+    { value: 24,                     suffix: '/7', label: 'Support Available' },
   ];
 
   animatedStats: { value: number; suffix: string; label: string; current: number }[] = [];
   private statsAnimated = false;
 
-  // ─── Comparison Table (NEW) ───────────────────────────────────────────────
+  // ── Comparison Table ───────────────────────────────────────────────────────
   readonly comparisonRows = [
     {
       feature: 'Student Record Management',
       us: 'Digital, searchable, instant',
       spreadsheet: 'Manual entry required',  spreadsheetIcon: 'warning', spreadsheetClass: 'warn',
-      paper: 'Physical files, slow to find',  paperIcon: 'cancel', paperClass: 'cross',
+      paper: 'Physical files, slow to find', paperIcon: 'cancel', paperClass: 'cross',
     },
     {
       feature: 'Exam Marks & Results',
@@ -172,7 +169,7 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
     },
   ];
 
-  // ─── Testimonials (NEW) ───────────────────────────────────────────────────
+  // ── Testimonials ───────────────────────────────────────────────────────────
   readonly testimonials = [
     {
       quote: 'EduManage Pro transformed how we run our coaching centre. What used to take us 2 days at the end of each month now takes 15 minutes. The fee tracking alone is worth every rupee.',
@@ -200,41 +197,41 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
     },
   ];
 
-  // ─── FAQ (NEW) ────────────────────────────────────────────────────────────
+  // ── FAQ ────────────────────────────────────────────────────────────────────
   faqs: { q: string; a: string; open: boolean }[] = [
     {
-      q: 'Is my institute\'s data secure?',
-      a: 'Absolutely. All data is hosted on secure cloud servers with encryption in transit and at rest. Daily automatic backups ensure you never lose data. Only authorised users from your institute can access your records — we never share your data with third parties.',
+      q: `Is my institute's data secure?`,
+      a: `Absolutely. All data is hosted on secure cloud servers with encryption in transit and at rest. Daily automatic backups ensure you never lose data. Only authorised users from your institute can access your records — we never share your data with third parties.`,
       open: false,
     },
     {
-      q: 'What happens after my 20-day free trial ends?',
-      a: 'After 20 days, your account will be locked but your data is safely preserved. Simply contact us via email or WhatsApp and we\'ll set up your paid plan within 24 hours — no data loss, no re-setup needed.',
+      q: `What happens after my ${BRAND.trialDays}-day free trial ends?`,
+      a: `After ${BRAND.trialDays} days, your account will be locked but your data is safely preserved. Simply contact us via email or WhatsApp and we'll set up your paid plan within 24 hours — no data loss, no re-setup needed.`,
       open: false,
     },
     {
       q: 'Can I import my existing student data from Excel?',
-      a: 'Yes! Our team will help you migrate your existing student records from Excel, Google Sheets, or any other format at no extra charge. Just reach out to us after registering and we\'ll handle it for you.',
+      a: `Yes! Our team will help you migrate your existing student records from Excel, Google Sheets, or any other format at no extra charge. Just reach out to us after registering and we'll handle it for you.`,
       open: false,
     },
     {
       q: 'How many students and teachers can I add?',
-      a: 'The free trial supports up to 50 students and unlimited teachers. Our paid plans support from 100 to 2000+ students depending on the plan. Contact us to get a plan tailored to your exact needs.',
+      a: `The free trial supports up to ${BRAND.trialMaxStudents} students and unlimited teachers. Our paid plans support from 100 to 2000+ students depending on the plan. Contact us to get a plan tailored to your exact needs.`,
       open: false,
     },
     {
       q: 'Do you offer phone or WhatsApp support?',
-      a: 'Yes! We offer 24/7 support via email and WhatsApp. For onboarding and demos, we can schedule a call or a video session at a time that works for you.',
+      a: `Yes! We offer ${BRAND.supportHours} support via email (${BRAND.email}) and WhatsApp. For onboarding and demos, we can schedule a call or a video session at a time that works for you.`,
       open: false,
     },
     {
       q: 'Are there any setup fees or hidden charges?',
-      a: 'Zero hidden charges. The 20-day trial is completely free — no credit card required. Paid plans are straightforward and will be clearly quoted before you commit. What we quote is what you pay.',
+      a: `Zero hidden charges. The ${BRAND.trialDays}-day trial is completely free — no credit card required. Paid plans are straightforward and will be clearly quoted before you commit. What we quote is what you pay.`,
       open: false,
     },
     {
-      q: 'Can features be customised for my institute\'s specific needs?',
-      a: 'Custom development is one of our core strengths. Whether you need admit card generation, custom report formats, SMS integration, or any other feature — we can build it. Contact us to discuss your requirements.',
+      q: `Can features be customised for my institute's specific needs?`,
+      a: `Custom development is one of our core strengths. Whether you need admit card generation, custom report formats, SMS integration, or any other feature — we can build it. Contact us at ${BRAND.email} to discuss your requirements.`,
       open: false,
     },
     {
@@ -256,20 +253,15 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
     this.observer = new IntersectionObserver(
       entries => {
         entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-          }
+          if (entry.isIntersecting) entry.target.classList.add('visible');
         });
       },
       { threshold: 0.12 },
     );
-
     this.animateSections.forEach(el => this.observer.observe(el.nativeElement));
   }
 
-  ngOnDestroy(): void {
-    this.observer?.disconnect();
-  }
+  ngOnDestroy(): void { this.observer?.disconnect(); }
 
   @HostListener('window:scroll', [])
   onScroll(): void {
@@ -299,10 +291,7 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
         step++;
         const progress = step / steps;
         const eased    = 1 - Math.pow(1 - progress, 3);
-        this.animatedStats[i] = {
-          ...stat,
-          current: Math.round(stat.value * eased),
-        };
+        this.animatedStats[i] = { ...stat, current: Math.round(stat.value * eased) };
         if (step >= steps) clearInterval(timer);
       }, interval);
     });
@@ -314,8 +303,7 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
 
   scrollTo(sectionId: string): void {
     this.mobileMenuOpen = false;
-    const el = document.getElementById(sectionId);
-    el?.scrollIntoView({ behavior: 'smooth' });
+    document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
   }
 
   goToLogin():    void { this.router.navigate(['/auth/login']); }

@@ -8,7 +8,7 @@
   <nav class="reg-nav">
     <div class="nav-brand" (click)="goToLanding()">
       <mat-icon>school</mat-icon>
-      <span>EduManage<span class="accent"> Pro</span></span>
+      <span>{{ brand.nameMain }}<span class="accent">{{ brand.nameAccent }}</span></span>
     </div>
     <button mat-stroked-button class="btn-login" (click)="goToLogin()">
       Already registered? Login
@@ -25,14 +25,14 @@
       <h1>You're all set! 🎉</h1>
       <p class="success-msg">
         <strong>{{ successData.institute.name }}</strong> has been registered successfully.
-        Your 20-day free trial is now active.
+        Your {{ brand.trialDays }}-day free trial is now active.
       </p>
 
       <div class="trial-info-box">
         <mat-icon>timer</mat-icon>
         <div>
           <strong>Trial Period</strong>
-          <span>Active until <b>{{ trialEndDate }}</b> (20 days)</span>
+          <span>Active until <b>{{ trialEndDate }}</b> ({{ brand.trialDays }} days)</span>
         </div>
       </div>
 
@@ -47,7 +47,7 @@
         </div>
         <div class="detail-row">
           <span>Plan</span>
-          <strong class="accent">Trial (20 days free)</strong>
+          <strong class="accent">Trial ({{ brand.trialDays }} days free)</strong>
         </div>
       </div>
 
@@ -55,7 +55,7 @@
         <mat-icon>info</mat-icon>
         <p>
           After your trial ends, contact us at
-          <a href="mailto:edumanagepro&#64;gmail.com">edumanagepro&#64;gmail.com</a>
+          <a [href]="'mailto:' + brand.email">{{ brand.email }}</a>
           to upgrade to a paid plan and continue using the service uninterrupted.
         </p>
       </div>
@@ -73,16 +73,16 @@
       <div class="form-header">
         <div class="nav-brand" (click)="goToLanding()">
           <mat-icon>school</mat-icon>
-          <span>EduManage<span class="accent"> Pro</span></span>
+          <span>{{ brand.nameMain }}<span class="accent">{{ brand.nameAccent }}</span></span>
         </div>
         <h1>Register Your Institute</h1>
-        <p>Start your 20-day free trial — no credit card required.</p>
+        <p>Start your {{ brand.trialDays }}-day free trial — no credit card required.</p>
       </div>
 
       <!-- Trial banner -->
       <div class="trial-banner">
         <mat-icon>verified</mat-icon>
-        <span>Free 20-day trial &nbsp;•&nbsp; All features included &nbsp;•&nbsp; No payment needed</span>
+        <span>Free {{ brand.trialDays }}-day trial &nbsp;•&nbsp; All features included &nbsp;•&nbsp; No payment needed</span>
       </div>
 
       <!-- Stepper indicator -->
@@ -229,7 +229,7 @@
       <!-- Footer note -->
       <p class="footer-note">
         By registering you agree to our Terms of Service.
-        Need help? Email <a href="mailto:edumanagepro&#64;gmail.com">edumanagepro&#64;gmail.com</a>
+        Need help? Email <a [href]="'mailto:' + brand.email">{{ brand.email }}</a>
       </p>
     </div>
 
