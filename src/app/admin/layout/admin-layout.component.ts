@@ -128,6 +128,13 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
     this.sidenav?.toggle();
   }
 
+  /** Close sidenav immediately on mobile when a nav item is tapped */
+  closeOnMobile(): void {
+    if (this.isMobile) {
+      this.sidenav?.close();
+    }
+  }
+
   logout(): void {
     this.authService.logout();
   }

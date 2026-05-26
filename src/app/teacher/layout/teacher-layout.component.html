@@ -38,6 +38,7 @@
         [routerLink]="item.route"
         class="nav-item"
         [class.nav-item--active]="isActive(item.route)"
+        (click)="closeOnMobile()"
       >
         <mat-icon matListItemIcon class="nav-icon">{{ item.icon }}</mat-icon>
         <span matListItemTitle>{{ item.label }}</span>
@@ -65,6 +66,10 @@
       </button>
       <span class="toolbar-title">{{ userSubject }}</span>
       <span class="spacer"></span>
+      <a mat-icon-button routerLink="/teacher/dashboard"
+         matTooltip="Home" aria-label="Go to dashboard">
+        <mat-icon>home</mat-icon>
+      </a>
       <button mat-icon-button [matMenuTriggerFor]="userMenu">
         <div class="toolbar-avatar">{{ userInitial }}</div>
       </button>

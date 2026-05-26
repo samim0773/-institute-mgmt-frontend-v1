@@ -43,5 +43,13 @@ export class SuperAdminLayoutComponent implements OnInit {
   }
 
   toggleSidenav(): void { this.sidenavOpened = !this.sidenavOpened; }
+
+  /** Close sidenav immediately on mobile when a nav item is tapped */
+  closeOnMobile(): void {
+    if (this.isMobile) {
+      this.sidenavOpened = false;
+    }
+  }
+
   logout(): void { this.auth.logout(); }
 }

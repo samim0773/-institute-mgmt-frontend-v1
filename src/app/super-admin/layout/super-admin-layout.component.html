@@ -17,6 +17,7 @@
         [routerLink]="item.route"
         class="nav-item"
         [class.nav-item--active]="isActive(item.route, item.exact)"
+        (click)="closeOnMobile()"
       >
         <mat-icon matListItemIcon class="nav-icon">{{ item.icon }}</mat-icon>
         <span matListItemTitle>{{ item.label }}</span>
