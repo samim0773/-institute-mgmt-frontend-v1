@@ -93,87 +93,91 @@
           </table>
         </div>
 
-        <!-- ── Fee breakdown table ─────────────────────────────────────────── -->
-        <table class="fee-table">
-          <thead>
-            <tr>
-              <th class="col-no">#</th>
-              <th class="col-type">Fee Type</th>
-              <th class="col-amt">Amount</th>
-              <th class="col-paid">Paid</th>
-              <th class="col-waived" *ngIf="hasWaiver">Waived</th>
-              <th class="col-bal">Balance</th>
-              <th class="col-status">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let item of bill!.feeBreakdown; let i = index"
-              [class.row-paid]="item.status === 'paid'"
-              [class.row-waived]="item.status === 'waived'">
-              <td class="col-no">{{ i + 1 }}</td>
-              <td class="col-type">{{ item.feeType }}</td>
-              <td class="col-amt">{{ fmt(item.amount) }}</td>
-              <td class="col-paid">{{ fmt(item.amountPaid) }}</td>
-              <td class="col-waived" *ngIf="hasWaiver">{{ fmt(item.waivedAmount ?? 0) }}</td>
-              <td class="col-bal" [class.bal-due]="item.amountDue > 0">{{ fmt(item.amountDue) }}</td>
-              <td class="col-status">
-                <span class="status-chip" [ngClass]="'chip-' + item.status">
-                  {{ statusLabel(item.status) }}
-                </span>
-              </td>
-            </tr>
-          </tbody>
-          <tfoot>
-            <tr class="total-row">
-              <td [attr.colspan]="hasWaiver ? 2 : 2" class="total-label">TOTAL</td>
-              <td class="col-amt total-cell">{{ fmt(bill!.totalAmount) }}</td>
-              <td class="col-paid total-cell">{{ fmt(bill!.totalPaid) }}</td>
-              <td class="col-waived total-cell" *ngIf="hasWaiver">{{ fmt(totalWaived) }}</td>
-              <td class="col-bal total-cell" [class.bal-due]="bill!.totalDue > 0">
-                {{ fmt(bill!.totalDue) }}
-              </td>
-              <td class="col-status">
-                <span class="status-chip chip-overall" [ngClass]="'chip-' + bill!.overallStatus">
-                  {{ statusLabel(bill!.overallStatus) }}
-                </span>
-              </td>
-            </tr>
-            <tr *ngIf="(bill!.totalLateFine ?? 0) > 0" class="fine-row">
-              <td [attr.colspan]="hasWaiver ? 5 : 4" class="fine-label">
-                Late Fine ({{ bill!.lateFinePerDay }}/day)
-              </td>
-              <td class="col-bal fine-amt">{{ fmt(bill!.totalLateFine!) }}</td>
-              <td></td>
-            </tr>
-          </tfoot>
-        </table>
+        <!-- ── Fee breakdown table (wrapped for mobile scroll) ───────────────── -->
+        <div class="fee-table-scroll">
+          <table class="fee-table">
+            <thead>
+              <tr>
+                <th class="col-no">#</th>
+                <th class="col-type">Fee Type</th>
+                <th class="col-amt">Amount</th>
+                <th class="col-paid">Paid</th>
+                <th class="col-waived" *ngIf="hasWaiver">Waived</th>
+                <th class="col-bal">Balance</th>
+                <th class="col-status">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of bill!.feeBreakdown; let i = index"
+                [class.row-paid]="item.status === 'paid'"
+                [class.row-waived]="item.status === 'waived'">
+                <td class="col-no">{{ i + 1 }}</td>
+                <td class="col-type">{{ item.feeType }}</td>
+                <td class="col-amt">{{ fmt(item.amount) }}</td>
+                <td class="col-paid">{{ fmt(item.amountPaid) }}</td>
+                <td class="col-waived" *ngIf="hasWaiver">{{ fmt(item.waivedAmount ?? 0) }}</td>
+                <td class="col-bal" [class.bal-due]="item.amountDue > 0">{{ fmt(item.amountDue) }}</td>
+                <td class="col-status">
+                  <span class="status-chip" [ngClass]="'chip-' + item.status">
+                    {{ statusLabel(item.status) }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr class="total-row">
+                <td [attr.colspan]="hasWaiver ? 2 : 2" class="total-label">TOTAL</td>
+                <td class="col-amt total-cell">{{ fmt(bill!.totalAmount) }}</td>
+                <td class="col-paid total-cell">{{ fmt(bill!.totalPaid) }}</td>
+                <td class="col-waived total-cell" *ngIf="hasWaiver">{{ fmt(totalWaived) }}</td>
+                <td class="col-bal total-cell" [class.bal-due]="bill!.totalDue > 0">
+                  {{ fmt(bill!.totalDue) }}
+                </td>
+                <td class="col-status">
+                  <span class="status-chip chip-overall" [ngClass]="'chip-' + bill!.overallStatus">
+                    {{ statusLabel(bill!.overallStatus) }}
+                  </span>
+                </td>
+              </tr>
+              <tr *ngIf="(bill!.totalLateFine ?? 0) > 0" class="fine-row">
+                <td [attr.colspan]="hasWaiver ? 5 : 4" class="fine-label">
+                  Late Fine ({{ bill!.lateFinePerDay }}/day)
+                </td>
+                <td class="col-bal fine-amt">{{ fmt(bill!.totalLateFine!) }}</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div><!-- /fee-table-scroll -->
 
         <!-- ── Payment history (condensed) ────────────────────────────────── -->
         <ng-container *ngIf="hasPayments">
           <div class="payment-history-section">
             <p class="section-label">Payment History</p>
-            <table class="payment-table">
-              <thead>
-                <tr>
-                  <th>Fee Type</th>
-                  <th>Date</th>
-                  <th>Mode</th>
-                  <th>Reference</th>
-                  <th>Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                <ng-container *ngFor="let item of bill!.feeBreakdown">
-                  <tr *ngFor="let p of item.payments">
-                    <td>{{ item.feeType }}</td>
-                    <td>{{ formatDate(p.date) }}</td>
-                    <td>{{ modeLabel(p.mode) }}</td>
-                    <td class="ref-cell">{{ p.referenceNo || '—' }}</td>
-                    <td class="amt-cell">{{ fmt(p.amount) }}</td>
+            <div class="payment-table-scroll">
+              <table class="payment-table">
+                <thead>
+                  <tr>
+                    <th>Fee Type</th>
+                    <th>Date</th>
+                    <th>Mode</th>
+                    <th>Reference</th>
+                    <th>Amount</th>
                   </tr>
-                </ng-container>
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  <ng-container *ngFor="let item of bill!.feeBreakdown">
+                    <tr *ngFor="let p of item.payments">
+                      <td>{{ item.feeType }}</td>
+                      <td>{{ formatDate(p.date) }}</td>
+                      <td>{{ modeLabel(p.mode) }}</td>
+                      <td class="ref-cell">{{ p.referenceNo || '—' }}</td>
+                      <td class="amt-cell">{{ fmt(p.amount) }}</td>
+                    </tr>
+                  </ng-container>
+                </tbody>
+              </table>
+            </div><!-- /payment-table-scroll -->
           </div>
         </ng-container>
 

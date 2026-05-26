@@ -3,49 +3,60 @@
 
   <!-- ── Screen toolbar ─────────────────────────────────────────────────────── -->
   <div class="bulk-toolbar no-print">
-    <button mat-icon-button (click)="goBack()" aria-label="Back">
-      <mat-icon>arrow_back</mat-icon>
-    </button>
-    <span class="toolbar-title">Bulk Fee Slip Print</span>
+
+    <!-- Row 1: back + title -->
+    <div class="toolbar-nav">
+      <button mat-icon-button (click)="goBack()" aria-label="Back">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <span class="toolbar-title">Bulk Fee Slip Print</span>
+    </div>
+
     <span class="toolbar-spacer"></span>
 
-    <!-- Filters -->
-    <mat-form-field appearance="outline" class="toolbar-field">
-      <mat-label>Class</mat-label>
-      <mat-select [formControl]="classFilter">
-        <mat-option value="">Select…</mat-option>
-        <mat-option *ngFor="let c of classNames" [value]="c">Class {{ c }}</mat-option>
-      </mat-select>
-    </mat-form-field>
+    <!-- Row 2 on mobile / inline on desktop: filters + actions -->
+    <div class="toolbar-controls">
 
-    <mat-form-field appearance="outline" class="toolbar-field" *ngIf="sections.length">
-      <mat-label>Section</mat-label>
-      <mat-select [formControl]="sectionFilter">
-        <mat-option value="">Select…</mat-option>
-        <mat-option *ngFor="let s of sections" [value]="s">{{ s }}</mat-option>
-      </mat-select>
-    </mat-form-field>
+      <mat-form-field appearance="outline" class="toolbar-field">
+        <mat-label>Class</mat-label>
+        <mat-select [formControl]="classFilter">
+          <mat-option value="">Select…</mat-option>
+          <mat-option *ngFor="let c of classNames" [value]="c">Class {{ c }}</mat-option>
+        </mat-select>
+      </mat-form-field>
 
-    <mat-form-field appearance="outline" class="toolbar-field toolbar-field--sm">
-      <mat-label>Status</mat-label>
-      <mat-select [formControl]="statusFilter">
-        <mat-option *ngFor="let o of STATUS_OPTS" [value]="o.value">{{ o.label }}</mat-option>
-      </mat-select>
-    </mat-form-field>
+      <mat-form-field appearance="outline" class="toolbar-field" *ngIf="sections.length">
+        <mat-label>Section</mat-label>
+        <mat-select [formControl]="sectionFilter">
+          <mat-option value="">Select…</mat-option>
+          <mat-option *ngFor="let s of sections" [value]="s">{{ s }}</mat-option>
+        </mat-select>
+      </mat-form-field>
 
-    <button mat-stroked-button (click)="load()"
-      [disabled]="!classFilter.value || !sectionFilter.value || loading">
-      <mat-spinner *ngIf="loading" diameter="16" class="btn-spinner"></mat-spinner>
-      <mat-icon *ngIf="!loading">search</mat-icon>
-      {{ loading ? 'Loading…' : 'Load' }}
-    </button>
+      <mat-form-field appearance="outline" class="toolbar-field toolbar-field--sm">
+        <mat-label>Status</mat-label>
+        <mat-select [formControl]="statusFilter">
+          <mat-option *ngFor="let o of STATUS_OPTS" [value]="o.value">{{ o.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
 
-    <button mat-raised-button color="primary" (click)="print()"
-      [disabled]="bills.length === 0 || printing" class="print-btn">
-      <mat-spinner *ngIf="printing" diameter="16" class="btn-spinner"></mat-spinner>
-      <mat-icon *ngIf="!printing">print</mat-icon>
-      {{ printing ? 'Preparing…' : 'Print All (' + bills.length + ')' }}
-    </button>
+      <div class="toolbar-actions">
+        <button mat-stroked-button (click)="load()"
+          [disabled]="!classFilter.value || !sectionFilter.value || loading">
+          <mat-spinner *ngIf="loading" diameter="16" class="btn-spinner"></mat-spinner>
+          <mat-icon *ngIf="!loading">search</mat-icon>
+          {{ loading ? 'Loading…' : 'Load' }}
+        </button>
+
+        <button mat-raised-button color="primary" (click)="print()"
+          [disabled]="bills.length === 0 || printing" class="print-btn">
+          <mat-spinner *ngIf="printing" diameter="16" class="btn-spinner"></mat-spinner>
+          <mat-icon *ngIf="!printing">print</mat-icon>
+          {{ printing ? 'Preparing…' : 'Print All (' + bills.length + ')' }}
+        </button>
+      </div>
+
+    </div><!-- /toolbar-controls -->
   </div>
 
   <!-- ── Empty / hint states (screen only) ─────────────────────────────────── -->
@@ -119,60 +130,62 @@
           </table>
         </div>
 
-        <!-- ── Fee breakdown table ────────────────────────────────────────────── -->
-        <table class="fee-table">
-          <thead>
-            <tr>
-              <th class="col-no">#</th>
-              <th class="col-type">Fee Type</th>
-              <th class="col-amt">Amount</th>
-              <th class="col-paid">Paid</th>
-              <th class="col-waived" *ngIf="hasWaiver(bill)">Waived</th>
-              <th class="col-bal">Balance</th>
-              <th class="col-status">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let item of bill.feeBreakdown; let i = index"
-              [class.row-paid]="item.status === 'paid'"
-              [class.row-waived]="item.status === 'waived'">
-              <td class="col-no">{{ i + 1 }}</td>
-              <td class="col-type">{{ item.feeType }}</td>
-              <td class="col-amt">{{ fmt(item.amount) }}</td>
-              <td class="col-paid">{{ fmt(item.amountPaid) }}</td>
-              <td class="col-waived" *ngIf="hasWaiver(bill)">{{ fmt(item.waivedAmount ?? 0) }}</td>
-              <td class="col-bal" [class.bal-due]="item.amountDue > 0">{{ fmt(item.amountDue) }}</td>
-              <td class="col-status">
-                <span class="status-chip" [ngClass]="'chip-' + item.status">
-                  {{ statusLabel(item.status) }}
-                </span>
-              </td>
-            </tr>
-          </tbody>
-          <tfoot>
-            <tr class="total-row">
-              <td colspan="2" class="total-label">TOTAL</td>
-              <td class="col-amt total-cell">{{ fmt(bill.totalAmount) }}</td>
-              <td class="col-paid total-cell">{{ fmt(bill.totalPaid) }}</td>
-              <td class="col-waived total-cell" *ngIf="hasWaiver(bill)">{{ fmt(totalWaived(bill)) }}</td>
-              <td class="col-bal total-cell" [class.bal-due]="bill.totalDue > 0">
-                {{ fmt(bill.totalDue) }}
-              </td>
-              <td class="col-status">
-                <span class="status-chip chip-overall" [ngClass]="'chip-' + bill.overallStatus">
-                  {{ statusLabel(bill.overallStatus) }}
-                </span>
-              </td>
-            </tr>
-            <tr *ngIf="(bill.totalLateFine ?? 0) > 0" class="fine-row">
-              <td colspan="4" class="fine-label">
-                Late Fine ({{ bill.lateFinePerDay }}/day)
-              </td>
-              <td class="col-bal fine-amt">{{ fmt(bill.totalLateFine!) }}</td>
-              <td></td>
-            </tr>
-          </tfoot>
-        </table>
+        <!-- ── Fee breakdown table (wrapped for mobile scroll) ───────────────── -->
+        <div class="fee-table-scroll">
+          <table class="fee-table">
+            <thead>
+              <tr>
+                <th class="col-no">#</th>
+                <th class="col-type">Fee Type</th>
+                <th class="col-amt">Amount</th>
+                <th class="col-paid">Paid</th>
+                <th class="col-waived" *ngIf="hasWaiver(bill)">Waived</th>
+                <th class="col-bal">Balance</th>
+                <th class="col-status">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of bill.feeBreakdown; let i = index"
+                [class.row-paid]="item.status === 'paid'"
+                [class.row-waived]="item.status === 'waived'">
+                <td class="col-no">{{ i + 1 }}</td>
+                <td class="col-type">{{ item.feeType }}</td>
+                <td class="col-amt">{{ fmt(item.amount) }}</td>
+                <td class="col-paid">{{ fmt(item.amountPaid) }}</td>
+                <td class="col-waived" *ngIf="hasWaiver(bill)">{{ fmt(item.waivedAmount ?? 0) }}</td>
+                <td class="col-bal" [class.bal-due]="item.amountDue > 0">{{ fmt(item.amountDue) }}</td>
+                <td class="col-status">
+                  <span class="status-chip" [ngClass]="'chip-' + item.status">
+                    {{ statusLabel(item.status) }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr class="total-row">
+                <td colspan="2" class="total-label">TOTAL</td>
+                <td class="col-amt total-cell">{{ fmt(bill.totalAmount) }}</td>
+                <td class="col-paid total-cell">{{ fmt(bill.totalPaid) }}</td>
+                <td class="col-waived total-cell" *ngIf="hasWaiver(bill)">{{ fmt(totalWaived(bill)) }}</td>
+                <td class="col-bal total-cell" [class.bal-due]="bill.totalDue > 0">
+                  {{ fmt(bill.totalDue) }}
+                </td>
+                <td class="col-status">
+                  <span class="status-chip chip-overall" [ngClass]="'chip-' + bill.overallStatus">
+                    {{ statusLabel(bill.overallStatus) }}
+                  </span>
+                </td>
+              </tr>
+              <tr *ngIf="(bill.totalLateFine ?? 0) > 0" class="fine-row">
+                <td colspan="4" class="fine-label">
+                  Late Fine ({{ bill.lateFinePerDay }}/day)
+                </td>
+                <td class="col-bal fine-amt">{{ fmt(bill.totalLateFine!) }}</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div><!-- /fee-table-scroll -->
 
         <!-- ── Notes ────────────────────────────────────────────────────────── -->
         <div class="slip-notes" *ngIf="bill.notes">

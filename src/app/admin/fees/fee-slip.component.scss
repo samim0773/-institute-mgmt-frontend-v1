@@ -9,20 +9,28 @@
 
 // ── Toolbar (screen only) ─────────────────────────────────────────────────────
 .slip-toolbar {
-  display:          flex;
-  align-items:      center;
-  gap:              8px;
-  padding:          8px 16px;
-  background:       #fff;
-  border-bottom:    1px solid #e0e0e0;
-  position:         sticky;
-  top:              0;
-  z-index:          10;
-  box-shadow:       0 1px 4px rgba(0,0,0,.08);
+  display:       flex;
+  align-items:   center;
+  gap:           8px;
+  padding:       8px 16px;
+  background:    #fff;
+  border-bottom: 1px solid #e0e0e0;
+  position:      sticky;
+  top:           0;
+  z-index:       10;
+  box-shadow:    0 1px 4px rgba(0,0,0,.08);
 }
-.toolbar-title   { font-size: 16px; font-weight: 500; }
-.toolbar-spacer  { flex: 1; }
-.print-btn       { gap: 6px; }
+.toolbar-title {
+  font-size:     16px;
+  font-weight:   500;
+  flex:          1;
+  min-width:     0;
+  white-space:   nowrap;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+}
+.toolbar-spacer { flex: 1; }
+.print-btn      { gap: 6px; white-space: nowrap; flex-shrink: 0; }
 
 // ── Loading ───────────────────────────────────────────────────────────────────
 .loading-center {
@@ -44,14 +52,14 @@
   color:           #888;
   font-size:       13px;
   margin:          12px 0 4px;
-  mat-icon         { font-size: 16px; width: 16px; height: 16px; }
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
 }
 
 // ── Print area wrapper ────────────────────────────────────────────────────────
 .print-area {
-  max-width:  794px;      // A4 width in px at 96dpi
-  margin:     0 auto;
-  padding:    16px;
+  max-width: 794px;   // A4 width at 96dpi
+  margin:    0 auto;
+  padding:   16px;
 }
 
 // ── Single slip document ──────────────────────────────────────────────────────
@@ -69,51 +77,36 @@
 
 // ── Copy badge ────────────────────────────────────────────────────────────────
 .copy-badge {
-  position:      absolute;
-  top:           12px;
-  right:         16px;
-  font-size:     9px;
-  font-weight:   700;
+  position:       absolute;
+  top:            12px;
+  right:          16px;
+  font-size:      9px;
+  font-weight:    700;
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  color:         #999;
-  border:        1px solid #ddd;
-  border-radius: 3px;
-  padding:       2px 7px;
+  color:          #999;
+  border:         1px solid #ddd;
+  border-radius:  3px;
+  padding:        2px 7px;
 }
 
 // ── Institute header ──────────────────────────────────────────────────────────
 .slip-header {
-  display:     flex;
-  align-items: center;
-  gap:         16px;
-  border-bottom: 2px solid #1565c0;
+  display:        flex;
+  align-items:    center;
+  gap:            16px;
+  border-bottom:  2px solid #1565c0;
   padding-bottom: 12px;
   margin-bottom:  10px;
 }
-.slip-logo {
-  width:      64px;
-  height:     64px;
-  object-fit: contain;
-  flex-shrink: 0;
-}
-.slip-inst-text {
-  flex: 1;
-}
-.slip-inst-name {
-  font-size:     18px;
-  font-weight:   700;
-  margin:        0 0 2px;
-  color:         #1565c0;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+.slip-logo       { width: 64px; height: 64px; object-fit: contain; flex-shrink: 0; }
+.slip-inst-text  { flex: 1; min-width: 0; }
+.slip-inst-name  {
+  font-size: 18px; font-weight: 700; margin: 0 0 2px;
+  color: #1565c0; text-transform: uppercase; letter-spacing: 0.5px;
 }
 .slip-inst-addr,
-.slip-inst-phone {
-  font-size: 11px;
-  color:     #555;
-  margin:    1px 0 0;
-}
+.slip-inst-phone { font-size: 11px; color: #555; margin: 1px 0 0; }
 
 // ── Title bar ─────────────────────────────────────────────────────────────────
 .slip-title-bar {
@@ -126,76 +119,38 @@
   margin-bottom:   10px;
   border-radius:   2px;
 }
-.slip-title {
-  font-size:     13px;
-  font-weight:   700;
-  letter-spacing: 2px;
-}
-.slip-ref {
-  font-size:     11px;
-  opacity:       0.85;
-  font-family:   monospace;
-}
+.slip-title { font-size: 13px; font-weight: 700; letter-spacing: 2px; }
+.slip-ref   { font-size: 11px; opacity: 0.85; font-family: monospace; }
 
-// ── Info grid table ───────────────────────────────────────────────────────────
-.slip-info-grid {
-  margin-bottom: 10px;
-}
+// ── Info table ────────────────────────────────────────────────────────────────
+.slip-info-grid { margin-bottom: 10px; }
 .info-table {
-  width:           100%;
-  border-collapse: collapse;
-  font-size:       11px;
-
-  td {
-    padding:    4px 8px;
-    border:     1px solid #e0e0e0;
-    vertical-align: middle;
-  }
+  width: 100%; border-collapse: collapse; font-size: 11px;
+  td { padding: 4px 8px; border: 1px solid #e0e0e0; vertical-align: middle; }
 }
-.info-lbl {
-  font-weight:  600;
-  color:        #555;
-  width:        16%;
-  white-space:  nowrap;
-  background:   #f8f9fa;
-}
+.info-lbl        { font-weight: 600; color: #555; width: 16%; white-space: nowrap; background: #f8f9fa; }
 .info-val        { width: 34%; }
 .info-val--name  { font-weight: 600; }
 .info-val--roll  { font-weight: 600; font-family: monospace; }
 .info-val--mono  { font-family: monospace; font-size: 10px; }
 .info-val--overdue { color: #c62828; font-weight: 600; }
 .overdue-tag {
-  display:         inline-block;
-  background:      #c62828;
-  color:           #fff;
-  font-size:       8px;
-  font-weight:     700;
-  letter-spacing:  1px;
-  padding:         1px 5px;
-  border-radius:   2px;
-  margin-left:     6px;
-  vertical-align:  middle;
+  display: inline-block; background: #c62828; color: #fff;
+  font-size: 8px; font-weight: 700; letter-spacing: 1px;
+  padding: 1px 5px; border-radius: 2px; margin-left: 6px; vertical-align: middle;
 }
+
+// ── Fee table scroll wrapper ──────────────────────────────────────────────────
+.fee-table-scroll { margin-bottom: 10px; }
 
 // ── Fee breakdown table ───────────────────────────────────────────────────────
 .fee-table {
-  width:           100%;
-  border-collapse: collapse;
-  font-size:       11px;
-  margin-bottom:   10px;
+  width: 100%; border-collapse: collapse; font-size: 11px;
 
-  th, td {
-    border:   1px solid #ddd;
-    padding:  5px 8px;
-  }
+  th, td { border: 1px solid #ddd; padding: 5px 8px; }
   thead th {
-    background:    #1565c0;
-    color:         #fff;
-    font-weight:   600;
-    text-align:    center;
-    white-space:   nowrap;
-    font-size:     10px;
-    letter-spacing: 0.5px;
+    background: #1565c0; color: #fff; font-weight: 600;
+    text-align: center; white-space: nowrap; font-size: 10px; letter-spacing: 0.5px;
   }
   tbody tr:nth-child(even) { background: #fafafa; }
 }
@@ -210,18 +165,12 @@
 
 .row-paid   { color: #2e7d32; }
 .row-waived { color: #6a1b9a; }
-
 .bal-due    { color: #c62828; font-weight: 700; }
 
 // ── Status chips ──────────────────────────────────────────────────────────────
 .status-chip {
-  display:       inline-block;
-  font-size:     9px;
-  font-weight:   700;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-  padding:       2px 6px;
-  border-radius: 3px;
+  display: inline-block; font-size: 9px; font-weight: 700;
+  letter-spacing: 0.8px; text-transform: uppercase; padding: 2px 6px; border-radius: 3px;
 }
 .chip-pending  { background: #fff3e0; color: #e65100; border: 1px solid #ffb74d; }
 .chip-partial  { background: #e3f2fd; color: #1565c0; border: 1px solid #90caf9; }
@@ -229,86 +178,41 @@
 .chip-waived   { background: #f3e5f5; color: #6a1b9a; border: 1px solid #ce93d8; }
 
 // ── Table footer ──────────────────────────────────────────────────────────────
-.total-row {
-  background:  #f0f4ff !important;
-  font-weight: 700;
-  td           { border-top: 2px solid #1565c0; }
-}
-.total-label {
-  font-weight:  700;
-  font-size:    11px;
-  letter-spacing: 1px;
-}
+.total-row   { background: #f0f4ff !important; font-weight: 700; td { border-top: 2px solid #1565c0; } }
+.total-label { font-weight: 700; font-size: 11px; letter-spacing: 1px; }
 .total-cell  { text-align: right; }
+.fine-row    { background: #fff8e1 !important; }
+.fine-label  { color: #e65100; font-style: italic; }
+.fine-amt    { text-align: right; color: #c62828; font-weight: 700; }
 
-.fine-row {
-  background: #fff8e1 !important;
-}
-.fine-label { color: #e65100; font-style: italic; }
-.fine-amt   { text-align: right; color: #c62828; font-weight: 700; }
-
-// ── Payment history section ───────────────────────────────────────────────────
-.payment-history-section {
-  margin-bottom: 10px;
-}
+// ── Payment history ───────────────────────────────────────────────────────────
+.payment-history-section { margin-bottom: 10px; }
 .section-label {
-  font-size:      10px;
-  font-weight:    700;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color:          #555;
-  margin:         0 0 4px;
-  border-bottom:  1px solid #e0e0e0;
-  padding-bottom: 3px;
+  font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+  color: #555; margin: 0 0 4px; border-bottom: 1px solid #e0e0e0; padding-bottom: 3px;
 }
+.payment-table-scroll { /* wrapper for mobile */ }
 .payment-table {
-  width:           100%;
-  border-collapse: collapse;
-  font-size:       10.5px;
-
-  th, td {
-    border:   1px solid #e0e0e0;
-    padding:  4px 7px;
-  }
-  thead th {
-    background: #f5f5f5;
-    font-weight: 700;
-    font-size:   10px;
-    color:       #444;
-  }
+  width: 100%; border-collapse: collapse; font-size: 10.5px;
+  th, td { border: 1px solid #e0e0e0; padding: 4px 7px; }
+  thead th { background: #f5f5f5; font-weight: 700; font-size: 10px; color: #444; }
 }
 .ref-cell { font-family: monospace; font-size: 10px; }
 .amt-cell { text-align: right; font-weight: 600; }
 
 // ── Notes ────────────────────────────────────────────────────────────────────
 .slip-notes {
-  font-size:     10.5px;
-  color:         #555;
-  border:        1px dashed #bdbdbd;
-  border-radius: 3px;
-  padding:       5px 10px;
-  margin-bottom: 10px;
-  background:    #fffde7;
+  font-size: 10.5px; color: #555; border: 1px dashed #bdbdbd; border-radius: 3px;
+  padding: 5px 10px; margin-bottom: 10px; background: #fffde7;
 }
 .notes-label { font-weight: 700; color: #555; }
 
 // ── Status stamp ─────────────────────────────────────────────────────────────
-.stamp-area {
-  display:         flex;
-  justify-content: flex-end;
-  margin-bottom:   8px;
-}
+.stamp-area  { display: flex; justify-content: flex-end; margin-bottom: 8px; }
 .stamp {
-  font-size:      22px;
-  font-weight:    900;
-  letter-spacing: 4px;
-  padding:        6px 18px;
-  border-radius:  4px;
-  border-width:   3px;
-  border-style:   solid;
-  opacity:        0.7;
-  transform:      rotate(-8deg);
-  transform-origin: center;
+  font-size: 22px; font-weight: 900; letter-spacing: 4px; padding: 6px 18px;
+  border-radius: 4px; border-width: 3px; border-style: solid;
+  opacity: 0.7; transform: rotate(-8deg); transform-origin: center;
 }
 .stamp-paid    { color: #2e7d32; border-color: #2e7d32; }
 .stamp-partial { color: #1565c0; border-color: #1565c0; }
@@ -316,94 +220,236 @@
 
 // ── Signature row ─────────────────────────────────────────────────────────────
 .sig-row {
-  display:         flex;
-  justify-content: space-between;
-  align-items:     flex-end;
-  margin-top:      16px;
-  padding-top:     8px;
-  border-top:      1px solid #e0e0e0;
+  display: flex; justify-content: space-between; align-items: flex-end;
+  margin-top: 16px; padding-top: 8px; border-top: 1px solid #e0e0e0;
 }
-.sig-block {
-  display:        flex;
-  flex-direction: column;
-  align-items:    center;
-  gap:            4px;
-  width:          42%;
-}
-.sig-line {
-  width:        100%;
-  border-bottom: 1px solid #555;
-  height:        28px;
-}
-.sig-label {
-  font-size:  9px;
-  color:      #555;
-  text-align: center;
-  letter-spacing: 0.5px;
-}
+.sig-block { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 42%; }
+.sig-line  { width: 100%; border-bottom: 1px solid #555; height: 28px; }
+.sig-label { font-size: 9px; color: #555; text-align: center; letter-spacing: 0.5px; }
 
 // ── Dashed cut line ───────────────────────────────────────────────────────────
 .cut-line {
-  display:         flex;
-  align-items:     center;
-  gap:             8px;
-  margin:          4px 0;
-  color:           #999;
-  font-size:       11px;
-
+  display: flex; align-items: center; gap: 8px;
+  margin: 4px 0; color: #999; font-size: 11px;
   &::before,
-  &::after {
-    content:    '';
-    flex:       1;
-    border-top: 1.5px dashed #bbb;
-  }
+  &::after { content: ''; flex: 1; border-top: 1.5px dashed #bbb; }
 }
 .cut-icon { font-size: 14px; }
 
+
+// ══════════════════════════════════════════════════════════════════════════════
+// RESPONSIVE TOOLBAR — MOBILE  (screen only, ≤ 600px)
+// ══════════════════════════════════════════════════════════════════════════════
+@media screen and (max-width: 600px) {
+  .slip-toolbar {
+    padding: 6px 10px;
+    gap: 4px;
+  }
+  .toolbar-title { font-size: 13px; }
+  .print-btn     { font-size: 0.82rem; padding: 0 10px !important; }
+}
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+// RESPONSIVE SLIP PREVIEW — MOBILE  (screen only, ≤ 640px)
+// ══════════════════════════════════════════════════════════════════════════════
+@media screen and (max-width: 640px) {
+
+  // ── Print area: edge-to-edge, minimal padding ──
+  .print-area { padding: 8px 6px; }
+
+  // ── Cut line ──
+  .cut-line { margin: 8px 0; }
+
+  // ── Slip card ──
+  .slip-doc {
+    padding:   14px 12px 14px;
+    font-size: 11.5px;
+    border-radius: 8px;
+    margin-bottom: 4px;
+  }
+
+  // ── Copy badge ──
+  .copy-badge { top: 8px; right: 10px; font-size: 8px; }
+
+  // ── Institute header ──
+  .slip-logo     { width: 40px; height: 40px; }
+  .slip-inst-name { font-size: 13px; letter-spacing: 0; }
+  .slip-inst-addr,
+  .slip-inst-phone { font-size: 10px; }
+
+  // ── Title bar ──
+  .slip-title { font-size: 11px; letter-spacing: 1px; }
+  .slip-ref   { font-size: 10px; }
+
+  // ── Info table: 4-col → 2-col pairs (label + value per visual row) ──
+  //   Each <tr> has 4 <td>s. grid(2 cols) turns them into 2 visual rows.
+  .info-table {
+    font-size: 11px;
+
+    tbody { display: block; }
+
+    tbody tr {
+      display:               grid;
+      grid-template-columns: minmax(90px, auto) 1fr;
+      border-bottom:         1px solid #e0e0e0;
+    }
+    tbody tr:last-child { border-bottom: none; }
+
+    td {
+      border:  none;
+      padding: 5px 8px;
+      display: block;
+      // Right border separates label from value
+      border-right: 1px solid #e0e0e0;
+    }
+
+    // Value cells (2nd and 4th): no right border
+    td:nth-child(2),
+    td:nth-child(4) { border-right: none; }
+
+    // Second label+value pair: add top border to visually separate rows
+    td:nth-child(3),
+    td:nth-child(4) { border-top: 1px solid #eee; }
+  }
+  .info-lbl {
+    width:       auto !important;   // override fixed 16%
+    white-space: normal;
+    background:  #f8f9fa;
+    font-size:   10px;
+  }
+  .info-val { width: auto !important; }
+
+  // ── Fee table: horizontally scrollable ──
+  .fee-table-scroll {
+    overflow-x:                auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom:  10px;
+    border:         1px solid #ddd;
+    border-radius:  6px;
+    // Fade right edge as a scroll hint
+    background: linear-gradient(to right, #fff 90%, rgba(21,101,192,0.05) 100%);
+  }
+  .fee-table {
+    min-width:    420px;   // prevent column squash
+    border:       none;    // border moved to wrapper
+    margin-bottom: 0;
+
+    th, td { padding: 5px 7px; white-space: nowrap; }
+  }
+
+  // ── Payment history table: horizontally scrollable ──
+  .payment-table-scroll {
+    overflow-x:                auto;
+    -webkit-overflow-scrolling: touch;
+    border:        1px solid #e0e0e0;
+    border-radius: 6px;
+  }
+  .payment-table {
+    min-width:    360px;
+    border:       none;
+    margin-bottom: 0;
+
+    th, td { padding: 4px 6px; white-space: nowrap; }
+  }
+
+  // ── Stamp ──
+  .stamp { font-size: 16px; padding: 4px 12px; letter-spacing: 2px; }
+}
+
+
 // ═══════════════════════════════════════════════════════════════════════════════
-// PRINT STYLES
+// PRINT  —  hard-reset ALL mobile overrides so print is pixel-perfect
 // ═══════════════════════════════════════════════════════════════════════════════
 @media print {
 
-  // Hide everything screen-only
   .no-print { display: none !important; }
 
-  // Remove screen chrome
-  .slip-page {
-    background: #fff;
-    min-height: unset;
-    padding:    0;
-  }
-  .print-area {
-    max-width: 100%;
-    padding:   0;
-    margin:    0;
-  }
+  .slip-page  { background: #fff; min-height: unset; padding: 0; }
+  .print-area { max-width: 100%; padding: 0; margin: 0; }
 
-  // Each copy fills half the page with a page break
   .slip-doc {
-    border:        none;
-    border-radius: 0;
-    padding:       12mm 14mm 10mm;
-    margin:        0;
-    box-shadow:    none;
-    break-inside:  avoid;
+    border: none; border-radius: 0; box-shadow: none;
+    padding:   12mm 14mm 10mm;
+    font-size: 12px;
+    margin-bottom: 4px;
   }
 
-  // Keep both copies on one page — no page break between them
-  .cut-line {
-    break-inside: avoid;
-    page-break-inside: avoid;
+  // ── Reset institute header ──
+  .slip-logo      { width: 64px !important; height: 64px !important; }
+  .slip-inst-name { font-size: 18px !important; letter-spacing: 0.5px !important; }
+  .slip-inst-addr,
+  .slip-inst-phone { font-size: 11px !important; }
+
+  // ── Reset title bar ──
+  .slip-title { font-size: 13px !important; letter-spacing: 2px !important; }
+  .slip-ref   { font-size: 11px !important; }
+
+  // ── Reset info-table back to original 4-column layout ──
+  .info-table {
+    font-size: 11px !important;
+    tbody    { display: table-row-group !important; }
+    tbody tr {
+      display:               table-row !important;
+      grid-template-columns: unset !important;
+      border-bottom:         none !important;
+    }
+    td {
+      display:  table-cell !important;
+      border:   1px solid #e0e0e0 !important;
+      padding:  4px 8px !important;
+    }
+    // Override per-child border overrides
+    td:nth-child(2),
+    td:nth-child(4) { border: 1px solid #e0e0e0 !important; }
+    td:nth-child(3),
+    td:nth-child(4) { border-top: 1px solid #e0e0e0 !important; }
+  }
+  .info-lbl {
+    width:       16% !important;
+    white-space: nowrap !important;
+  }
+  .info-val { width: 34% !important; }
+
+  // ── Reset fee-table scroll wrapper ──
+  .fee-table-scroll,
+  .payment-table-scroll {
+    overflow:   visible !important;
+    border:     none !important;
+    background: transparent !important;
+    margin-bottom: 0 !important;
+  }
+  .fee-table {
+    min-width:     unset !important;
+    border:        none !important;
+    margin-bottom: 10px !important;
+    font-size:     11px !important;
+    th, td {
+      border:     1px solid #ddd !important;
+      padding:    5px 8px !important;
+      white-space: nowrap !important;
+    }
+  }
+  .payment-table {
+    min-width: unset !important;
+    border:    none !important;
+    font-size: 10.5px !important;
+    th, td { border: 1px solid #e0e0e0 !important; padding: 4px 7px !important; }
   }
 
-  // Ensure colors print (Chrome suppresses backgrounds by default)
+  // ── Reset stamp ──
+  .stamp {
+    font-size:     22px !important;
+    padding:       6px 18px !important;
+    letter-spacing: 4px !important;
+  }
+
+  // Keep both copies on one page
+  .cut-line { break-inside: avoid; page-break-inside: avoid; }
+  .slip-doc { break-inside: avoid; }
+
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust:         exact !important;
-  }
-
-  // Remove white backgrounds that block print
-  .slip-doc, .info-table td.info-lbl, .fee-table thead th, .slip-title-bar {
-    -webkit-print-color-adjust: exact !important;
   }
 }

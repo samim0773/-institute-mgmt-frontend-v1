@@ -21,12 +21,38 @@
   z-index:       10;
   box-shadow:    0 1px 4px rgba(0,0,0,.08);
 }
+
+.toolbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
 .toolbar-title   { font-size: 16px; font-weight: 500; white-space: nowrap; }
 .toolbar-spacer  { flex: 1; min-width: 8px; }
-.toolbar-field   { width: 130px; margin-bottom: -1.25em; }
+
+.toolbar-controls {
+  display:     flex;
+  align-items: center;
+  gap:         8px;
+  flex-wrap:   wrap;
+}
+.toolbar-actions {
+  display:     flex;
+  align-items: center;
+  gap:         8px;
+  flex-wrap:   nowrap;
+}
+
+.toolbar-field {
+  width: 130px;
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
+}
 .toolbar-field--sm { width: 120px; }
-.btn-spinner     { display: inline-block; margin-right: 4px; }
-.print-btn       { white-space: nowrap; }
+
+.btn-spinner  { display: inline-block; margin-right: 4px; }
+.print-btn    { white-space: nowrap; }
 
 // ── States ────────────────────────────────────────────────────────────────────
 .hint-state {
@@ -36,8 +62,8 @@
   padding:         80px 0;
   color:           #9e9e9e;
   gap:             8px;
-  mat-icon         { font-size: 48px; width: 48px; height: 48px; }
-  p                { font-size: 14px; margin: 0; }
+  mat-icon { font-size: 48px; width: 48px; height: 48px; }
+  p        { font-size: 14px; margin: 0; text-align: center; }
 }
 
 .preview-banner {
@@ -48,7 +74,7 @@
   color:           #888;
   font-size:       13px;
   margin:          12px 0 4px;
-  mat-icon         { font-size: 16px; width: 16px; height: 16px; }
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
 }
 
 // ── Print area ────────────────────────────────────────────────────────────────
@@ -58,12 +84,10 @@
   padding:   16px;
 }
 
-// Each student's slip — full A4 page
 .slip-wrapper {
   break-after:      page;
   page-break-after: always;
   margin-bottom:    32px;
-
   &:last-child {
     break-after:      auto;
     page-break-after: auto;
@@ -71,7 +95,7 @@
   }
 }
 
-// ── Slip card ─────────────────────────────────────────────────────────────────
+// ── Slip document ─────────────────────────────────────────────────────────────
 .slip-doc {
   background:    #fff;
   border:        1px solid #ddd;
@@ -92,7 +116,7 @@
   margin-bottom:  10px;
 }
 .slip-logo      { width: 64px; height: 64px; object-fit: contain; flex-shrink: 0; }
-.slip-inst-text { flex: 1; }
+.slip-inst-text { flex: 1; min-width: 0; }
 .slip-inst-name {
   font-size: 18px; font-weight: 700; margin: 0 0 2px;
   color: #1565c0; text-transform: uppercase; letter-spacing: 0.5px;
@@ -114,7 +138,7 @@
 .slip-title { font-size: 13px; font-weight: 700; letter-spacing: 2px; }
 .slip-ref   { font-size: 11px; opacity: 0.85; font-family: monospace; }
 
-// ── Info grid ─────────────────────────────────────────────────────────────────
+// ── Info table ────────────────────────────────────────────────────────────────
 .slip-info-grid { margin-bottom: 10px; }
 .info-table {
   width: 100%; border-collapse: collapse; font-size: 11px;
@@ -132,9 +156,12 @@
   padding: 1px 5px; border-radius: 2px; margin-left: 6px; vertical-align: middle;
 }
 
+// ── Fee table scroll wrapper ──────────────────────────────────────────────────
+.fee-table-scroll { margin-bottom: 10px; }
+
 // ── Fee breakdown table ───────────────────────────────────────────────────────
 .fee-table {
-  width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 10px;
+  width: 100%; border-collapse: collapse; font-size: 11px;
 
   th, td { border: 1px solid #ddd; padding: 5px 8px; }
   thead th {
@@ -197,9 +224,129 @@
 .sig-line  { width: 100%; border-bottom: 1px solid #555; height: 28px; }
 .sig-label { font-size: 9px; color: #555; text-align: center; letter-spacing: 0.5px; }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// PRINT
-// ═══════════════════════════════════════════════════════════════════════════════
+
+// ══════════════════════════════════════════════════════════════════════════════
+// RESPONSIVE TOOLBAR — TABLET  (screen only, ≤ 768px)
+// ══════════════════════════════════════════════════════════════════════════════
+@media screen and (max-width: 768px) {
+  .toolbar-spacer { display: none; }
+  .toolbar-nav    { flex: 1; }
+  .toolbar-controls {
+    width: 100%;
+    padding-top: 6px;
+    border-top: 1px solid #f0f0f0;
+  }
+  .toolbar-field    { width: 140px; }
+  .toolbar-field--sm{ width: 120px; }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// RESPONSIVE TOOLBAR — MOBILE  (screen only, ≤ 600px)
+// ══════════════════════════════════════════════════════════════════════════════
+@media screen and (max-width: 600px) {
+  .bulk-toolbar   { padding: 8px 10px; gap: 4px; }
+  .toolbar-title  { font-size: 14px; }
+  .toolbar-controls { gap: 6px; }
+
+  .toolbar-field,
+  .toolbar-field--sm {
+    flex: 1 1 calc(50% - 4px);
+    width: auto;
+    min-width: 110px;
+  }
+  .toolbar-actions {
+    width: 100%;
+    button { flex: 1; justify-content: center; font-size: 0.82rem; }
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// RESPONSIVE SLIP PREVIEW — MOBILE  (screen only, ≤ 640px)
+// ══════════════════════════════════════════════════════════════════════════════
+@media screen and (max-width: 640px) {
+
+  // ── Print area: edge-to-edge, minimal padding ──
+  .print-area { padding: 8px 6px; }
+  .slip-wrapper { margin-bottom: 20px; }
+
+  // ── Slip card ──
+  .slip-doc {
+    padding:   14px 12px 14px;
+    font-size: 11.5px;
+    border-radius: 8px;
+  }
+
+  // ── Institute header ──
+  .slip-logo     { width: 44px; height: 44px; }
+  .slip-inst-name { font-size: 13px; letter-spacing: 0; }
+  .slip-inst-addr,
+  .slip-inst-phone { font-size: 10px; }
+
+  // ── Title bar ──
+  .slip-title    { font-size: 11px; letter-spacing: 1px; }
+  .slip-ref      { font-size: 10px; }
+
+  // ── Info table: 4-col → 2-col pairs (label + value per visual row) ──
+  //   Each <tr> has 4 <td>s; grid with 2 cols makes them flow as 2×2
+  .info-table {
+    font-size: 11px;
+
+    tbody { display: block; }
+
+    tbody tr {
+      display:               grid;
+      grid-template-columns: minmax(90px, auto) 1fr;
+      border-bottom:         1px solid #e0e0e0;
+    }
+    tbody tr:last-child { border-bottom: none; }
+
+    td {
+      border: none;
+      border-right: 1px solid #e0e0e0;
+      padding: 5px 8px;
+      display: block;
+    }
+
+    // Remove right border from last cell in each visual row (the value cell)
+    td:nth-child(2),
+    td:nth-child(4) { border-right: none; }
+
+    // Add a subtle top border to separate the second pair in each <tr>
+    td:nth-child(3) { border-top: 1px solid #eee; }
+    td:nth-child(4) { border-top: 1px solid #eee; }
+  }
+  .info-lbl {
+    width: auto;        // override the fixed 16% width
+    white-space: normal;
+    background: #f8f9fa;
+    font-size: 10px;
+  }
+  .info-val { width: auto; }
+
+  // ── Fee table: horizontally scrollable ──
+  .fee-table-scroll {
+    overflow-x:                auto;
+    -webkit-overflow-scrolling: touch;
+    border:        1px solid #ddd;
+    border-radius: 6px;
+    // Subtle scroll hint shadow on right edge
+    background: linear-gradient(to right, #fff 0%, #fff 85%, rgba(0,0,0,0.04) 100%);
+  }
+  .fee-table {
+    min-width: 420px;   // ensure columns don't get squashed
+    border: none;       // border is on the wrapper now
+    margin-bottom: 0;
+
+    th, td { padding: 5px 7px; white-space: nowrap; }
+  }
+
+  // ── Stamp ──
+  .stamp { font-size: 16px; padding: 4px 12px; letter-spacing: 2px; }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// PRINT  —  hard-reset ALL mobile overrides so print is pixel-perfect
+// ══════════════════════════════════════════════════════════════════════════════
 @media print {
 
   .no-print { display: none !important; }
@@ -219,8 +366,65 @@
 
   .slip-doc {
     border: none; border-radius: 0; box-shadow: none;
-    padding: 12mm 14mm 10mm;
+    padding:   12mm 14mm 10mm;
+    font-size: 12px;  // back to original
   }
+
+  // ── Reset institute header ──
+  .slip-logo     { width: 64px !important; height: 64px !important; }
+  .slip-inst-name { font-size: 18px !important; letter-spacing: 0.5px !important; }
+  .slip-inst-addr,
+  .slip-inst-phone { font-size: 11px !important; }
+
+  // ── Reset title bar ──
+  .slip-title { font-size: 13px !important; letter-spacing: 2px !important; }
+  .slip-ref   { font-size: 11px !important; }
+
+  // ── Reset info-table back to original 4-column layout ──
+  .info-table {
+    font-size: 11px !important;
+
+    tbody    { display: table-row-group !important; }
+    tbody tr {
+      display:               table-row !important;
+      grid-template-columns: unset !important;
+      border-bottom:         none !important;
+    }
+    td {
+      display:      table-cell !important;
+      border:       1px solid #e0e0e0 !important;
+      padding:      4px 8px !important;
+    }
+    td:nth-child(3),
+    td:nth-child(4) { border-top: 1px solid #e0e0e0 !important; }
+  }
+  .info-lbl {
+    width:       16% !important;
+    white-space: nowrap !important;
+  }
+  .info-val { width: 34% !important; }
+
+  // ── Reset fee-table scroll wrapper ──
+  .fee-table-scroll {
+    overflow:   visible !important;
+    border:     none !important;
+    background: transparent !important;
+  }
+  .fee-table {
+    min-width:  unset !important;
+    border:     none !important;
+    margin-bottom: 10px !important;
+    font-size:  11px !important;
+
+    th, td {
+      border:     1px solid #ddd !important;
+      padding:    5px 8px !important;
+      white-space: nowrap !important;
+    }
+  }
+
+  // ── Reset stamp ──
+  .stamp { font-size: 22px !important; padding: 6px 18px !important; letter-spacing: 4px !important; }
 
   * {
     -webkit-print-color-adjust: exact !important;

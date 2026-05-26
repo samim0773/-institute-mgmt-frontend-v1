@@ -1,47 +1,80 @@
 // fees-list.component.scss
-.fees-page { max-width: 1200px; margin: 0 auto; }
+.fees-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2px;
+}
 
+// ── Page header ───────────────────────────────────────────────────────────────
 .page-header {
-  display: flex; align-items: flex-start; justify-content: space-between;
-  flex-wrap: wrap; gap: 12px; margin-bottom: 20px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+
   button mat-icon { margin-right: 6px; vertical-align: middle; }
 }
-.header-actions { display: flex; align-items: center; gap: 8px; }
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
 .page-title { font-size: 1.4rem; font-weight: 700; color: #212121; margin: 0 0 2px; }
 .page-sub   { font-size: 0.85rem; color: #757575; margin: 0; }
 
 // ── Period selector ───────────────────────────────────────────────────────────
 .period-bar {
-  display: flex; align-items: center; flex-wrap: wrap; gap: 12px;
-  margin-bottom: 16px; background: #fff; padding: 10px 16px;
-  border-radius: 8px; border: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+  background: #fff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
   box-shadow: 0 1px 3px rgba(0,0,0,.04);
 }
 .period-toggle {
   ::ng-deep .mat-button-toggle { font-size: 0.8rem; }
 }
 .period-pickers {
-  display: flex; align-items: center; gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
 }
 .period-field      { width: 130px; }
 .period-field--yr  { width: 90px; }
 .period-label {
-  display: flex; align-items: center; gap: 4px; margin-left: auto;
-  font-size: 0.82rem; font-weight: 600; color: #1565c0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #1565c0;
   mat-icon { font-size: 16px; width: 16px; height: 16px; }
 }
 
 // ── Stat cards ────────────────────────────────────────────────────────────────
 .stat-row {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 12px; margin-bottom: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
 }
 .stat-card mat-card-content {
-  display: flex; align-items: center; gap: 14px; padding: 16px !important;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px !important;
   mat-icon { font-size: 32px; width: 32px; height: 32px; }
 }
-.stat-info { display: flex; flex-direction: column; }
+.stat-info  { display: flex; flex-direction: column; }
 .stat-label { font-size: 0.72rem; color: #757575; text-transform: uppercase; letter-spacing: 0.5px; }
 .stat-value { font-size: 1.2rem; font-weight: 700; }
 
@@ -57,34 +90,51 @@
   mat-icon { color: #f57f17; } .stat-value { color: #f57f17; } }
 
 // ── View toggle ───────────────────────────────────────────────────────────────
-.view-toggle { margin-bottom: 16px;
-  mat-icon { vertical-align: middle; font-size: 18px; margin-right: 4px; } }
+.view-toggle {
+  margin-bottom: 16px;
+  mat-icon { vertical-align: middle; font-size: 18px; margin-right: 4px; }
+}
 
 // ── Filters ───────────────────────────────────────────────────────────────────
 .filter-card { margin-bottom: 12px; padding: 12px 16px !important; }
 .filter-row  {
-  display: flex; align-items: center; flex-wrap: wrap; gap: 12px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
   ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
 }
 .filter-field { width: 180px; }
 .filter-hint {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 0.85rem; color: #757575;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #757575;
   mat-icon { font-size: 18px; width: 18px; height: 18px; color: #9e9e9e; }
 }
 
 // ── Grand total banner ────────────────────────────────────────────────────────
 .grand-total-banner {
-  background: #fff3e0; border: 1px solid #ffcc02;
-  border-radius: 8px; padding: 10px 16px; margin-bottom: 12px;
-  font-size: 0.9rem; color: #e65100;
+  background: #fff3e0;
+  border: 1px solid #ffcc02;
+  border-radius: 8px;
+  padding: 10px 16px;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+  color: #e65100;
   .total-amount { font-size: 1.05rem; color: #bf360c; }
 }
 
 // ── Empty state ───────────────────────────────────────────────────────────────
 .empty-state {
-  display: flex; flex-direction: column; align-items: center;
-  padding: 56px 24px; color: #9e9e9e; text-align: center; gap: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 56px 24px;
+  color: #9e9e9e;
+  text-align: center;
+  gap: 8px;
   mat-icon { font-size: 56px; width: 56px; height: 56px; opacity: 0.35; }
   h3 { margin: 8px 0 0; color: #616161; }
   p  { margin: 0; font-size: 0.875rem; }
@@ -97,7 +147,7 @@
   border-left: 4px solid transparent !important;
   &--overdue { border-left-color: #ef5350 !important; }
 }
-.panel-title { display: flex; align-items: center; gap: 0; }
+.panel-title   { display: flex; align-items: center; }
 .panel-student { display: flex; align-items: center; gap: 12px; }
 .student-avatar {
   width: 36px; height: 36px; border-radius: 50%;
@@ -107,35 +157,48 @@
 }
 .student-name { font-weight: 600; font-size: 0.9rem; display: block; }
 .student-meta { font-size: 0.75rem; color: #757575; }
-.panel-desc { display: flex; align-items: center; gap: 8px; }
-.panel-balance { font-weight: 700; font-size: 1rem; color: #424242;
-  &.balance-overdue { color: #c62828; } }
-.overdue-icon { font-size: 18px; width: 18px; height: 18px; color: #ef5350; }
+.panel-desc   { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.panel-balance {
+  font-weight: 700; font-size: 1rem; color: #424242; white-space: nowrap;
+  &.balance-overdue { color: #c62828; }
+}
+.overdue-icon { font-size: 18px; width: 18px; height: 18px; color: #ef5350; flex-shrink: 0; }
 
 // Fee rows inside panel
 .fee-rows { display: flex; flex-direction: column; gap: 8px; padding: 4px 0; }
 .fee-row {
-  display: flex; align-items: center; flex-wrap: wrap; gap: 12px;
-  padding: 10px 12px; background: #fafafa; border-radius: 6px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 10px 12px;
+  background: #fafafa;
+  border-radius: 6px;
   border: 1px solid #e0e0e0;
   &--overdue { background: #fff8f8; border-color: #ffcdd2; }
 }
-.fee-row-left { flex: 1; min-width: 140px; }
-.fee-type     { font-weight: 600; font-size: 0.875rem; display: block; }
-.fee-due-date { font-size: 0.75rem; color: #757575; }
-.fee-row-mid  { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
-.fee-billed   { font-size: 0.85rem; color: #424242; }
+.fee-row-left  { flex: 1; min-width: 140px; }
+.fee-type      { font-weight: 600; font-size: 0.875rem; display: block; }
+.fee-due-date  { font-size: 0.75rem; color: #757575; }
+.fee-row-mid   { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.fee-billed    { font-size: 0.85rem; color: #424242; }
 .fee-paid-label { font-size: 0.8rem; color: #2e7d32; }
-.fee-fine     { font-size: 0.78rem; color: #c62828; font-weight: 600; }
+.fee-fine      { font-size: 0.78rem; color: #c62828; font-weight: 600; }
 .fee-row-right { display: flex; align-items: center; gap: 8px; margin-left: auto; }
 .pay-btn mat-icon { font-size: 16px; width: 16px; height: 16px; margin-right: 4px; }
 
 // Panel footer
 .panel-footer {
-  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
-  gap: 8px; padding-top: 12px; border-top: 1px solid #e0e0e0; margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid #e0e0e0;
+  margin-top: 8px;
 }
-.panel-footer-actions { display: flex; align-items: center; gap: 8px; }
+.panel-footer-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .panel-summary { font-size: 0.875rem; color: #616161; }
 .fine-note     { color: #c62828; margin-left: 8px; font-weight: 600; }
 
@@ -143,23 +206,22 @@
 .bill-panel { margin-bottom: 0; }
 
 .bill-meta-chips {
-  display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-right: 12px;
 }
-
 .bill-due-chip {
   font-size: 0.72rem; color: #616161; background: #f5f5f5;
-  border-radius: 10px; padding: 2px 8px;
+  border-radius: 10px; padding: 2px 8px; white-space: nowrap;
   &.chip-overdue { background: #ffebee; color: #c62828; }
 }
-
 .bill-year-chip {
   font-size: 0.72rem; color: #1565c0; background: #e3f2fd;
-  border-radius: 10px; padding: 2px 8px;
+  border-radius: 10px; padding: 2px 8px; white-space: nowrap;
 }
-
-.fee-due-chip {
-  font-size: 0.8rem; color: #c62828; font-weight: 600;
-}
+.fee-due-chip   { font-size: 0.8rem; color: #c62828; font-weight: 600; }
 
 .bill-notes-row {
   display: flex; align-items: flex-start; gap: 8px;
@@ -173,10 +235,193 @@
 
 // ── Status badges ─────────────────────────────────────────────────────────────
 .status-badge {
-  font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 12px;
-  display: inline-block;
+  font-size: 0.72rem; font-weight: 700; padding: 3px 10px;
+  border-radius: 12px; display: inline-block; white-space: nowrap;
 }
 .badge-pending { background: #fff8e1; color: #f57f17; }
 .badge-partial { background: #e3f2fd; color: #1565c0; }
 .badge-paid    { background: #e8f5e9; color: #2e7d32; }
 .badge-waived  { background: #f3e5f5; color: #6a1b9a; }
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+// RESPONSIVE — TABLET  (≤ 960px)
+// ══════════════════════════════════════════════════════════════════════════════
+@media (max-width: 960px) {
+
+  .stat-row { grid-template-columns: repeat(3, 1fr); }
+
+  // Chips in bill panel header: collapse the year chip on tight screens
+  .bill-year-chip { display: none; }
+
+  // Footer buttons smaller
+  .panel-footer-actions button { font-size: 0.78rem; }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// RESPONSIVE — MOBILE  (≤ 600px)
+// ══════════════════════════════════════════════════════════════════════════════
+@media (max-width: 600px) {
+
+  .fees-page { padding: 0; }
+
+  /* ── Page header ── */
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 0 2px;
+  }
+  .header-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    button { width: 100%; justify-content: center; font-size: 0.82rem; }
+  }
+  .page-title { font-size: 1.15rem; }
+  .page-sub   { font-size: 0.8rem; }
+
+  /* ── Period bar — horizontal scroll ── */
+  .period-bar {
+    padding: 8px 12px;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    gap: 8px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+  }
+  .period-toggle {
+    flex-shrink: 0;
+    ::ng-deep .mat-button-toggle { font-size: 0.72rem; padding: 0 8px; }
+  }
+  .period-label {
+    flex-shrink: 0;
+    margin-left: 4px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+  .period-pickers { flex-shrink: 0; }
+  .period-field     { width: 105px; }
+  .period-field--yr { width: 78px; }
+
+  /* ── Stat cards — 2 × N grid ── */
+  .stat-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .stat-card mat-card-content {
+    gap: 8px;
+    padding: 10px 12px !important;
+    mat-icon { font-size: 22px; width: 22px; height: 22px; }
+  }
+  .stat-value { font-size: 0.95rem; }
+  .stat-label { font-size: 0.65rem; }
+
+  /* ── View toggle — full width ── */
+  .view-toggle {
+    ::ng-deep .mat-button-toggle-group { width: 100%; border-radius: 8px; }
+    ::ng-deep .mat-button-toggle { flex: 1; font-size: 0.78rem; }
+    ::ng-deep .mat-button-toggle-label-content { padding: 0 8px; }
+  }
+
+  /* ── Filter card ── */
+  .filter-card {
+    padding: 10px 12px !important;
+    border-radius: 0 !important;
+    margin-bottom: 8px;
+  }
+  .filter-field { width: 100%; }
+  .filter-row   { gap: 8px; }
+  .filter-hint  { font-size: 0.8rem; }
+
+  /* ── Grand total banner ── */
+  .grand-total-banner {
+    border-radius: 0;
+    font-size: 0.82rem;
+    padding: 8px 12px;
+  }
+
+  /* ── Student panel header ── */
+  .student-avatar { width: 30px; height: 30px; font-size: 0.78rem; }
+  .student-name   { font-size: 0.82rem; }
+  .student-meta   { font-size: 0.7rem; }
+
+  /* ── Bill-panel header: show only balance + status badge ── */
+  .bill-meta-chips {
+    display: none; // moved into expanded body on mobile conceptually
+  }
+  .panel-balance  { font-size: 0.88rem; }
+
+  /* ── Fee rows — full-width card stack ── */
+  .fee-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 10px;
+    border-radius: 8px;
+  }
+  .fee-row-left  { min-width: unset; width: 100%; }
+  .fee-row-mid   {
+    width: 100%;
+    gap: 8px;
+    background: #f0f4ff;
+    border-radius: 6px;
+    padding: 6px 8px;
+  }
+  .fee-row-right {
+    width: 100%;
+    margin-left: 0;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 4px;
+    border-top: 1px dashed #e0e0e0;
+  }
+  .pay-btn {
+    flex: 1;
+    ::ng-deep .mat-mdc-button-touch-target { height: 44px; }
+  }
+
+  /* ── Panel footer ── */
+  .panel-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .panel-footer-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    button {
+      width: 100%;
+      justify-content: center;
+      font-size: 0.78rem;
+    }
+    // If there are 3 buttons, make first one full width
+    button:first-child:nth-last-child(3),
+    button:first-child:nth-last-child(3) ~ button { grid-column: span 1; }
+    button:only-child { grid-column: 1 / -1; }
+  }
+  .panel-summary { font-size: 0.8rem; }
+
+  /* ── Paginator ── */
+  ::ng-deep .mat-mdc-paginator {
+    border-radius: 0;
+    .mat-mdc-paginator-range-label { font-size: 0.75rem; }
+    .mat-mdc-paginator-page-size  { display: none; } // hide "Items per page" on mobile
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// RESPONSIVE — SMALL MOBILE  (≤ 400px)
+// ══════════════════════════════════════════════════════════════════════════════
+@media (max-width: 400px) {
+  .header-actions { grid-template-columns: 1fr; }
+  .stat-row { grid-template-columns: 1fr 1fr; gap: 6px; }
+  .stat-card mat-card-content { padding: 8px 10px !important; }
+  .stat-value { font-size: 0.88rem; }
+
+  .panel-footer-actions { grid-template-columns: 1fr; }
+}
