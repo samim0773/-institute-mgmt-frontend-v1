@@ -23,7 +23,7 @@
     </button>
   </div>
 
-  <!-- ── Step selectors ────────────────────────────────────────────────────────── -->
+  <!-- ── Step selectors ─────────────────────────────────────────────────────── -->
   <mat-card class="selector-card">
     <div class="selector-row">
 
@@ -62,7 +62,7 @@
         </mat-select>
       </mat-form-field>
 
-      <!-- Step 4: Subject (only when teacher assigned to multiple subjects in this exam) -->
+      <!-- Step 4: Subject -->
       <mat-form-field appearance="outline" class="sel-field"
         *ngIf="selectedExam && availableSubjects.length > 1">
         <mat-label>Subject</mat-label>
@@ -99,7 +99,6 @@
           {{ selectedSubjectName }} · Max Marks: <strong>{{ maxMarks }}</strong>
           · Pass: <strong>{{ currentSubject?.passingMarks ?? 0 }}</strong>
         </span>
-        <!-- Oral subject breakdown in banner -->
         <span class="exam-banner-sub" *ngIf="hasOral">
           {{ selectedSubjectName }}
           &nbsp;·&nbsp;
@@ -127,21 +126,24 @@
     </div>
   </div>
 
-  <!-- ── Loading roster ───────────────────────────────────────────────────────── -->
+  <!-- ── Loading roster ─────────────────────────────────────────────────────── -->
   <div class="loading-center" *ngIf="loadingStudents">
     <mat-spinner diameter="40"></mat-spinner>
     <span>Loading student roster…</span>
   </div>
 
-  <!-- ── No students ──────────────────────────────────────────────────────────── -->
+  <!-- ── No students ────────────────────────────────────────────────────────── -->
   <div class="empty-state" *ngIf="!loadingStudents && selectedExam && selectedSubjectName && entries.length === 0">
     <mat-icon>people_outline</mat-icon>
     <h3>No students found</h3>
     <p>Class {{ selectedClass }}-{{ selectedSection }} has no active students.</p>
   </div>
 
-  <!-- ══ Marks entry table ══════════════════════════════════════════════════════ -->
-  <mat-card class="table-card" *ngIf="entries.length > 0">
+
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       DESKTOP TABLE  (hidden on mobile via CSS)
+  ══════════════════════════════════════════════════════════════════════════════ -->
+  <mat-card class="table-card desktop-table" *ngIf="entries.length > 0">
     <div class="table-scroll">
       <table class="marks-table" aria-label="Marks entry table">
 
@@ -151,24 +153,14 @@
             <th class="col-name">Student</th>
             <th class="col-absent">Absent</th>
 
-            <!-- ── Non-oral: single Marks column ── -->
             <ng-container *ngIf="!hasOral">
-              <th class="col-marks">
-                Marks <span class="max-label">(/ {{ maxMarks }})</span>
-              </th>
+              <th class="col-marks">Marks <span class="max-label">(/ {{ maxMarks }})</span></th>
             </ng-container>
 
-            <!-- ── Oral: Written + Oral + Total columns ── -->
             <ng-container *ngIf="hasOral">
-              <th class="col-oral">
-                Written <span class="max-label">(/ {{ writtenMax }})</span>
-              </th>
-              <th class="col-oral">
-                Oral <span class="max-label">(/ {{ oralMax }})</span>
-              </th>
-              <th class="col-total">
-                Total <span class="max-label">(/ {{ maxMarks }})</span>
-              </th>
+              <th class="col-oral">Written <span class="max-label">(/ {{ writtenMax }})</span></th>
+              <th class="col-oral">Oral <span class="max-label">(/ {{ oralMax }})</span></th>
+              <th class="col-total">Total <span class="max-label">(/ {{ maxMarks }})</span></th>
             </ng-container>
 
             <th class="col-remarks">Remarks</th>
@@ -184,7 +176,6 @@
             [class.row-saved]="entry.saved"
             [class.row-error]="!!entry.error"
           >
-
             <td class="col-roll">
               <span class="roll-chip">{{ entry.rollNo }}</span>
             </td>
@@ -208,63 +199,44 @@
               ></mat-checkbox>
             </td>
 
-            <!-- ── Non-oral: single marks input ── -->
             <ng-container *ngIf="!hasOral">
               <td class="col-marks">
-                <input
-                  type="number"
-                  class="marks-input"
+                <input type="number" class="marks-input"
                   [class.marks-input--error]="!!entry.error"
                   [(ngModel)]="entry.marks"
                   (ngModelChange)="onMarkChange(entry)"
                   [disabled]="entry.isAbsent"
-                  [min]="0"
-                  [max]="maxMarks"
+                  [min]="0" [max]="maxMarks"
                   placeholder="—"
-                  [attr.aria-label]="'Marks for ' + entry.name"
-                />
+                  [attr.aria-label]="'Marks for ' + entry.name" />
                 <span class="row-error-msg" *ngIf="entry.error">{{ entry.error }}</span>
               </td>
             </ng-container>
 
-            <!-- ── Oral: Written input ── -->
             <ng-container *ngIf="hasOral">
               <td class="col-oral">
-                <input
-                  type="number"
-                  class="marks-input oral-input"
+                <input type="number" class="marks-input oral-input"
                   [class.marks-input--error]="!!entry.error"
                   [(ngModel)]="entry.writtenMarks"
                   (ngModelChange)="onMarkChange(entry)"
                   [disabled]="entry.isAbsent"
-                  [min]="0"
-                  [max]="writtenMax"
+                  [min]="0" [max]="writtenMax"
                   placeholder="—"
-                  [attr.aria-label]="'Written marks for ' + entry.name"
-                />
+                  [attr.aria-label]="'Written marks for ' + entry.name" />
               </td>
-
-              <!-- ── Oral: Oral input ── -->
               <td class="col-oral">
-                <input
-                  type="number"
-                  class="marks-input oral-input"
+                <input type="number" class="marks-input oral-input"
                   [class.marks-input--error]="!!entry.error"
                   [(ngModel)]="entry.oralMarks"
                   (ngModelChange)="onMarkChange(entry)"
                   [disabled]="entry.isAbsent"
-                  [min]="0"
-                  [max]="oralMax"
+                  [min]="0" [max]="oralMax"
                   placeholder="—"
-                  [attr.aria-label]="'Oral marks for ' + entry.name"
-                />
+                  [attr.aria-label]="'Oral marks for ' + entry.name" />
               </td>
-
-              <!-- ── Oral: Computed total cell ── -->
               <td class="col-total tc">
                 <span *ngIf="entry.isAbsent" class="absent-tag">AB</span>
-                <span *ngIf="!entry.isAbsent && rowTotal(entry) !== null"
-                      class="total-chip">
+                <span *ngIf="!entry.isAbsent && rowTotal(entry) !== null" class="total-chip">
                   {{ rowTotal(entry) }}
                 </span>
                 <span *ngIf="!entry.isAbsent && rowTotal(entry) === null" class="na-dash">—</span>
@@ -273,35 +245,27 @@
             </ng-container>
 
             <td class="col-remarks">
-              <input
-                type="text"
-                class="remarks-input"
+              <input type="text" class="remarks-input"
                 [(ngModel)]="entry.remarks"
                 (ngModelChange)="onMarkChange(entry)"
                 placeholder="optional"
                 maxlength="200"
-                [attr.aria-label]="'Remarks for ' + entry.name"
-              />
+                [attr.aria-label]="'Remarks for ' + entry.name" />
             </td>
 
             <td class="col-save tc">
-              <button
-                mat-icon-button
+              <button mat-icon-button
                 (click)="saveRow(entry)"
                 [disabled]="entry.saving"
                 [class.save-btn-saved]="entry.saved"
-                [matTooltip]="entry.saved ? 'Saved ✓' : 'Save this row'"
-              >
+                [matTooltip]="entry.saved ? 'Saved ✓' : 'Save this row'">
                 <mat-spinner *ngIf="entry.saving" diameter="18"></mat-spinner>
-                <mat-icon *ngIf="!entry.saving">
-                  {{ entry.saved ? 'check_circle' : 'save' }}
-                </mat-icon>
+                <mat-icon *ngIf="!entry.saving">{{ entry.saved ? 'check_circle' : 'save' }}</mat-icon>
               </button>
             </td>
 
           </tr>
         </tbody>
-
       </table>
     </div>
 
@@ -310,17 +274,202 @@
         <mat-icon [class.all-done]="allSaved">{{ allSaved ? 'check_circle' : 'pending' }}</mat-icon>
         {{ savedCount }} of {{ entries.length }} entries saved
       </span>
-      <button
-        mat-raised-button color="primary"
+      <button mat-raised-button color="primary"
         (click)="saveAll()"
         [disabled]="savingAll || allSaved"
-        class="save-all-btn"
-      >
+        class="save-all-btn">
         <mat-spinner *ngIf="savingAll" diameter="18" class="btn-spinner"></mat-spinner>
         <mat-icon *ngIf="!savingAll">save</mat-icon>
         {{ allSaved ? 'All Saved ✓' : (savingAll ? 'Saving…' : 'Save All') }}
       </button>
     </div>
   </mat-card>
+
+
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       MOBILE CARDS  (shown ≤ 640px via CSS, hidden on desktop)
+  ══════════════════════════════════════════════════════════════════════════════ -->
+  <div class="mobile-entry-list" *ngIf="entries.length > 0">
+
+    <!-- Sticky progress strip -->
+    <div class="mob-progress-strip">
+      <div class="mob-prog-label">
+        <mat-icon [class.all-done]="allSaved">{{ allSaved ? 'check_circle' : 'pending' }}</mat-icon>
+        <span>{{ savedCount }} / {{ entries.length }} saved</span>
+      </div>
+      <mat-progress-bar
+        mode="determinate"
+        [value]="completionPct"
+        [color]="allSaved ? 'accent' : 'primary'"
+        class="mob-prog-bar"
+      ></mat-progress-bar>
+    </div>
+
+    <!-- One card per student -->
+    <div
+      *ngFor="let entry of entries; trackBy: trackByStudentId"
+      class="emc"
+      [class.emc--absent]="entry.isAbsent"
+      [class.emc--saved]="entry.saved"
+      [class.emc--error]="!!entry.error"
+    >
+
+      <!-- ── Card header: avatar + name + status badge ── -->
+      <div class="emc-header">
+        <div class="emc-avatar">{{ entry.name[0] }}</div>
+        <div class="emc-student">
+          <span class="emc-name">{{ entry.name }}</span>
+          <span class="emc-meta">Roll {{ entry.rollNo }} · Sec {{ entry.section }}</span>
+        </div>
+        <span class="emc-status-badge emc-status--saved"
+          *ngIf="entry.saved && !entry.isAbsent">
+          <mat-icon>check_circle</mat-icon> Saved
+        </span>
+        <span class="emc-status-badge emc-status--absent"
+          *ngIf="entry.isAbsent">
+          <mat-icon>person_off</mat-icon> Absent
+        </span>
+        <span class="emc-status-badge emc-status--error"
+          *ngIf="!!entry.error && !entry.isAbsent">
+          <mat-icon>error</mat-icon>
+        </span>
+      </div>
+
+      <!-- ── Absent toggle ── -->
+      <div class="emc-absent-row">
+        <button type="button" class="absent-toggle"
+          [class.absent-toggle--on]="entry.isAbsent"
+          (click)="toggleAbsent(entry)">
+          <mat-icon>{{ entry.isAbsent ? 'person_off' : 'person' }}</mat-icon>
+          {{ entry.isAbsent ? 'Absent — tap to undo' : 'Mark as Absent' }}
+        </button>
+      </div>
+
+      <!-- ── Marks inputs (visible only when not absent) ── -->
+      <ng-container *ngIf="!entry.isAbsent">
+
+        <!-- Non-oral subject -->
+        <ng-container *ngIf="!hasOral">
+          <div class="emc-marks-section">
+            <div class="emc-field">
+              <label class="emc-label">
+                Marks
+                <span class="emc-max">/ {{ maxMarks }}</span>
+              </label>
+              <input type="number"
+                class="emc-input"
+                [class.emc-input--error]="!!entry.error"
+                [(ngModel)]="entry.marks"
+                (ngModelChange)="onMarkChange(entry)"
+                [min]="0" [max]="maxMarks"
+                placeholder="—"
+                inputmode="numeric"
+                [attr.aria-label]="'Marks for ' + entry.name" />
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- Oral subject -->
+        <ng-container *ngIf="hasOral">
+          <div class="emc-marks-section">
+            <div class="emc-oral-row">
+
+              <div class="emc-field">
+                <label class="emc-label">
+                  <span class="oral-tag oral-tag--w">W</span>
+                  Written
+                  <span class="emc-max">/ {{ writtenMax }}</span>
+                </label>
+                <input type="number"
+                  class="emc-input"
+                  [class.emc-input--error]="!!entry.error"
+                  [(ngModel)]="entry.writtenMarks"
+                  (ngModelChange)="onMarkChange(entry)"
+                  [min]="0" [max]="writtenMax"
+                  placeholder="—"
+                  inputmode="numeric"
+                  [attr.aria-label]="'Written marks for ' + entry.name" />
+              </div>
+
+              <div class="emc-field">
+                <label class="emc-label">
+                  <span class="oral-tag oral-tag--o">O</span>
+                  Oral
+                  <span class="emc-max">/ {{ oralMax }}</span>
+                </label>
+                <input type="number"
+                  class="emc-input"
+                  [(ngModel)]="entry.oralMarks"
+                  (ngModelChange)="onMarkChange(entry)"
+                  [min]="0" [max]="oralMax"
+                  placeholder="—"
+                  inputmode="numeric"
+                  [attr.aria-label]="'Oral marks for ' + entry.name" />
+              </div>
+
+            </div>
+
+            <!-- Total chip row -->
+            <div class="emc-total-row" *ngIf="rowTotal(entry) !== null">
+              <span class="emc-total-label">Total</span>
+              <span class="emc-total-value">{{ rowTotal(entry) }} / {{ maxMarks }}</span>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- Error message -->
+        <div class="emc-error-msg" *ngIf="entry.error">
+          <mat-icon>warning</mat-icon>
+          {{ entry.error }}
+        </div>
+
+        <!-- Remarks -->
+        <div class="emc-remarks-section">
+          <label class="emc-label">Remarks <span class="emc-max">(optional)</span></label>
+          <input type="text"
+            class="emc-remarks"
+            [(ngModel)]="entry.remarks"
+            (ngModelChange)="onMarkChange(entry)"
+            placeholder="Add a note…"
+            maxlength="200"
+            [attr.aria-label]="'Remarks for ' + entry.name" />
+        </div>
+
+      </ng-container>
+
+      <!-- Absent placeholder -->
+      <div class="emc-absent-placeholder" *ngIf="entry.isAbsent">
+        <mat-icon>event_busy</mat-icon>
+        <span>No marks required for absent students</span>
+      </div>
+
+      <!-- ── Save button ── -->
+      <div class="emc-footer">
+        <button mat-raised-button
+          class="emc-save-btn"
+          [color]="entry.saved ? 'accent' : 'primary'"
+          (click)="saveRow(entry)"
+          [disabled]="entry.saving">
+          <mat-spinner *ngIf="entry.saving" diameter="18" class="btn-spinner"></mat-spinner>
+          <mat-icon *ngIf="!entry.saving">{{ entry.saved ? 'check_circle' : 'save' }}</mat-icon>
+          {{ entry.saving ? 'Saving…' : entry.saved ? 'Saved ✓' : 'Save' }}
+        </button>
+      </div>
+
+    </div><!-- /emc -->
+
+    <!-- ── Bottom Save All ── -->
+    <div class="mob-save-all-wrap">
+      <button mat-raised-button color="primary"
+        (click)="saveAll()"
+        [disabled]="savingAll || allSaved"
+        class="mob-save-all-btn">
+        <mat-spinner *ngIf="savingAll" diameter="18" class="btn-spinner"></mat-spinner>
+        <mat-icon *ngIf="!savingAll">save</mat-icon>
+        {{ allSaved ? 'All Saved ✓' : (savingAll ? 'Saving…' : 'Save All Entries') }}
+      </button>
+    </div>
+
+  </div><!-- /mobile-entry-list -->
 
 </div>
