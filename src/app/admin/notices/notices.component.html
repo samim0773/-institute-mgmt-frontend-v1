@@ -49,12 +49,16 @@
 
     <!-- Notice cards -->
     <div class="notices-list" *ngIf="!loading && filteredNotices.length > 0">
-      <mat-card *ngFor="let n of filteredNotices; trackBy: trackById" class="notice-card"
+      <mat-card
+        *ngFor="let n of filteredNotices; trackBy: trackById"
+        class="notice-card"
         [class.notice-card--draft]="!n.isPublished"
         [class.notice-card--urgent]="(n | noticeCategory) === 'urgent'"
         (click)="openEdit(n)">
+
         <mat-card-content class="card-inner">
 
+          <!-- ── Top: emoji + body text ── -->
           <div class="notice-main">
             <span class="notice-emoji">{{ emoji((n | noticeCategory) || 'general') }}</span>
             <div class="notice-body">
@@ -74,33 +78,50 @@
             </div>
           </div>
 
+          <!-- ── Bottom: status + action buttons ── -->
           <div class="notice-actions" (click)="$event.stopPropagation()">
-            <span class="status-chip" [class.chip-published]="n.isPublished" [class.chip-draft]="!n.isPublished">
+
+            <span class="status-chip"
+              [class.chip-published]="n.isPublished"
+              [class.chip-draft]="!n.isPublished">
               <mat-icon>{{ n.isPublished ? 'public' : 'edit_note' }}</mat-icon>
               {{ n.isPublished ? 'Live' : 'Draft' }}
             </span>
 
-            <button mat-icon-button color="primary" *ngIf="!n.isPublished"
-              (click)="publish(n, $event)" [disabled]="actioningId === n._id" matTooltip="Publish">
-              <mat-spinner *ngIf="actioningId === n._id" diameter="18"></mat-spinner>
-              <mat-icon *ngIf="actioningId !== n._id">publish</mat-icon>
-            </button>
-            <button mat-icon-button *ngIf="n.isPublished"
-              (click)="unpublish(n, $event)" [disabled]="actioningId === n._id" matTooltip="Unpublish">
-              <mat-icon>unpublished</mat-icon>
-            </button>
-            <button mat-icon-button (click)="openEdit(n); $event.stopPropagation()" matTooltip="Edit">
-              <mat-icon>edit</mat-icon>
-            </button>
-            <button mat-icon-button (click)="printNotice(n, $event)" matTooltip="Print notice (A4)">
-              <mat-icon>print</mat-icon>
-            </button>
-            <button mat-icon-button color="warn" (click)="delete(n, $event)"
-              [disabled]="deletingId === n._id" matTooltip="Delete">
-              <mat-spinner *ngIf="deletingId === n._id" diameter="18"></mat-spinner>
-              <mat-icon *ngIf="deletingId !== n._id">delete_outline</mat-icon>
-            </button>
-          </div>
+            <div class="action-btns">
+              <!-- Publish / Unpublish -->
+              <button mat-icon-button color="primary" *ngIf="!n.isPublished"
+                (click)="publish(n, $event)" [disabled]="actioningId === n._id" matTooltip="Publish">
+                <mat-spinner *ngIf="actioningId === n._id" diameter="18"></mat-spinner>
+                <mat-icon *ngIf="actioningId !== n._id">publish</mat-icon>
+              </button>
+              <button mat-icon-button *ngIf="n.isPublished"
+                (click)="unpublish(n, $event)" [disabled]="actioningId === n._id" matTooltip="Unpublish">
+                <mat-icon>unpublished</mat-icon>
+              </button>
+
+              <!-- Edit -->
+              <button mat-icon-button
+                (click)="openEdit(n); $event.stopPropagation()" matTooltip="Edit">
+                <mat-icon>edit</mat-icon>
+              </button>
+
+              <!-- Print -->
+              <button mat-icon-button
+                (click)="printNotice(n, $event)" matTooltip="Print notice (A4)">
+                <mat-icon>print</mat-icon>
+              </button>
+
+              <!-- Delete -->
+              <button mat-icon-button color="warn"
+                (click)="delete(n, $event)"
+                [disabled]="deletingId === n._id" matTooltip="Delete">
+                <mat-spinner *ngIf="deletingId === n._id" diameter="18"></mat-spinner>
+                <mat-icon *ngIf="deletingId !== n._id">delete_outline</mat-icon>
+              </button>
+            </div>
+
+          </div><!-- /notice-actions -->
 
         </mat-card-content>
       </mat-card>
@@ -299,7 +320,8 @@
         <mat-form-field appearance="outline" class="field-full">
           <mat-label>Attachment URL (optional)</mat-label>
           <mat-icon matPrefix>attach_file</mat-icon>
-          <input matInput formControlName="attachmentUrl" placeholder="https://example.com/circular.pdf" type="url" />
+          <input matInput formControlName="attachmentUrl"
+            placeholder="https://example.com/circular.pdf" type="url" />
           <mat-error *ngIf="form.get('attachmentUrl')?.touched && form.get('attachmentUrl')?.invalid">
             Enter a valid URL (must start with https://)
           </mat-error>
