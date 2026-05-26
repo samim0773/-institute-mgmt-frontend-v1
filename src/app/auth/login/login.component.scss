@@ -177,15 +177,30 @@ $error:         #f87171;
 
 // ── Back to home link ─────────────────────────────────────────────────────────
 .back-home-link {
-  display:     inline-flex;
-  align-items: center;
-  gap:         0.4rem;
-  color:       $text-muted;
-  font-size:   0.82rem;
+  display:       inline-flex;
+  align-items:   center;
+  gap:           0.4rem;
+  color:         $text-secondary;
+  font-size:     0.82rem;
+  font-weight:   500;
   text-decoration: none;
-  transition:  color 0.2s;
-  mat-icon { font-size: 0.95rem !important; width: 0.95rem !important; height: 0.95rem !important; }
-  &:hover { color: $accent; }
+  padding:       6px 14px 6px 10px;
+  border:        1px solid rgba(100, 255, 218, 0.28);
+  border-radius: 20px;
+  background:    rgba(100, 255, 218, 0.05);
+  transition:    color 0.2s, border-color 0.2s, background 0.2s;
+
+  mat-icon {
+    font-size: 0.95rem !important;
+    width:     0.95rem !important;
+    height:    0.95rem !important;
+  }
+
+  &:hover {
+    color:        $accent;
+    border-color: $accent;
+    background:   $accent-dim;
+  }
 }
 
 // ══ RIGHT FORM PANEL ══════════════════════════════════════════════════════════

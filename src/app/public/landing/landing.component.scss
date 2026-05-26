@@ -178,7 +178,9 @@ $border-hover:  rgba(100, 255, 218, 0.3);
     gap: 1rem;
     &.open { display: flex; }
   }
-  .nav-actions { display: none; }
+  .nav-actions {
+    .btn-start { display: none; }
+  }
 }
 
 // ─── Hero ─────────────────────────────────────────────────────────────────────
