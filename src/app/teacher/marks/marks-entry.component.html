@@ -132,8 +132,8 @@
     <span>Loading student roster…</span>
   </div>
 
-  <!-- ── No students ────────────────────────────────────────────────────────── -->
-  <div class="empty-state" *ngIf="!loadingStudents && selectedExam && selectedSubjectName && entries.length === 0">
+  <!-- ── No students (only shows after FULL load completes with 0 results) ── -->
+  <div class="empty-state" *ngIf="!loadingStudents && selectedSubjectName && entries.length === 0">
     <mat-icon>people_outline</mat-icon>
     <h3>No students found</h3>
     <p>Class {{ selectedClass }}-{{ selectedSection }} has no active students.</p>

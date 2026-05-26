@@ -194,10 +194,11 @@ export class MarksEntryComponent implements OnInit, OnDestroy {
       isActive: true,
       limit:    200,
     }).pipe(
-      finalize(() => this.loadingStudents = false),
+      // Do NOT finalize here — keep loadingStudents=true until marks are also fetched
       takeUntil(this.destroy$),
     ).subscribe({
-      next: res => this.loadExistingMarks(res.data || []),
+      next:  res   => this.loadExistingMarks(res.data || []),
+      error: ()    => { this.loadingStudents = false; this.entries = []; },
     });
   }
 
@@ -208,7 +209,11 @@ export class MarksEntryComponent implements OnInit, OnDestroy {
     this.http.get<ApiResponse<any>>(
       `${environment.apiUrl}/marks/${this.selectedExam._id}/${this.selectedClass}`,
       { params },
-    ).pipe(takeUntil(this.destroy$))
+    ).pipe(
+      // Set loadingStudents=false only after BOTH students + marks are fetched
+      finalize(() => this.loadingStudents = false),
+      takeUntil(this.destroy$),
+    )
       .subscribe({
         next: res => {
           const roster = res.data || [];
