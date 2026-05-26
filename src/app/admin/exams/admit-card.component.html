@@ -15,9 +15,9 @@
           {{ admitCard?.student?.name || 'Admit Card' }}
         </span>
         <span class="toolbar-sub" *ngIf="admitCard">
-          {{ admitCard.exam?.name }}
+          {{ admitCard.exam.name }}
           <span class="sub-sep">·</span>
-          Class {{ admitCard.student?.class }}-{{ admitCard.student?.section }}
+          Class {{ admitCard.student.class }}-{{ admitCard.student.section }}
           <span class="sub-sep">·</span>
           Roll <strong>{{ admitCard.rollNo }}</strong>
         </span>
