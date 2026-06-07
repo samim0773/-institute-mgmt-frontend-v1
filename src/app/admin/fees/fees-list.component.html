@@ -11,6 +11,17 @@
       <button mat-stroked-button routerLink="/admin/fees/bulk-print">
         <mat-icon>print</mat-icon> Bulk Print
       </button>
+      <button
+        *ngIf="canExport"
+        mat-stroked-button
+        (click)="exportFees()"
+        [disabled]="exportingFees"
+        matTooltip="Download Excel"
+      >
+        <mat-spinner *ngIf="exportingFees" diameter="16"></mat-spinner>
+        <mat-icon *ngIf="!exportingFees">download</mat-icon>
+        Export Fees
+      </button>
       <button mat-raised-button color="primary" routerLink="/admin/fees/generate">
         <mat-icon>receipt_long</mat-icon> Generate Fees
       </button>

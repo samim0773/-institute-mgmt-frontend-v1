@@ -1,0 +1,167 @@
+.fees-page { max-width: 860px; }
+
+.page-heading { font-size: 1.4rem; font-weight: 700; color: #212121; margin: 0 0 20px; }
+
+.loading-center { display: flex; justify-content: center; padding: 60px; }
+
+.error-msg {
+  display: flex; align-items: center; gap: 8px;
+  color: #c62828; background: #ffebee; padding: 12px 16px;
+  border-radius: 8px; margin-bottom: 16px; font-size: 0.875rem;
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+}
+
+// ── Payment alert banners ──────────────────────────────────────────────────────
+.payment-alert {
+  display:       flex;
+  align-items:   center;
+  gap:           10px;
+  padding:       12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size:     0.875rem;
+  font-weight:   500;
+  mat-icon { font-size: 20px; width: 20px; height: 20px; flex-shrink: 0; }
+
+  &--success {
+    background: #e8f5e9;
+    color:      #2e7d32;
+    border:     1px solid #a5d6a7;
+  }
+  &--error {
+    background: #ffebee;
+    color:      #c62828;
+    border:     1px solid #ef9a9a;
+    button { margin-left: auto; color: #c62828; }
+  }
+}
+
+// ── Fee summary row ────────────────────────────────────────────────────────────
+.fee-summary-row {
+  display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px;
+}
+
+.summary-chip {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: 20px; font-size: 0.85rem;
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+
+  &--green { background: #e8f5e9; color: #2e7d32; }
+  &--red   { background: #ffebee; color: #c62828; }
+}
+
+// ── Empty state ────────────────────────────────────────────────────────────────
+.empty-state {
+  text-align: center; padding: 48px 24px; color: #9e9e9e;
+  .empty-icon { font-size: 56px; width: 56px; height: 56px; opacity: 0.35; }
+  p { margin: 12px 0 0; font-size: 0.9rem; }
+}
+
+// ── Bill cards ─────────────────────────────────────────────────────────────────
+.bills-list { display: flex; flex-direction: column; gap: 14px; }
+
+.bill-card {
+  overflow: hidden;
+  border-left: 4px solid #bdbdbd;
+
+  &--paid    { border-left-color: #4caf50; }
+  &--pending { border-left-color: #ff9800; }
+  &--partial { border-left-color: #2196f3; }
+}
+
+.bill-header {
+  display:     flex !important;
+  align-items: center !important;
+  gap:         12px !important;
+  padding:     14px 18px !important;
+
+  &.clickable { cursor: pointer; user-select: none; &:hover { background: #fafafa; } }
+}
+
+.bill-meta { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.bill-year { font-weight: 700; font-size: 0.95rem; color: #212121; }
+.bill-due  { font-size: 0.78rem; color: #757575; }
+
+.bill-right {
+  display:     flex;
+  align-items: center;
+  gap:         12px;
+  flex-shrink: 0;
+}
+
+.bill-amounts { display: flex; flex-direction: column; align-items: flex-end; }
+.bill-total { font-size: 1rem; font-weight: 700; color: #212121; }
+.bill-due-amount { font-size: 0.75rem; color: #f57c00; font-weight: 600; }
+
+// ── Status chips ───────────────────────────────────────────────────────────────
+.status-chip {
+  display: inline-flex; align-items: center;
+  font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 10px; letter-spacing: 0.3px;
+}
+.chip-paid    { background: #e8f5e9; color: #2e7d32; }
+.chip-pending { background: #fff3e0; color: #e65100; }
+.chip-partial { background: #e3f2fd; color: #1565c0; }
+
+// ── Fee table inside expanded card ─────────────────────────────────────────────
+.fee-table {
+  width:           100%;
+  border-collapse: collapse;
+  font-size:       0.85rem;
+  margin-bottom:   0;
+
+  th {
+    text-align:    left;
+    padding:       8px 12px;
+    background:    #f5f5f5;
+    color:         #757575;
+    font-size:     0.72rem;
+    font-weight:   700;
+    text-transform:uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  td {
+    padding:       10px 12px;
+    border-bottom: 1px solid #f0f0f0;
+    color:         #424242;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  .num { text-align: right; }
+}
+
+// ── Pay Now section ────────────────────────────────────────────────────────────
+.pay-now-row {
+  display:     flex;
+  align-items: center;
+  gap:         16px;
+  padding:     14px 12px 4px;
+  border-top:  1px solid #f0f0f0;
+  flex-wrap:   wrap;
+}
+
+.pay-now-btn {
+  display:    flex;
+  align-items: center;
+  gap:        6px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+}
+
+.pay-secure-hint {
+  display:     flex;
+  align-items: center;
+  gap:         4px;
+  font-size:   0.75rem;
+  color:       #757575;
+  font-style:  italic;
+
+  .lock-icon {
+    font-size: 14px !important;
+    width:     14px !important;
+    height:    14px !important;
+    color:     #4caf50;
+  }
+}

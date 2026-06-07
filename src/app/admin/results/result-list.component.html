@@ -7,6 +7,17 @@
       <h2 class="page-title">Results</h2>
       <p class="page-sub">Compute, review, and publish exam results</p>
     </div>
+    <button
+      *ngIf="canExport && hasResults"
+      mat-stroked-button
+      (click)="exportResults()"
+      [disabled]="exportingResults"
+      matTooltip="Download Excel"
+    >
+      <mat-spinner *ngIf="exportingResults" diameter="16"></mat-spinner>
+      <mat-icon *ngIf="!exportingResults">download</mat-icon>
+      Export Results
+    </button>
   </div>
 
   <!-- ── Filter card ─────────────────────────────────────────────────────────── -->

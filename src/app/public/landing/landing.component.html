@@ -15,9 +15,10 @@
 
     <div class="nav-links" [class.open]="mobileMenuOpen">
       <a (click)="scrollTo('features')">Features</a>
+      <a (click)="scrollTo('roles')">Who Uses It</a>
       <a (click)="scrollTo('why-us')">Why Us</a>
-      <a (click)="scrollTo('testimonials')">Reviews</a>
       <a (click)="scrollTo('pricing')">Pricing</a>
+      <a (click)="scrollTo('testimonials')">Reviews</a>
       <a (click)="scrollTo('faq')">FAQ</a>
       <a (click)="scrollTo('contact')">Contact</a>
     </div>
@@ -46,13 +47,13 @@
     </div>
 
     <h1 class="hero-title">
-      Modern Institute<br>
+      Complete Institute<br>
       <span class="hero-title-accent">Management Platform</span>
     </h1>
 
     <p class="hero-subtitle">
-      Automate student records, exams, fees, and notices from one powerful dashboard.
-      Built for schools, coaching centres, and educational institutes of every size.
+      Students · Teachers · Exams · Fees · Inventory · Expenses — everything in one
+      powerful dashboard. Built for schools, coaching centres, and educational institutes of every size.
     </p>
 
     <div class="hero-cta">
@@ -62,7 +63,7 @@
       </button>
       <button mat-stroked-button class="cta-secondary" (click)="scrollTo('features')">
         <mat-icon>play_circle</mat-icon>
-        See Features
+        See All Features
       </button>
     </div>
 
@@ -72,6 +73,7 @@
       <div class="trust-badge"><mat-icon>lock</mat-icon><span>Secure & Encrypted</span></div>
       <div class="trust-badge"><mat-icon>cloud_done</mat-icon><span>{{ brand.uptimePercent }}% Uptime</span></div>
       <div class="trust-badge"><mat-icon>support_agent</mat-icon><span>{{ brand.supportHours }} Support</span></div>
+      <div class="trust-badge"><mat-icon>inventory_2</mat-icon><span>12+ Modules</span></div>
     </div>
   </div>
 
@@ -92,9 +94,13 @@
           <span>78%</span>
         </div>
         <div class="mockup-bar">
-          <span>Fee Collection</span>
+          <span>Fee Collection Rate</span>
           <div class="progress-bar"><div class="progress-fill green" style="width:91%"></div></div>
           <span>91%</span>
+        </div>
+        <div class="mockup-inventory-row">
+          <div class="mockup-inv-badge"><mat-icon>inventory_2</mat-icon><span>142 Assets</span></div>
+          <div class="mockup-inv-badge warn"><mat-icon>warning</mat-icon><span>3 Low Stock</span></div>
         </div>
         <div class="mockup-notice">
           <mat-icon>campaign</mat-icon>
@@ -116,22 +122,96 @@
   </div>
 </section>
 
-<!-- ─── Features ──────────────────────────────────────────────────────────── -->
+<!-- ─── Features (12 Modules) ─────────────────────────────────────────────── -->
 <section class="section features-section" id="features">
   <div class="section-inner">
     <div class="section-header" #animateOnScroll>
-      <span class="section-tag">Features</span>
+      <span class="section-tag">12 Powerful Modules</span>
       <h2>Everything Your Institute Needs</h2>
-      <p>A complete digital operations platform — no more spreadsheets, no more paper.</p>
+      <p>From student admissions to inventory management — one platform, zero spreadsheets.</p>
     </div>
 
     <div class="features-grid">
       <div class="feature-card" *ngFor="let f of features; let i = index"
-           #animateOnScroll [style.animationDelay]="(i * 0.1) + 's'">
-        <div class="feature-icon"><mat-icon>{{ f.icon }}</mat-icon></div>
+           #animateOnScroll [style.animationDelay]="(i * 0.07) + 's'">
+        <div class="feature-icon" [style.background]="f.color + '18'" [style.borderColor]="f.color + '45'">
+          <mat-icon [style.color]="f.color">{{ f.icon }}</mat-icon>
+        </div>
+        <div class="feature-plan-tag" *ngIf="f.planTag">
+          <mat-icon>lock</mat-icon>{{ f.planTag }}
+        </div>
         <h3>{{ f.title }}</h3>
         <p>{{ f.desc }}</p>
+        <ul class="feature-bullets">
+          <li *ngFor="let b of f.bullets">
+            <mat-icon>check</mat-icon>{{ b }}
+          </li>
+        </ul>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Role-Based Portals ─────────────────────────────────────────────────── -->
+<section class="section role-section" id="roles">
+  <div class="section-inner">
+    <div class="section-header" #animateOnScroll>
+      <span class="section-tag">Designed For Every Role</span>
+      <h2>A Tailored Portal For Everyone</h2>
+      <p>Admins, teachers, and students each get their own secure, focused workspace — no clutter, no confusion.</p>
+    </div>
+
+    <div class="role-tabs" #animateOnScroll>
+      <button [class.active]="activeRoleTab === 'admin'" (click)="activeRoleTab = 'admin'">
+        <mat-icon>admin_panel_settings</mat-icon>
+        <span>Admin</span>
+        <small>12 capabilities</small>
+      </button>
+      <button [class.active]="activeRoleTab === 'teacher'" (click)="activeRoleTab = 'teacher'">
+        <mat-icon>school</mat-icon>
+        <span>Teacher</span>
+        <small>6 capabilities</small>
+      </button>
+      <button [class.active]="activeRoleTab === 'student'" (click)="activeRoleTab = 'student'">
+        <mat-icon>person</mat-icon>
+        <span>Student</span>
+        <small>6 capabilities</small>
+      </button>
+    </div>
+
+    <div class="role-content" #animateOnScroll>
+
+      <!-- Admin Tab -->
+      <div class="role-features-grid" *ngIf="activeRoleTab === 'admin'">
+        <div class="role-feature-item" *ngFor="let f of roleFeatures.admin">
+          <div class="rfi-icon"><mat-icon>{{ f.icon }}</mat-icon></div>
+          <span>{{ f.text }}</span>
+        </div>
+      </div>
+
+      <!-- Teacher Tab -->
+      <div class="role-features-grid role-features-grid--sm" *ngIf="activeRoleTab === 'teacher'">
+        <div class="role-feature-item" *ngFor="let f of roleFeatures.teacher">
+          <div class="rfi-icon teacher"><mat-icon>{{ f.icon }}</mat-icon></div>
+          <span>{{ f.text }}</span>
+        </div>
+      </div>
+
+      <!-- Student Tab -->
+      <div class="role-features-grid role-features-grid--sm" *ngIf="activeRoleTab === 'student'">
+        <div class="role-feature-item" *ngFor="let f of roleFeatures.student">
+          <div class="rfi-icon student"><mat-icon>{{ f.icon }}</mat-icon></div>
+          <span>{{ f.text }}</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="role-cta" #animateOnScroll>
+      <button mat-flat-button class="cta-primary" (click)="goToRegister()">
+        <mat-icon>rocket_launch</mat-icon>
+        Try All Roles Free for {{ brand.trialDays }} Days
+      </button>
     </div>
   </div>
 </section>
@@ -142,7 +222,7 @@
     <div class="section-header" #animateOnScroll>
       <span class="section-tag">Why Switch?</span>
       <h2>{{ brand.name }} vs The Old Way</h2>
-      <p>See why {{ brand.institutesCount }} institutes have already made the switch from spreadsheets and paper.</p>
+      <p>See why {{ brand.institutesCount }} institutes have already moved from spreadsheets and paper to {{ brand.name }}.</p>
     </div>
 
     <div class="comparison-table-wrap" #animateOnScroll>
@@ -254,58 +334,51 @@
   </div>
 </section>
 
-<!-- ─── Pricing ────────────────────────────────────────────────────────────── -->
+<!-- ─── Pricing (4 Plans) ──────────────────────────────────────────────────── -->
 <section class="section pricing-section" id="pricing">
   <div class="section-inner">
     <div class="section-header" #animateOnScroll>
       <span class="section-tag">Pricing</span>
       <h2>Start Free, Scale When Ready</h2>
-      <p>Try the full platform for {{ brand.trialDays }} days at no cost. Upgrade when you're convinced.</p>
+      <p>Try the full platform for {{ brand.trialDays }} days at no cost. Choose a plan when you're convinced.</p>
     </div>
 
-    <div class="pricing-grid">
-      <!-- Trial Plan -->
-      <div class="price-card" #animateOnScroll>
-        <div class="plan-badge trial">Free Trial</div>
-        <div class="plan-price">₹0<span>/{{ brand.trialDays }} days</span></div>
-        <h3>Trial Plan</h3>
-        <p>Get the full experience with no commitment.</p>
-        <ul class="plan-features">
-          <li><mat-icon>check_circle</mat-icon> Up to {{ brand.trialMaxStudents }} students</li>
-          <li><mat-icon>check_circle</mat-icon> All core features unlocked</li>
-          <li><mat-icon>check_circle</mat-icon> Admin + Teacher access</li>
-          <li><mat-icon>check_circle</mat-icon> Exams, Fees &amp; Notices</li>
-          <li><mat-icon>check_circle</mat-icon> Email &amp; chat support</li>
-          <li><mat-icon>check_circle</mat-icon> No credit card needed</li>
-        </ul>
-        <button mat-flat-button class="plan-btn trial-btn" (click)="goToRegister()">
-          <mat-icon>rocket_launch</mat-icon>
-          Start Free Trial
-        </button>
-      </div>
+    <div class="pricing-grid-4">
+      <div class="price-card"
+           *ngFor="let plan of plans; let i = index"
+           [class.featured]="plan.highlighted"
+           #animateOnScroll [style.animationDelay]="(i * 0.1) + 's'">
 
-      <!-- Paid Plan -->
-      <div class="price-card featured" #animateOnScroll [style.animationDelay]="'0.1s'">
-        <div class="plan-badge paid">Most Popular</div>
-        <div class="plan-price">Custom<span> pricing</span></div>
-        <h3>Paid Plans</h3>
-        <p>Tailored to your student count and feature needs.</p>
+        <div class="plan-badge" [ngClass]="plan.badgeClass" *ngIf="plan.badge">{{ plan.badge }}</div>
+
+        <div class="plan-key-icon" [ngClass]="'pki-' + plan.key">
+          <mat-icon>{{ plan.icon }}</mat-icon>
+        </div>
+
+        <h3>{{ plan.name }}</h3>
+        <div class="plan-price">{{ plan.price }}<span>/{{ plan.period }}</span></div>
+        <div class="plan-students"><mat-icon>people</mat-icon> {{ plan.students }}</div>
+
         <ul class="plan-features">
-          <li><mat-icon>check_circle</mat-icon> 100 – 2000+ students</li>
-          <li><mat-icon>check_circle</mat-icon> All trial features</li>
-          <li><mat-icon>check_circle</mat-icon> Custom feature development</li>
-          <li><mat-icon>check_circle</mat-icon> Priority {{ brand.supportHours }} support</li>
-          <li><mat-icon>check_circle</mat-icon> Dedicated onboarding session</li>
-          <li><mat-icon>check_circle</mat-icon> Data migration assistance</li>
+          <li *ngFor="let f of plan.included">
+            <mat-icon>check_circle</mat-icon>{{ f }}
+          </li>
         </ul>
-        <button mat-flat-button class="plan-btn paid-btn" (click)="scrollTo('contact')">
-          <mat-icon>chat</mat-icon>
-          Contact Us for Pricing
+
+        <ul class="plan-excluded" *ngIf="plan.excluded.length > 0">
+          <li *ngFor="let f of plan.excluded">
+            <mat-icon>remove_circle_outline</mat-icon>{{ f }}
+          </li>
+        </ul>
+
+        <button mat-flat-button class="plan-btn"
+                [class.trial-btn]="plan.ctaAction === 'register'"
+                [class.paid-btn]="plan.ctaAction === 'contact'"
+                (click)="planAction(plan.ctaAction)">
+          <mat-icon>{{ plan.ctaAction === 'register' ? 'rocket_launch' : 'chat' }}</mat-icon>
+          {{ plan.ctaLabel }}
         </button>
-        <p class="plan-note">
-          <mat-icon>info_outline</mat-icon>
-          Plans start at very affordable rates. Contact us for an instant quote.
-        </p>
+
       </div>
     </div>
 
@@ -492,9 +565,16 @@
     </div>
 
     <div class="footer-links">
-      <strong>Quick Links</strong>
-      <a (click)="scrollTo('features')">Features</a>
+      <strong>Features</strong>
+      <a (click)="scrollTo('features')">All 12 Modules</a>
+      <a (click)="scrollTo('roles')">Admin Portal</a>
+      <a (click)="scrollTo('roles')">Teacher Portal</a>
+      <a (click)="scrollTo('roles')">Student Portal</a>
       <a (click)="scrollTo('comparison')">Why Switch</a>
+    </div>
+
+    <div class="footer-links">
+      <strong>Company</strong>
       <a (click)="scrollTo('why-us')">Why Us</a>
       <a (click)="scrollTo('pricing')">Pricing</a>
       <a (click)="scrollTo('testimonials')">Reviews</a>

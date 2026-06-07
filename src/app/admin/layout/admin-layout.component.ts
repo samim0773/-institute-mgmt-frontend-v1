@@ -37,6 +37,7 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
     { label: 'Fees',      icon: 'payments',       route: '/admin/fees',     divider: true },
     { label: 'Notices',   icon: 'notifications',  route: '/admin/notices' },
     { label: 'Teachers',  icon: 'person_pin',     route: '/admin/teachers', divider: true },
+    { label: 'Inventory & Expenses', icon: 'inventory_2', route: '/admin/inventory', divider: true },
   ];
 
   // ── Responsive state ──────────────────────────────────────────────────────
@@ -45,10 +46,12 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
   sidenavOpened = true;
 
   // ── User info (for toolbar avatar) ───────────────────────────────────────
-  userName     = '';
-  userRole     = '';
-  userInitial  = '';
+  userName      = '';
+  userRole      = '';
+  userInitial   = '';
   instituteName = '';
+  planLabel     = '';
+  planExpired   = false;
 
   private destroy$ = new Subject<void>();
 
@@ -84,6 +87,13 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(info => {
         this.instituteName = info?.name || '';
+        if (info?.plan) {
+          const labels: Record<string, string> = {
+            trial: 'Trial', basic: 'Basic', standard: 'Standard', advance: 'Advance',
+          };
+          this.planLabel = labels[info.plan] || info.plan;
+          this.planExpired = !!info.planExpiresAt && new Date() > new Date(info.planExpiresAt);
+        }
       });
   }
 
@@ -154,6 +164,7 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
       fees:      'Fee Management',
       notices:   'Notices',
       teachers:  'Teachers',
+      inventory: 'Inventory & Expenses',
     };
     return titles[last] || 'Admin Panel';
   }

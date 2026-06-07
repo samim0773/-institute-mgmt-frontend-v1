@@ -7,14 +7,16 @@ import { MatPaginator }           from '@angular/material/paginator';
 import { MatSort }                from '@angular/material/sort';
 import { MatTableDataSource }     from '@angular/material/table';
 import { MatDialog }              from '@angular/material/dialog';
+import { MatSnackBar }            from '@angular/material/snack-bar';
 import { Subject, combineLatest } from 'rxjs';
 import {
   takeUntil, debounceTime, distinctUntilChanged,
   startWith, switchMap, finalize,
 } from 'rxjs/operators';
 
-import { StudentService, StudentQuery } from './student.service';
+import { StudentService, StudentQuery, StudentCredential } from './student.service';
 import { NotificationService }          from '../../core/services/notification.service';
+import { AuthService }                  from '../../core/services/auth.service';
 import { Student }                      from '../../core/models';
 
 @Component({
@@ -49,20 +51,43 @@ export class StudentsListComponent implements OnInit, AfterViewInit, OnDestroy {
   sections:   string[] = [];
 
   // ── State ──────────────────────────────────────────────────────────────────
-  loading        = true;
-  deletingId     = '';
+  loading           = true;
+  deletingId        = '';
+  generatingLoginId = '';
+  exportingStudents = false;
+
+  // Plan feature flags
+  canGenerateLogin = false;
+  canExport        = false;
+
+  // Credential result panel (shown once after generation)
+  credential: (StudentCredential & { studentName?: string }) | null = null;
+
   private destroy$ = new Subject<void>();
 
   constructor(
-    private studentSvc: StudentService,
-    private notify:     NotificationService,
-    private router:     Router,
-    private dialog:     MatDialog,
+    private studentSvc:  StudentService,
+    private notify:      NotificationService,
+    private router:      Router,
+    private dialog:      MatDialog,
+    private authService: AuthService,
+    private snackBar:    MatSnackBar,
   ) {}
 
   ngOnInit(): void {
     this.loadClasses();
     this.watchClassFilter();
+    this.loadPlanFeatures();
+  }
+
+  private loadPlanFeatures(): void {
+    this.authService.getMyInstituteInfo()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(info => {
+        const plan = info?.plan || 'trial';
+        this.canGenerateLogin = ['standard', 'advance'].includes(plan);
+        this.canExport        = plan === 'advance';
+      });
   }
 
   ngAfterViewInit(): void {
@@ -228,6 +253,55 @@ export class StudentsListComponent implements OnInit, AfterViewInit, OnDestroy {
       this.classFilterCtrl.value ||
       this.sectionFilterCtrl.value
     );
+  }
+
+  // ── Generate login credentials ────────────────────────────────────────────
+  generateLogin(student: Student): void {
+    this.generatingLoginId = student._id;
+    this.credential = null;
+    this.studentSvc.generateCredentials(student._id)
+      .pipe(
+        finalize(() => (this.generatingLoginId = '')),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: res => {
+          this.credential = { ...res.data!, studentName: res.data?.studentName || student.name };
+          if (res.data?.alreadyExists) {
+            this.snackBar.open('Credentials already exist. Username shown below.', 'OK', { duration: 4000 });
+          }
+        },
+        error: err => {
+          const msg = err?.error?.message || 'Failed to generate credentials.';
+          this.notify.error(msg);
+        },
+      });
+  }
+
+  dismissCredential(): void { this.credential = null; }
+
+  copyText(text: string, label: string): void {
+    navigator.clipboard.writeText(text).then(() => {
+      this.snackBar.open(`${label} copied!`, '', { duration: 2000 });
+    });
+  }
+
+  // ── Export students ───────────────────────────────────────────────────────
+  exportStudents(): void {
+    this.exportingStudents = true;
+    this.studentSvc.exportStudents()
+      .pipe(finalize(() => (this.exportingStudents = false)), takeUntil(this.destroy$))
+      .subscribe({
+        next: blob => {
+          const url  = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href     = url;
+          link.download = `students_${new Date().toISOString().slice(0,10)}.xlsx`;
+          link.click();
+          URL.revokeObjectURL(url);
+        },
+        error: () => this.notify.error('Export failed. Please try again.'),
+      });
   }
 
   // ── Template helpers ──────────────────────────────────────────────────────

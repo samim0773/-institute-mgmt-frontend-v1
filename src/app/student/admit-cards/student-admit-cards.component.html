@@ -1,0 +1,36 @@
+<!-- student-admit-cards.component.html -->
+<div class="admit-page">
+  <h2 class="page-heading">Admit Cards</h2>
+
+  <div *ngIf="loading" class="loading-center"><mat-spinner diameter="44"></mat-spinner></div>
+  <div *ngIf="error" class="error-msg"><mat-icon>error_outline</mat-icon> {{ error }}</div>
+
+  <div *ngIf="!loading && cards.length === 0 && !error" class="empty-state">
+    <mat-icon class="empty-icon">credit_card</mat-icon>
+    <p>No admit cards issued yet.</p>
+  </div>
+
+  <div *ngIf="!loading && cards.length > 0" class="cards-grid">
+    <mat-card class="admit-card" *ngFor="let card of cards">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="admit-icon">credit_card</mat-icon>
+        <mat-card-title>{{ examName(card) }}</mat-card-title>
+        <mat-card-subtitle>Issued: {{ card.issuedDate | date:'dd MMM yyyy' }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content class="admit-body">
+        <div class="admit-row">
+          <span class="admit-label">Exam Roll No.</span>
+          <strong>{{ card.rollNo }}</strong>
+        </div>
+        <div class="admit-row">
+          <span class="admit-label">Center</span>
+          <span>{{ card.center || '—' }}</span>
+        </div>
+        <div class="admit-row" *ngIf="$any(card.examId)?.startDate">
+          <span class="admit-label">Exam Dates</span>
+          <span>{{ $any(card.examId).startDate | date:'dd MMM' }} – {{ $any(card.examId).endDate | date:'dd MMM yyyy' }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

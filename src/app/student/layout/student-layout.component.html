@@ -1,0 +1,89 @@
+<!-- student-layout.component.html -->
+<mat-sidenav-container class="layout-container" autosize>
+
+  <!-- ══ SIDEBAR ═══════════════════════════════════════════════════════════ -->
+  <mat-sidenav
+    #sidenav
+    [mode]="sidenavMode"
+    [opened]="sidenavOpened"
+    class="sidebar"
+    fixedInViewport
+  >
+    <!-- Brand -->
+    <div class="sidebar-brand">
+      <div class="brand-logo-box">
+        <mat-icon class="brand-icon">school</mat-icon>
+      </div>
+      <div class="brand-text-group">
+        <span class="brand-app-name">Student Portal</span>
+        <span class="brand-inst-name" *ngIf="instituteName" [title]="instituteName">
+          {{ instituteName }}
+        </span>
+        <span class="brand-inst-name brand-inst-name--placeholder" *ngIf="!instituteName">
+          Institute
+        </span>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Nav -->
+    <mat-nav-list class="nav-list">
+      <a
+        *ngFor="let item of navItems"
+        mat-list-item
+        [routerLink]="item.route"
+        class="nav-item"
+        [class.nav-item--active]="isActive(item.route, item.exact)"
+        (click)="closeOnMobile()"
+      >
+        <mat-icon matListItemIcon class="nav-icon">{{ item.icon }}</mat-icon>
+        <span matListItemTitle class="nav-label">{{ item.label }}</span>
+      </a>
+    </mat-nav-list>
+
+    <!-- Footer -->
+    <div class="sidebar-footer">
+      <mat-divider></mat-divider>
+      <div class="sidebar-footer-inner">
+        <div class="user-avatar">{{ userInitial }}</div>
+        <div class="user-info">
+          <span class="user-name">{{ userName }}</span>
+          <span class="user-role">Student</span>
+        </div>
+      </div>
+    </div>
+  </mat-sidenav>
+
+  <!-- ══ MAIN CONTENT ══════════════════════════════════════════════════════ -->
+  <mat-sidenav-content class="content-area">
+
+    <mat-toolbar class="top-toolbar" color="primary">
+      <button mat-icon-button (click)="toggleSidenav()">
+        <mat-icon>{{ sidenav.opened && !isMobile ? 'menu_open' : 'menu' }}</mat-icon>
+      </button>
+      <span class="toolbar-title">{{ getPageTitle() }}</span>
+      <span class="spacer"></span>
+
+      <button mat-icon-button [matMenuTriggerFor]="userMenu" class="toolbar-avatar-btn">
+        <div class="toolbar-avatar">{{ userInitial }}</div>
+      </button>
+
+      <mat-menu #userMenu="matMenu" xPosition="before">
+        <div class="menu-user-header" mat-menu-item disabled>
+          <strong>{{ userName }}</strong>
+          <small>Student</small>
+        </div>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="logout()" class="menu-logout">
+          <mat-icon>logout</mat-icon> Sign Out
+        </button>
+      </mat-menu>
+    </mat-toolbar>
+
+    <main class="page-content" role="main">
+      <router-outlet></router-outlet>
+    </main>
+
+  </mat-sidenav-content>
+</mat-sidenav-container>

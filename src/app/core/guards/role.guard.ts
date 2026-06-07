@@ -25,9 +25,10 @@ export class RoleGuard implements CanActivate {
 
   // super_admin inherits all permissions — they can access any role-protected route
   private readonly ROLE_HIERARCHY: Record<UserRole, UserRole[]> = {
-    super_admin: ['super_admin', 'admin', 'teacher'],
+    super_admin: ['super_admin', 'admin', 'teacher', 'student'],
     admin:       ['admin', 'teacher'],
     teacher:     ['teacher'],
+    student:     ['student'],
   };
 
   constructor(

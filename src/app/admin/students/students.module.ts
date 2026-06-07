@@ -21,6 +21,7 @@ import { MatDividerModule }         from '@angular/material/divider';
 import { MatStepperModule }         from '@angular/material/stepper';
 import { MatDatepickerModule }      from '@angular/material/datepicker';
 import { MatNativeDateModule }      from '@angular/material/core';
+import { MatSnackBarModule }        from '@angular/material/snack-bar';
 
 // Components
 import { StudentsListComponent }  from './students-list.component';
@@ -49,7 +50,7 @@ const routes: Routes = [
     MatButtonModule, MatIconModule, MatCardModule,
     MatChipsModule, MatProgressBarModule, MatProgressSpinnerModule,
     MatTooltipModule, MatDividerModule, MatStepperModule,
-    MatDatepickerModule, MatNativeDateModule,
+    MatDatepickerModule, MatNativeDateModule, MatSnackBarModule,
   ],
 })
 export class StudentsModule {}

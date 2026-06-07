@@ -423,6 +423,112 @@ mat-form-field { margin-bottom: 4px; }
   &--teacher { background: #a78bfa; }
 }
 
+// ── Login tabs ────────────────────────────────────────────────────────────────
+.login-tabs {
+  display:       flex;
+  margin:        0 36px 16px;
+  border-radius: 10px;
+  overflow:      hidden;
+  border:        1px solid $border;
+
+  @media (max-width: 480px) { margin: 0 24px 14px; }
+}
+
+.login-tab {
+  flex:            1;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  gap:             6px;
+  padding:         10px 8px;
+  font-size:       0.82rem;
+  font-weight:     600;
+  color:           $text-secondary;
+  background:      transparent;
+  border:          none;
+  cursor:          pointer;
+  transition:      all 0.2s ease;
+  letter-spacing:  0.01em;
+
+  mat-icon {
+    font-size: 16px !important;
+    width:     16px !important;
+    height:    16px !important;
+  }
+
+  &:hover:not(.login-tab--active) {
+    background: rgba(255, 255, 255, 0.04);
+    color:      $text-primary;
+  }
+
+  &--active {
+    background: $accent-dim;
+    color:      $accent;
+    border-bottom: 2px solid $accent;
+  }
+
+  & + & {
+    border-left: 1px solid $border;
+  }
+}
+
+// ── Student login specific ─────────────────────────────────────────────────────
+.login-btn--student {
+  background: linear-gradient(135deg, #6c63ff, #a78bfa) !important;
+  box-shadow: 0 6px 24px rgba(108, 99, 255, 0.4) !important;
+
+  &:hover:not(:disabled) {
+    box-shadow: 0 8px 32px rgba(108, 99, 255, 0.6) !important;
+  }
+}
+
+.student-login-info {
+  display:       flex;
+  align-items:   flex-start;
+  gap:           8px;
+  background:    rgba(100, 255, 218, 0.05);
+  border:        1px solid $border;
+  border-radius: 8px;
+  padding:       10px 14px;
+  margin:        0 36px 14px;
+  font-size:     0.8rem;
+  color:         $text-secondary;
+  line-height:   1.5;
+
+  .info-icon {
+    font-size:   16px !important;
+    width:       16px !important;
+    height:      16px !important;
+    color:       $accent;
+    flex-shrink: 0;
+    margin-top:  1px;
+  }
+
+  strong { color: $accent; }
+
+  @media (max-width: 480px) { margin: 0 24px 12px; }
+}
+
+.student-login-hint {
+  display:     flex;
+  align-items: flex-start;
+  gap:         6px;
+  padding:     14px 36px 20px;
+  font-size:   0.78rem;
+  color:       $text-muted;
+  line-height: 1.5;
+
+  mat-icon {
+    font-size:   15px !important;
+    width:       15px !important;
+    height:      15px !important;
+    flex-shrink: 0;
+    margin-top:  1px;
+  }
+
+  @media (max-width: 480px) { padding: 12px 24px 18px; }
+}
+
 // ── Register CTA ──────────────────────────────────────────────────────────────
 .register-cta {
   padding:     16px 36px 28px;

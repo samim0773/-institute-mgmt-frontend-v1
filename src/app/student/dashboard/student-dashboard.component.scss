@@ -1,0 +1,117 @@
+.dashboard-page { max-width: 900px; }
+
+.loading-center {
+  display:         flex;
+  justify-content: center;
+  padding:         60px;
+}
+
+.welcome-banner {
+  display:       flex;
+  align-items:   center;
+  justify-content: space-between;
+  background:    linear-gradient(135deg, #3f51b5 0%, #7c4dff 100%);
+  border-radius: 16px;
+  padding:       28px 32px;
+  color:         #fff;
+  margin-bottom: 24px;
+}
+
+.welcome-title { font-size: 1.6rem; font-weight: 800; margin: 0 0 4px; }
+.welcome-sub   { font-size: 0.9rem; opacity: 0.8; margin: 0; }
+.welcome-icon  { font-size: 48px !important; width: 48px !important; height: 48px !important; opacity: 0.4; }
+
+.stats-row {
+  display:               grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap:                   16px;
+  margin-bottom:         24px;
+}
+
+.stat-card {
+  background:    #fff;
+  border-radius: 12px;
+  padding:       20px;
+  display:       flex;
+  align-items:   center;
+  gap:           16px;
+  box-shadow:    0 2px 8px rgba(0,0,0,0.07);
+  border:        1px solid #eee;
+
+  &--warn { border-color: #ff9800; background: #fff8e1; }
+}
+
+.stat-icon {
+  font-size:     32px !important;
+  width:         32px !important;
+  height:        32px !important;
+  &--blue   { color: #3f51b5; }
+  &--green  { color: #43a047; }
+  &--orange { color: #fb8c00; }
+  &--purple { color: #7c4dff; }
+}
+
+.stat-info { display: flex; flex-direction: column; }
+.stat-label { font-size: 0.72rem; color: #888; text-transform: uppercase; letter-spacing: 0.05em; }
+.stat-value { font-size: 1.1rem; font-weight: 700; color: #222; margin-top: 2px; }
+.stat-value--sm { font-size: 0.85rem; }
+
+.section-card {
+  background:    #fff;
+  border-radius: 12px;
+  padding:       20px 24px;
+  margin-bottom: 20px;
+  box-shadow:    0 2px 8px rgba(0,0,0,0.07);
+  border:        1px solid #eee;
+}
+
+.section-header {
+  display:         flex;
+  justify-content: space-between;
+  align-items:     center;
+  margin-bottom:   16px;
+}
+
+.section-title { font-size: 1rem; font-weight: 700; margin: 0; }
+
+.see-all {
+  font-size:       0.78rem;
+  color:           #3f51b5;
+  text-decoration: none;
+  font-weight:     600;
+  &:hover { opacity: 0.75; }
+}
+
+.result-summary { background: #f8f9fa; border-radius: 8px; padding: 14px 16px; }
+.result-exam-name { font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; }
+.result-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+.result-chip {
+  padding: 2px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 700;
+  &--pass { background: #e8f5e9; color: #2e7d32; }
+  &--fail { background: #ffebee; color: #c62828; }
+}
+
+.result-grade { font-size: 0.85rem; }
+.result-pct   { font-size: 0.85rem; font-weight: 700; color: #3f51b5; }
+.result-marks { font-size: 0.8rem; color: #666; }
+.result-rank  { font-size: 0.8rem; color: #7c4dff; font-weight: 600; }
+
+.notice-list { display: flex; flex-direction: column; gap: 10px; }
+.notice-item { display: flex; align-items: flex-start; gap: 10px; }
+.notice-icon { color: #3f51b5; font-size: 20px !important; width: 20px !important; height: 20px !important; margin-top: 2px; flex-shrink: 0; }
+.notice-title { font-size: 0.88rem; font-weight: 600; margin: 0 0 2px; }
+.notice-meta  { font-size: 0.75rem; color: #888; margin: 0; }
+
+.fee-list { display: flex; flex-direction: column; gap: 10px; }
+.fee-item { display: flex; justify-content: space-between; align-items: center; background: #fff8e1; border-radius: 8px; padding: 10px 14px; border: 1px solid #ffe082; }
+.fee-left { display: flex; flex-direction: column; }
+.fee-year { font-size: 0.82rem; font-weight: 600; }
+.fee-due  { font-size: 0.75rem; color: #888; }
+.fee-right { display: flex; align-items: center; gap: 8px; }
+.fee-amount { font-size: 0.95rem; font-weight: 700; color: #e65100; }
+.fee-badge {
+  padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600;
+  background: #fff3e0; color: #e65100;
+  &--partial { background: #fff8e1; color: #f57c00; }
+}

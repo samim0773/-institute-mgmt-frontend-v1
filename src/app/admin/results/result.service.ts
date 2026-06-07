@@ -152,4 +152,11 @@ export class ResultService {
   formatPercent(n: number): string {
     return n != null ? n.toFixed(1) + '%' : '—';
   }
+
+  exportResults(examId?: string): Observable<Blob> {
+    const url = examId
+      ? `${this.base}/export/results?examId=${examId}`
+      : `${this.base}/export/results`;
+    return this.http.get(url, { responseType: 'blob' });
+  }
 }

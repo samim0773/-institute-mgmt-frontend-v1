@@ -5,6 +5,13 @@ import { tap }                          from 'rxjs/operators';
 import { environment }                  from '../../../environments/environment';
 import { Student, ApiResponse }         from '../../core/models';
 
+export interface StudentCredential {
+  studentName?:    string;
+  username:        string;
+  defaultPassword?: string;
+  alreadyExists?:  boolean;
+}
+
 // ─── Query params interface ────────────────────────────────────────────────────
 export interface StudentQuery {
   class?:        string;
@@ -141,6 +148,22 @@ export class StudentService {
       .filter(c => c.className === className)
       .map(c => c.section)
       .sort();
+  }
+
+  // ══ STUDENT LOGIN CREDENTIALS ════════════════════════════════════════════
+
+  /** Generate (or re-fetch) portal login credentials for a student. */
+  generateCredentials(studentId: string): Observable<ApiResponse<StudentCredential>> {
+    return this.http.post<ApiResponse<StudentCredential>>(
+      `${this.base}/students/${studentId}/credentials`, {}
+    );
+  }
+
+  // ══ EXPORT ════════════════════════════════════════════════════════════════
+
+  /** Download students as Excel file blob. */
+  exportStudents(): Observable<Blob> {
+    return this.http.get(`${this.base}/export/students`, { responseType: 'blob' });
   }
 
   // ══ HELPERS ═══════════════════════════════════════════════════════════════

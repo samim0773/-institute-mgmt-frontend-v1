@@ -1,0 +1,121 @@
+<!-- student-dashboard.component.html -->
+<div class="dashboard-page">
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-center">
+    <mat-spinner diameter="48"></mat-spinner>
+  </div>
+
+  <ng-container *ngIf="!loading">
+
+    <!-- Welcome banner -->
+    <div class="welcome-banner">
+      <div class="welcome-text">
+        <h2 class="welcome-title">Welcome, {{ studentName }}!</h2>
+        <p class="welcome-sub">{{ studentClass }} &nbsp;|&nbsp; {{ profile?.academicYear }}</p>
+      </div>
+      <mat-icon class="welcome-icon">waving_hand</mat-icon>
+    </div>
+
+    <!-- Stats row -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <mat-icon class="stat-icon stat-icon--blue">grade</mat-icon>
+        <div class="stat-info">
+          <span class="stat-label">Latest Result</span>
+          <span class="stat-value">
+            {{ latestResult ? latestResult.percentage.toFixed(1) + '%' : 'No results yet' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <mat-icon class="stat-icon stat-icon--green">notifications</mat-icon>
+        <div class="stat-info">
+          <span class="stat-label">New Notices</span>
+          <span class="stat-value">{{ recentNotices.length }}</span>
+        </div>
+      </div>
+
+      <div class="stat-card" [class.stat-card--warn]="totalDue > 0">
+        <mat-icon class="stat-icon stat-icon--orange">payments</mat-icon>
+        <div class="stat-info">
+          <span class="stat-label">Pending Dues</span>
+          <span class="stat-value">
+            {{ totalDue > 0 ? '₹' + totalDue.toLocaleString('en-IN') : 'Clear' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <mat-icon class="stat-icon stat-icon--purple">badge</mat-icon>
+        <div class="stat-info">
+          <span class="stat-label">Admission No.</span>
+          <span class="stat-value stat-value--sm">{{ profile?.admissionNo || '—' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Latest result -->
+    <div class="section-card" *ngIf="latestResult">
+      <div class="section-header">
+        <h3 class="section-title">Latest Result</h3>
+        <a routerLink="/student/results" class="see-all">View All</a>
+      </div>
+      <div class="result-summary">
+        <div class="result-exam-name">
+          {{ $any(latestResult.examId)?.name || 'Exam' }}
+        </div>
+        <div class="result-row">
+          <span class="result-chip" [class.result-chip--pass]="latestResult.isPassed" [class.result-chip--fail]="!latestResult.isPassed">
+            {{ latestResult.isPassed ? 'PASS' : 'FAIL' }}
+          </span>
+          <span class="result-grade">Grade: <strong>{{ latestResult.grade }}</strong></span>
+          <span class="result-pct">{{ latestResult.percentage.toFixed(1) }}%</span>
+          <span class="result-marks">{{ latestResult.totalMarks }} / {{ latestResult.maxTotalMarks }}</span>
+          <span *ngIf="latestResult.rank" class="result-rank">Rank #{{ latestResult.rank }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent notices -->
+    <div class="section-card" *ngIf="recentNotices.length > 0">
+      <div class="section-header">
+        <h3 class="section-title">Recent Notices</h3>
+        <a routerLink="/student/notices" class="see-all">View All</a>
+      </div>
+      <div class="notice-list">
+        <div class="notice-item" *ngFor="let n of recentNotices">
+          <mat-icon class="notice-icon">campaign</mat-icon>
+          <div class="notice-body">
+            <p class="notice-title">{{ n.title }}</p>
+            <p class="notice-meta">{{ n.publishedAt | date:'dd MMM yyyy' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pending fees -->
+    <div class="section-card" *ngIf="pendingFees.length > 0">
+      <div class="section-header">
+        <h3 class="section-title">Pending Fees</h3>
+        <a routerLink="/student/fees" class="see-all">View All</a>
+      </div>
+      <div class="fee-list">
+        <div class="fee-item" *ngFor="let bill of pendingFees">
+          <div class="fee-left">
+            <span class="fee-year">{{ bill.academicYear }}</span>
+            <span class="fee-due">Due: {{ bill.dueDate | date:'dd MMM yyyy' }}</span>
+          </div>
+          <div class="fee-right">
+            <span class="fee-amount">₹{{ bill.totalDue.toLocaleString('en-IN') }}</span>
+            <span class="fee-badge" [class.fee-badge--partial]="bill.overallStatus === 'partial'">
+              {{ bill.overallStatus | titlecase }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+</div>

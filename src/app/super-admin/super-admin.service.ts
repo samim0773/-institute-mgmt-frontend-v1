@@ -5,7 +5,7 @@ import { environment }            from '../../environments/environment';
 import { Institute, ApiResponse } from '../core/models';
 
 export interface InstituteWithStats extends Institute {
-  plan:      string;
+  plan:      'trial' | 'basic' | 'standard' | 'advance';
   updatedAt: string;
   stats: {
     totalUsers:     number;
@@ -32,7 +32,7 @@ export interface InstituteUser {
 }
 
 export interface InstituteDetail extends Institute {
-  plan:           string;
+  plan:           'trial' | 'basic' | 'standard' | 'advance';
   planExpiresAt?: string;
   updatedAt:      string;
   users:          InstituteUser[];

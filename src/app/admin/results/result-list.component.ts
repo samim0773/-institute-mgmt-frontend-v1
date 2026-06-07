@@ -11,6 +11,7 @@ import { ResultService, ResultSummary }  from './result.service';
 import { ExamService }                   from '../exams/exam.service';
 import { StudentService }                from '../students/student.service';
 import { NotificationService }           from '../../core/services/notification.service';
+import { AuthService }                   from '../../core/services/auth.service';
 import { Exam }                          from '../../core/models';
 
 @Component({
@@ -48,18 +49,25 @@ export class ResultListComponent implements OnInit, OnDestroy {
   avgPercent   = 0;
   topPercent   = 0;
 
+  canExport        = false;
+  exportingResults = false;
+
   private destroy$ = new Subject<void>();
 
   constructor(
-    private resultSvc: ResultService,
-    private examSvc:   ExamService,
-    private studentSvc:StudentService,
-    private notify:    NotificationService,
-    private router:    Router,
+    private resultSvc:   ResultService,
+    private examSvc:     ExamService,
+    private studentSvc:  StudentService,
+    private notify:      NotificationService,
+    private router:      Router,
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
     this.loadDropdowns();
+    this.authService.getMyInstituteInfo()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(info => { this.canExport = info?.plan === 'advance'; });
   }
 
   ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
@@ -161,6 +169,24 @@ export class ResultListComponent implements OnInit, OnDestroy {
   get isPublished():  boolean { return !!this.dataSource.data[0]?.isPublished; }
   get hasResults():   boolean { return this.dataSource.data.length > 0; }
   get hasExamSelected(): boolean { return !!this.examCtrl.value; }
+
+  exportResults(): void {
+    this.exportingResults = true;
+    const examId = this.examCtrl.value || undefined;
+    this.resultSvc.exportResults(examId)
+      .pipe(finalize(() => (this.exportingResults = false)), takeUntil(this.destroy$))
+      .subscribe({
+        next: blob => {
+          const url  = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href     = url;
+          link.download = `results_${new Date().toISOString().slice(0,10)}.xlsx`;
+          link.click();
+          URL.revokeObjectURL(url);
+        },
+        error: () => this.notify.error('Export failed. Please try again.'),
+      });
+  }
 
   gradeClass(g: string):  string  { return this.resultSvc.gradeClass(g); }
   fmtPct(n: number):      string  { return this.resultSvc.formatPercent(n); }

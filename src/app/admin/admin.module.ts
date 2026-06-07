@@ -66,6 +66,8 @@ const routes: Routes = [
 
       { path: 'teachers', loadChildren: () => import('./teachers/teachers.module').then(m => m.TeachersModule), title: 'Teachers' },
 
+      { path: 'inventory', loadChildren: () => import('./inventory/inventory.module').then(m => m.InventoryModule), title: 'Inventory & Expenses' },
+
       { path: 'change-password', component: ChangePasswordComponent, title: 'Change Password' },
     ],
   },

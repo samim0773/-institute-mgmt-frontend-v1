@@ -9,9 +9,60 @@
         <span *ngIf="showInactive" class="inactive-badge">Showing inactive</span>
       </p>
     </div>
-    <button mat-raised-button color="primary" (click)="addStudent()">
-      <mat-icon>person_add</mat-icon> Add Student
-    </button>
+    <div class="header-actions">
+      <button
+        *ngIf="canExport"
+        mat-stroked-button
+        (click)="exportStudents()"
+        [disabled]="exportingStudents"
+        matTooltip="Download Excel"
+        class="export-btn"
+      >
+        <mat-spinner *ngIf="exportingStudents" diameter="16" class="btn-spinner"></mat-spinner>
+        <mat-icon *ngIf="!exportingStudents">download</mat-icon>
+        Export
+      </button>
+      <button mat-raised-button color="primary" (click)="addStudent()">
+        <mat-icon>person_add</mat-icon> Add Student
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Credential result panel ──────────────────────────────────────────── -->
+  <div class="credential-panel" *ngIf="credential">
+    <div class="credential-panel__header">
+      <mat-icon class="credential-panel__icon">vpn_key</mat-icon>
+      <span class="credential-panel__title">
+        Login credentials for <strong>{{ credential.studentName }}</strong>
+        <span *ngIf="credential.alreadyExists" class="already-badge">Already existed</span>
+      </span>
+      <button mat-icon-button (click)="dismissCredential()" class="credential-panel__close">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <div class="credential-panel__body">
+      <div class="cred-row">
+        <span class="cred-label">Username</span>
+        <code class="cred-value">{{ credential.username }}</code>
+        <button mat-icon-button matTooltip="Copy username" (click)="copyText(credential.username!, 'Username')">
+          <mat-icon>content_copy</mat-icon>
+        </button>
+      </div>
+      <div class="cred-row" *ngIf="credential.defaultPassword">
+        <span class="cred-label">Default Password</span>
+        <code class="cred-value">{{ credential.defaultPassword }}</code>
+        <button mat-icon-button matTooltip="Copy password" (click)="copyText(credential.defaultPassword!, 'Password')">
+          <mat-icon>content_copy</mat-icon>
+        </button>
+      </div>
+      <p class="cred-hint" *ngIf="!credential.alreadyExists">
+        Share with student/parent. Password is shown <strong>once only</strong>.
+        To reset it, use the reset password option from the student detail page.
+      </p>
+      <p class="cred-hint" *ngIf="credential.alreadyExists">
+        Student already has login access. Use reset password to generate a new password.
+      </p>
+    </div>
   </div>
 
   <!-- ── Filter bar ────────────────────────────────────────────────────────── -->
@@ -212,6 +263,19 @@
             >
               <mat-spinner *ngIf="deletingId === s._id" diameter="18"></mat-spinner>
               <mat-icon *ngIf="deletingId !== s._id">person_off</mat-icon>
+            </button>
+
+            <!-- Generate Login — Standard & Advance plans only -->
+            <button
+              *ngIf="canGenerateLogin && s.isActive"
+              mat-icon-button
+              style="color:#7b1fa2"
+              (click)="generateLogin(s); $event.stopPropagation()"
+              [disabled]="generatingLoginId === s._id"
+              matTooltip="Generate student login"
+            >
+              <mat-spinner *ngIf="generatingLoginId === s._id" diameter="18"></mat-spinner>
+              <mat-icon *ngIf="generatingLoginId !== s._id">vpn_key</mat-icon>
             </button>
 
           </td>

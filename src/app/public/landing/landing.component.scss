@@ -53,7 +53,8 @@ $danger:        #ef4444;
 .section-header, .feature-card, .why-card, .step-item,
 .price-card, .about-text, .about-visual, .contact-info, .contact-cta-box,
 .comparison-table-wrap, .comparison-cta, .testimonial-card, .testimonial-highlight,
-.faq-list, .faq-footer, .pricing-guarantee {
+.faq-list, .faq-footer, .pricing-guarantee,
+.role-tabs, .role-content, .role-cta {
   opacity: 0;
   transform: translateY(30px);
   transition: opacity .7s cubic-bezier(.22,.61,.36,1),
@@ -686,32 +687,68 @@ $danger:        #ef4444;
 .feature-card {
   background: $bg-card;
   border: 1px solid $border;
-  border-radius: 12px;
-  padding: 2rem 1.5rem;
+  border-radius: 14px;
+  padding: 1.75rem 1.5rem;
   transition: border-color .3s, transform .3s, box-shadow .3s;
   cursor: default;
+  display: flex;
+  flex-direction: column;
 
   &:hover {
     border-color: $border-hover;
     transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(0,0,0,.3);
-    .feature-icon { background: $accent-dim; border-color: $border-hover; }
+    box-shadow: 0 12px 40px rgba(0,0,0,.35);
   }
 
-  h3 { font-size: 1.05rem; font-weight: 700; color: $text-primary; margin: 1rem 0 0.5rem; }
-  p  { color: $text-secondary; font-size: 0.9rem; line-height: 1.6; margin: 0; }
+  h3 { font-size: 1rem; font-weight: 700; color: $text-primary; margin: 0.85rem 0 0.4rem; }
+  p  { color: $text-secondary; font-size: 0.875rem; line-height: 1.6; margin: 0; }
 
   @media (max-width: 580px) { padding: 1.5rem 1.25rem; }
 }
 
 .feature-icon {
-  width: 48px; height: 48px;
+  width: 46px; height: 46px;
   border-radius: 10px;
-  background: $bg-secondary;
-  border: 1px solid $border;
+  border: 1px solid transparent;
   display: flex; align-items: center; justify-content: center;
-  transition: background .3s, border-color .3s;
-  .mat-icon { color: $accent; font-size: 1.3rem; }
+  transition: opacity .3s;
+  flex-shrink: 0;
+  .mat-icon { font-size: 1.25rem; width: 1.25rem; height: 1.25rem; }
+}
+
+.feature-plan-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.67rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: $accent;
+  background: $accent-dim;
+  border: 1px solid $border-hover;
+  border-radius: 20px;
+  padding: 0.15rem 0.55rem;
+  margin-top: 0.65rem;
+  width: fit-content;
+
+  .mat-icon { font-size: 0.7rem; width: 0.7rem; height: 0.7rem; }
+}
+
+.feature-bullets {
+  list-style: none; padding: 0; margin: 0.75rem 0 0;
+  display: flex; flex-direction: column; gap: 0.32rem;
+  flex: 1;
+
+  li {
+    display: flex; align-items: flex-start; gap: 0.4rem;
+    font-size: 0.81rem; color: $text-muted; line-height: 1.4;
+
+    .mat-icon {
+      font-size: 0.85rem; width: 0.85rem; height: 0.85rem;
+      color: $green; flex-shrink: 0; margin-top: 0.1rem;
+    }
+  }
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -1011,75 +1048,106 @@ $danger:        #ef4444;
 // ═════════════════════════════════════════════════════════════════════════════
 .pricing-section { background: $bg-secondary; }
 
-.pricing-grid {
+// ── 4-column plan grid ────────────────────────────────────────────────────────
+.pricing-grid-4 {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 2rem;
-  max-width: 820px;
-  margin: 0 auto;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  align-items: start;
 
-  @media (max-width: 650px) { grid-template-columns: 1fr; gap: 1.25rem; }
+  @media (max-width: 1100px) { grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+  @media (max-width: 560px)  { grid-template-columns: 1fr; gap: 1rem; }
 }
 
 .price-card {
   background: $bg-card;
   border: 1px solid $border;
   border-radius: 16px;
-  padding: 2.5rem 2rem;
+  padding: 1.75rem 1.5rem;
   position: relative;
-  transition: border-color .3s, box-shadow .3s;
+  transition: border-color .3s, box-shadow .3s, transform .3s;
+  display: flex;
+  flex-direction: column;
 
-  &.featured { border-color: $accent; box-shadow: 0 0 40px rgba(100,255,218,.1); }
+  &:hover   { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,.35); }
+  &.featured { border-color: $accent; box-shadow: 0 0 40px rgba(100,255,218,.12); }
 
-  h3    { font-size: 1.3rem; font-weight: 700; color: $text-primary; margin: 0.5rem 0; }
-  > p   { color: $text-secondary; font-size: 0.9rem; margin: 0 0 1.5rem; }
+  h3 { font-size: 1.1rem; font-weight: 700; color: $text-primary; margin: 0.5rem 0 0.25rem; }
 
-  @media (max-width: 650px) { padding: 2rem 1.5rem; }
-  @media (max-width: 380px) { padding: 1.75rem 1.25rem; }
+  @media (max-width: 560px) { padding: 1.75rem 1.5rem; }
 }
 
 .plan-badge {
   display: inline-block;
-  font-size: 0.72rem; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .1em;
-  padding: 0.2rem 0.7rem; border-radius: 20px; margin-bottom: 0.75rem;
-  &.trial { background: $accent-dim; color: $accent; border: 1px solid $border-hover; }
-  &.paid  { background: linear-gradient(135deg, $accent 0%, #7c3aed 100%); color: $bg-primary; }
+  font-size: 0.68rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .08em;
+  padding: 0.18rem 0.65rem; border-radius: 20px; margin-bottom: 0.75rem;
+  width: fit-content;
+
+  &.badge-free    { background: $accent-dim; color: $accent; border: 1px solid $border-hover; }
+  &.badge-popular { background: linear-gradient(135deg, $accent 0%, #7c3aed 100%); color: $bg-primary; }
+  &.badge-advance { background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%); color: #fff; }
+}
+
+.plan-key-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 0.75rem;
+
+  .mat-icon { font-size: 1.2rem; }
+
+  &.pki-trial   { background: rgba(100,255,218,.1);  border: 1px solid rgba(100,255,218,.3); .mat-icon { color: $accent;   } }
+  &.pki-basic   { background: rgba(33,150,243,.1);   border: 1px solid rgba(33,150,243,.3);  .mat-icon { color: #42a5f5;  } }
+  &.pki-standard{ background: rgba(124,58,237,.1);   border: 1px solid rgba(124,58,237,.3);  .mat-icon { color: #a78bfa;  } }
+  &.pki-advance { background: rgba(245,158,11,.1);   border: 1px solid rgba(245,158,11,.3);  .mat-icon { color: #f59e0b;  } }
 }
 
 .plan-price {
-  font-size: 2.5rem; font-weight: 800; color: $text-primary; margin-bottom: .25rem;
-  span { font-size: 1rem; font-weight: 400; color: $text-secondary; }
-  @media (max-width: 380px) { font-size: 2rem; }
+  font-size: 2rem; font-weight: 800; color: $text-primary; margin-bottom: 0.2rem;
+  line-height: 1;
+  span { font-size: 0.85rem; font-weight: 400; color: $text-secondary; }
+  @media (max-width: 380px) { font-size: 1.75rem; }
+}
+
+.plan-students {
+  display: flex; align-items: center; gap: 0.3rem;
+  font-size: 0.8rem; color: $text-muted; margin-bottom: 1.25rem;
+  .mat-icon { font-size: 0.85rem; width: 0.85rem; height: 0.85rem; color: $accent; }
 }
 
 .plan-features {
-  list-style: none; padding: 0; margin: 0 0 2rem;
-  display: flex; flex-direction: column; gap: 0.6rem;
+  list-style: none; padding: 0; margin: 0 0 0.75rem;
+  display: flex; flex-direction: column; gap: 0.45rem;
+  flex: 1;
 
   li {
-    display: flex; align-items: center; gap: 0.5rem;
-    font-size: 0.9rem; color: $text-secondary;
-    .mat-icon { color: $accent; font-size: 1rem; width: 1rem; height: 1rem; }
+    display: flex; align-items: flex-start; gap: 0.4rem;
+    font-size: 0.83rem; color: $text-secondary; line-height: 1.4;
+    .mat-icon { color: $green; font-size: 0.9rem; width: 0.9rem; height: 0.9rem; flex-shrink: 0; margin-top: 0.1rem; }
   }
+}
 
-  @media (max-width: 380px) {
-    li { font-size: 0.85rem; }
+.plan-excluded {
+  list-style: none; padding: 0;
+  margin: 0 0 1.25rem;
+  border-top: 1px solid $border;
+  padding-top: 0.6rem;
+  display: flex; flex-direction: column; gap: 0.35rem;
+
+  li {
+    display: flex; align-items: flex-start; gap: 0.4rem;
+    font-size: 0.78rem; color: $text-muted; opacity: 0.55; line-height: 1.4;
+    .mat-icon { font-size: 0.85rem; width: 0.85rem; height: 0.85rem; flex-shrink: 0; margin-top: 0.1rem; }
   }
 }
 
 .plan-btn {
-  width: 100%; font-weight: 600; border-radius: 8px; padding: 0.75rem;
-  display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+  width: 100%; font-weight: 600; border-radius: 8px; padding: 0.65rem;
+  display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+  font-size: 0.875rem; margin-top: auto;
 
   &.trial-btn { background: $bg-secondary; color: $accent; border: 1px solid $accent; &:hover { background: $accent-dim; } }
   &.paid-btn  { background: $accent; color: $bg-primary; &:hover { background: darken(#64ffda,8%); } }
-}
-
-.plan-note {
-  margin: 1rem 0 0; font-size: 0.78rem; color: $text-muted;
-  display: flex; align-items: center; justify-content: center; gap: .3rem; text-align: center;
-  .mat-icon { font-size: .9rem; width: .9rem; height: .9rem; }
 }
 
 .pricing-guarantee {
@@ -1433,6 +1501,143 @@ $danger:        #ef4444;
     right: 1rem;
     padding: 0.8rem;
     .wa-float-icon { font-size: 1.25rem; }
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// ROLE-BASED PORTALS SECTION
+// ═════════════════════════════════════════════════════════════════════════════
+.role-section { background: $bg-primary; }
+
+.role-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+  flex-wrap: wrap;
+
+  button {
+    display:        flex;
+    flex-direction: column;
+    align-items:    center;
+    gap:            0.2rem;
+    padding:        0.85rem 2rem;
+    border-radius:  12px;
+    background:     $bg-card;
+    border:         1px solid $border;
+    color:          $text-secondary;
+    cursor:         pointer;
+    transition:     all 0.2s;
+    min-width:      130px;
+
+    .mat-icon { font-size: 1.4rem; width: 1.4rem; height: 1.4rem; }
+    span       { font-size: 0.95rem; font-weight: 700; color: $text-primary; }
+    small      { font-size: 0.72rem; color: $text-muted; }
+
+    &.active, &:hover {
+      border-color: $border-hover;
+      background:   $accent-dim;
+      .mat-icon { color: $accent; }
+      span      { color: $accent; }
+    }
+  }
+
+  @media (max-width: 500px) {
+    gap: 0.6rem;
+    button { min-width: 95px; padding: 0.75rem 1rem; }
+  }
+}
+
+.role-content {
+  background:    $bg-card;
+  border:        1px solid $border;
+  border-radius: 16px;
+  padding:       2rem;
+
+  @media (max-width: 600px) { padding: 1.5rem 1.25rem; }
+}
+
+.role-features-grid {
+  display:               grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:                   0.75rem;
+
+  &--sm { grid-template-columns: repeat(3, 1fr); }
+
+  @media (max-width: 900px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 500px) { grid-template-columns: 1fr; }
+}
+
+.role-feature-item {
+  display:     flex;
+  align-items: center;
+  gap:         0.75rem;
+  padding:     0.85rem 1rem;
+  background:  $bg-secondary;
+  border:      1px solid $border;
+  border-radius: 10px;
+  transition:  border-color 0.2s;
+
+  &:hover { border-color: $border-hover; }
+
+  span { color: $text-secondary; font-size: 0.85rem; line-height: 1.4; }
+}
+
+.rfi-icon {
+  width:            36px;
+  height:           36px;
+  border-radius:    8px;
+  display:          flex;
+  align-items:      center;
+  justify-content:  center;
+  flex-shrink:      0;
+  background:       $accent-dim;
+  border:           1px solid $border-hover;
+
+  .mat-icon { color: $accent; font-size: 1.1rem; width: 1.1rem; height: 1.1rem; }
+
+  &.teacher {
+    background: rgba(46,125,50,.12);
+    border-color: rgba(46,125,50,.3);
+    .mat-icon { color: #66bb6a; }
+  }
+  &.student {
+    background: rgba(124,77,255,.12);
+    border-color: rgba(124,77,255,.3);
+    .mat-icon { color: #b39ddb; }
+  }
+}
+
+.role-cta {
+  text-align:  center;
+  margin-top:  2rem;
+}
+
+// ── Hero inventory row ────────────────────────────────────────────────────────
+.mockup-inventory-row {
+  clear:   both;
+  display: flex;
+  gap:     0.5rem;
+}
+
+.mockup-inv-badge {
+  display:     flex;
+  align-items: center;
+  gap:         0.3rem;
+  background:  $bg-secondary;
+  border:      1px solid $border;
+  border-radius: 6px;
+  padding:     0.35rem 0.6rem;
+  font-size:   0.7rem;
+  color:       $text-secondary;
+  flex:        1;
+
+  .mat-icon { font-size: 0.85rem; width: 0.85rem; height: 0.85rem; color: $accent; }
+
+  &.warn {
+    border-color: rgba(245,158,11,.3);
+    background:   rgba(245,158,11,.06);
+    .mat-icon { color: $warn; }
   }
 }
 

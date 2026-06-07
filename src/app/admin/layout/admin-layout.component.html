@@ -65,6 +65,20 @@
     <!-- Sidebar footer -->
     <div class="sidebar-footer">
       <mat-divider></mat-divider>
+
+      <!-- Plan badge -->
+      <div class="plan-badge-row" *ngIf="planLabel">
+        <span class="plan-badge"
+          [class.plan-badge--trial]="planLabel === 'Trial'"
+          [class.plan-badge--basic]="planLabel === 'Basic'"
+          [class.plan-badge--standard]="planLabel === 'Standard'"
+          [class.plan-badge--advance]="planLabel === 'Advance'"
+          [class.plan-badge--expired]="planExpired">
+          <mat-icon class="plan-icon">workspace_premium</mat-icon>
+          {{ planLabel }} Plan{{ planExpired ? ' · Expired' : '' }}
+        </span>
+      </div>
+
       <div class="sidebar-footer-inner">
         <div class="user-avatar" [attr.aria-label]="userName">
           {{ userInitial }}

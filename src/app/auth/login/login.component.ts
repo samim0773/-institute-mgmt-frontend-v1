@@ -12,14 +12,19 @@ import { AuthService } from '../../core/services/auth.service';
 })
 export class LoginComponent implements OnInit, OnDestroy {
 
-  form!:           FormGroup;
+  // 0 = Staff (admin/teacher), 1 = Student
+  activeTab        = 0;
+
+  staffForm!:      FormGroup;
+  studentForm!:    FormGroup;
+
   loading          = false;
   showPassword     = false;
+  showStudentPwd   = false;
   serverError      = '';
-  private destroy$ = new Subject<void>();
 
-  // returnUrl: where to send user after login (set by AuthGuard)
   private returnUrl = '';
+  private destroy$  = new Subject<void>();
 
   constructor(
     private fb:          FormBuilder,
@@ -28,8 +33,12 @@ export class LoginComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.buildForm();
+    this.buildForms();
     this.returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '';
+
+    // If ?tab=student in URL, open student tab automatically
+    const tab = this.route.snapshot.queryParamMap.get('tab');
+    if (tab === 'student') this.activeTab = 1;
   }
 
   ngOnDestroy(): void {
@@ -37,75 +46,89 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // ─── Form construction ────────────────────────────────────────────────────
-  private buildForm(): void {
-    this.form = this.fb.group({
-      email: [
-        '',
-        [Validators.required, Validators.email],
-      ],
-      password: [
-        '',
-        [Validators.required, Validators.minLength(1)],
-      ],
+  private buildForms(): void {
+    this.staffForm = this.fb.group({
+      email:    ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(1)]],
     });
 
-    // Clear server error when user starts typing again
-    this.form.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        if (this.serverError) this.serverError = '';
-      });
+    this.studentForm = this.fb.group({
+      username: ['', [Validators.required, Validators.minLength(3)]],
+      password: ['', [Validators.required, Validators.minLength(1)]],
+    });
+
+    // Clear server error on input
+    this.staffForm.valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe(() => { if (this.serverError) this.serverError = ''; });
+
+    this.studentForm.valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe(() => { if (this.serverError) this.serverError = ''; });
   }
 
-  // ─── Submit ───────────────────────────────────────────────────────────────
-  onSubmit(): void {
-    if (this.form.invalid || this.loading) return;
+  selectTab(index: number): void {
+    this.activeTab   = index;
+    this.serverError = '';
+  }
+
+  // ─── Staff login ─────────────────────────────────────────────────────────
+  onStaffSubmit(): void {
+    if (this.staffForm.invalid || this.loading) return;
 
     this.loading     = true;
     this.serverError = '';
 
-    const { email, password } = this.form.value;
+    const { email, password } = this.staffForm.value;
 
     this.authService
       .login({ email: email.trim().toLowerCase(), password })
-      .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => (this.loading = false)),
-      )
+      .pipe(takeUntil(this.destroy$), finalize(() => (this.loading = false)))
       .subscribe({
         next: () => {
-          // Navigate to returnUrl if present, otherwise role-based redirect
           if (this.returnUrl) {
-            // Use replaceUrl so the back-button doesn't loop to login
             window.location.replace(this.returnUrl);
           } else {
             this.authService.redirectByRole();
           }
         },
-        error: (err) => {
-          // 401 → wrong credentials. 402 → trial expired. 403 → deactivated.
-          // ErrorInterceptor handles snackbar; we set the inline message too.
-          const status = err?.status;
-          if (status === 401) {
-            this.serverError = 'Invalid email or password.';
-          } else if (status === 402) {
-            this.serverError = err.error?.message ||
-              'Your free trial has expired. Contact edumanagepro@gmail.com to upgrade.';
-          } else if (status === 403) {
-            this.serverError = err.error?.message || 'Your account has been deactivated.';
-          } else if (status === 0) {
-            this.serverError = 'Cannot reach server. Check your connection.';
-          } else {
-            this.serverError = err.error?.message || 'Login failed. Please try again.';
-          }
-        },
+        error: (err) => { this.serverError = this.parseError(err); },
       });
   }
 
-  // ─── Getters for template ─────────────────────────────────────────────────
-  get emailControl()    { return this.form.get('email')!;    }
-  get passwordControl() { return this.form.get('password')!; }
+  // ─── Student login ───────────────────────────────────────────────────────
+  onStudentSubmit(): void {
+    if (this.studentForm.invalid || this.loading) return;
+
+    this.loading     = true;
+    this.serverError = '';
+
+    const { username, password } = this.studentForm.value;
+
+    this.authService
+      .studentLogin({ username: username.trim().toLowerCase(), password })
+      .pipe(takeUntil(this.destroy$), finalize(() => (this.loading = false)))
+      .subscribe({
+        next: () => {
+          this.authService.redirectByRole();
+        },
+        error: (err) => { this.serverError = this.parseError(err); },
+      });
+  }
+
+  private parseError(err: any): string {
+    const status = err?.status;
+    if (status === 401) return 'Invalid credentials. Please check and try again.';
+    if (status === 402) return err.error?.message || 'Your plan has expired. Please contact your institute.';
+    if (status === 403) return err.error?.message || 'Access denied. Please contact your institute.';
+    if (status === 400) return err.error?.message || 'Please check your input and try again.';
+    if (status === 0)   return 'Cannot reach server. Check your internet connection.';
+    return err.error?.message || 'Login failed. Please try again.';
+  }
+
+  // ─── Form control getters ────────────────────────────────────────────────
+  get emailControl()    { return this.staffForm.get('email')!; }
+  get passwordControl() { return this.staffForm.get('password')!; }
+  get usernameControl() { return this.studentForm.get('username')!; }
+  get studentPwdControl() { return this.studentForm.get('password')!; }
 
   get emailError(): string {
     const c = this.emailControl;
@@ -116,8 +139,15 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   get passwordError(): string {
     const c = this.passwordControl;
-    if (c.hasError('required'))   return 'Password is required';
-    if (c.hasError('minlength'))  return 'Password is too short';
+    if (c.hasError('required'))  return 'Password is required';
+    if (c.hasError('minlength')) return 'Password is too short';
+    return '';
+  }
+
+  get usernameError(): string {
+    const c = this.usernameControl;
+    if (c.hasError('required'))  return 'Username is required';
+    if (c.hasError('minlength')) return 'Username is too short';
     return '';
   }
 }

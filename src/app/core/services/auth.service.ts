@@ -5,55 +5,48 @@ import { BehaviorSubject, Observable, of, tap, map, catchError, throwError } fro
 import { MatSnackBar }       from '@angular/material/snack-bar';
 import { environment }       from '../../../environments/environment';
 import {
-  AuthUser, AuthResponse, LoginPayload, UserRole, ApiResponse,
+  AuthUser, AuthResponse, LoginPayload, StudentLoginPayload, UserRole, ApiResponse,
 } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 
-  // ─── Storage keys ────────────────────────────────────────────────────────────
   private readonly TOKEN_KEY = 'inst_token';
   private readonly USER_KEY  = 'inst_user';
 
-  // ─── Reactive state ──────────────────────────────────────────────────────────
   private currentUserSubject = new BehaviorSubject<AuthUser | null>(this.loadUserFromStorage());
   readonly currentUser$ = this.currentUserSubject.asObservable();
 
-  // Cached institute info — fetched once per session from /auth/me
-  private instituteInfoSubject = new BehaviorSubject<{ name: string; code?: string } | null>(null);
+  private instituteInfoSubject = new BehaviorSubject<{ name: string; code?: string; plan?: string; planExpiresAt?: string } | null>(null);
 
   constructor(
-    private http:      HttpClient,
-    private router:    Router,
-    private snackBar:  MatSnackBar,
+    private http:     HttpClient,
+    private router:   Router,
+    private snackBar: MatSnackBar,
   ) {}
 
   // ═══════════════════════════════════════════════════════════════════════════
   //  AUTH ACTIONS
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /**
-   * POST /api/auth/login
-   * Stores token + user, updates the BehaviorSubject.
-   * Returns the raw Observable so the component can handle loading state.
-   */
   login(payload: LoginPayload): Observable<AuthResponse> {
     return this.http
       .post<AuthResponse>(`${environment.apiUrl}/auth/login`, payload)
       .pipe(
         tap(res => this.handleAuthSuccess(res)),
-        catchError(err => {
-          // Let the ErrorInterceptor handle 401/403 snackbars.
-          // Re-throw so the LoginComponent's subscribe error handler fires.
-          return throwError(() => err);
-        }),
+        catchError(err => throwError(() => err)),
       );
   }
 
-  /**
-   * Clears all stored auth state and redirects to login.
-   * Called by ErrorInterceptor on 401, or by user clicking "Sign Out".
-   */
+  studentLogin(payload: StudentLoginPayload): Observable<AuthResponse> {
+    return this.http
+      .post<AuthResponse>(`${environment.apiUrl}/auth/student-login`, payload)
+      .pipe(
+        tap(res => this.handleAuthSuccess(res)),
+        catchError(err => throwError(() => err)),
+      );
+  }
+
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
@@ -62,10 +55,6 @@ export class AuthService {
     this.router.navigate(['/auth/login']);
   }
 
-  /**
-   * GET /api/auth/me
-   * Refreshes user data from the server (use after profile changes).
-   */
   refreshMe(): Observable<ApiResponse<AuthUser>> {
     return this.http
       .get<ApiResponse<AuthUser>>(`${environment.apiUrl}/auth/me`)
@@ -79,35 +68,21 @@ export class AuthService {
       );
   }
 
-  /**
-   * PUT /api/auth/change-password
-   * On success the backend returns a fresh token — store it.
-   */
   changePassword(currentPassword: string, newPassword: string): Observable<any> {
     return this.http
       .put(`${environment.apiUrl}/auth/change-password`, { currentPassword, newPassword })
       .pipe(
         tap((res: any) => {
-          if (res.token) {
-            localStorage.setItem(this.TOKEN_KEY, res.token);
-          }
+          if (res.token) localStorage.setItem(this.TOKEN_KEY, res.token);
         }),
       );
   }
 
-  /**
-   * PUT /api/auth/reset-password/:userId
-   * Admin resets a teacher's password; super_admin resets any user's password.
-   */
   resetUserPassword(userId: string, newPassword: string): Observable<any> {
     return this.http.put(`${environment.apiUrl}/auth/reset-password/${userId}`, { newPassword });
   }
 
-  /**
-   * GET /api/auth/me — returns the institute info for the current user.
-   * Result is cached in-memory so subsequent calls skip the network.
-   */
-  getMyInstituteInfo(): Observable<{ name: string; code?: string } | null> {
+  getMyInstituteInfo(): Observable<{ name: string; code?: string; plan?: string; planExpiresAt?: string } | null> {
     const cached = this.instituteInfoSubject.value;
     if (cached) return of(cached);
     return this.http.get<any>(`${environment.apiUrl}/auth/me`).pipe(
@@ -118,40 +93,33 @@ export class AuthService {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  //  SYNCHRONOUS GETTERS  (use these in guards and interceptors)
+  //  SYNCHRONOUS GETTERS
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /** The decoded user object from localStorage (no server round-trip). */
   get currentUser(): AuthUser | null {
     return this.currentUserSubject.value;
   }
 
-  /** Raw JWT string, or null if not logged in. */
   get token(): string | null {
     return localStorage.getItem(this.TOKEN_KEY);
   }
 
-  /** True if a non-expired token and user are present. */
   get isLoggedIn(): boolean {
     return !!this.token && !!this.currentUser && !this.isTokenExpired();
   }
 
-  /** The user's role string, or null if not logged in. */
   get role(): UserRole | null {
     return this.currentUser?.role ?? null;
   }
 
-  /** The user's instituteId string, or null for super_admin. */
   get instituteId(): string | null {
     return this.currentUser?.instituteId ?? null;
   }
 
-  /** The user's display name. */
   get displayName(): string {
     return this.currentUser?.name ?? 'User';
   }
 
-  /** The teacher's assigned subject (teachers only). */
   get subject(): string | null {
     return this.currentUser?.subject ?? null;
   }
@@ -160,7 +128,6 @@ export class AuthService {
   //  ROLE HELPERS
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /** Returns true if the current user has any of the specified roles. */
   isRole(...roles: UserRole[]): boolean {
     return !!this.role && roles.includes(this.role);
   }
@@ -168,16 +135,14 @@ export class AuthService {
   get isAdmin():      boolean { return this.isRole('admin'); }
   get isTeacher():    boolean { return this.isRole('teacher'); }
   get isSuperAdmin(): boolean { return this.isRole('super_admin'); }
+  get isStudent():    boolean { return this.isRole('student'); }
 
-  /**
-   * Navigate to the correct dashboard based on role.
-   * Called after login and from guards when a user tries a wrong route.
-   */
   redirectByRole(): void {
     const destinations: Record<UserRole, string> = {
       super_admin: '/super-admin/institutes',
       admin:       '/admin/dashboard',
       teacher:     '/teacher/dashboard',
+      student:     '/student/dashboard',
     };
     const dest = this.role ? destinations[this.role] : '/auth/login';
     this.router.navigate([dest]);
@@ -187,10 +152,6 @@ export class AuthService {
   //  TOKEN UTILITIES
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /**
-   * Decodes the JWT payload without verifying the signature.
-   * Used to read exp, role, instituteId without a server call.
-   */
   decodeToken(): Record<string, any> | null {
     const token = this.token;
     if (!token) return null;
@@ -202,18 +163,12 @@ export class AuthService {
     }
   }
 
-  /** Returns true if the stored token has passed its exp timestamp. */
   isTokenExpired(): boolean {
     const payload = this.decodeToken();
     if (!payload?.['exp']) return true;
-    // exp is in seconds; Date.now() is in milliseconds
     return payload['exp'] * 1000 < Date.now();
   }
 
-  /**
-   * Returns seconds until token expiry.
-   * Useful for showing a "session expiring soon" warning.
-   */
   tokenSecondsRemaining(): number {
     const payload = this.decodeToken();
     if (!payload?.['exp']) return 0;
@@ -224,20 +179,17 @@ export class AuthService {
   //  PRIVATE HELPERS
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /** Persist token + user and notify all subscribers. */
   private handleAuthSuccess(res: AuthResponse): void {
     localStorage.setItem(this.TOKEN_KEY, res.token);
     localStorage.setItem(this.USER_KEY, JSON.stringify(res.user));
     this.currentUserSubject.next(res.user);
   }
 
-  /** Safely parse the stored user JSON — returns null on any error. */
   private loadUserFromStorage(): AuthUser | null {
     try {
       const raw = localStorage.getItem(this.USER_KEY);
       if (!raw) return null;
       const user = JSON.parse(raw) as AuthUser;
-      // Basic sanity check — must have _id and role
       if (!user._id || !user.role) return null;
       return user;
     } catch {

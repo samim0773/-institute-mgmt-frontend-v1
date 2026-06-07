@@ -281,4 +281,11 @@ export class FeeService {
   modeLabel(mode: string): string {
     return PAYMENT_MODES.find(m => m.value === mode)?.label ?? mode;
   }
+
+  exportFees(params: { status?: string; academicYear?: string } = {}): Observable<Blob> {
+    let url = `${environment.apiUrl}/export/fees`;
+    const qs = Object.entries(params).filter(([, v]) => v).map(([k, v]) => `${k}=${v}`).join('&');
+    if (qs) url += `?${qs}`;
+    return this.http.get(url, { responseType: 'blob' });
+  }
 }

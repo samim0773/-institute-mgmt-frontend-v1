@@ -118,7 +118,7 @@ export class InstituteDetailComponent implements OnInit, OnDestroy {
         next: res => {
           this.notify.success('Plan updated successfully.');
           if (this.institute) {
-            this.institute.plan          = this.planCtrl.value         ?? this.institute.plan;
+            this.institute.plan          = (this.planCtrl.value as 'trial' | 'basic' | 'standard' | 'advance') ?? this.institute.plan;
             this.institute.planExpiresAt = res.data?.planExpiresAt     ?? this.institute.planExpiresAt;
           }
         },

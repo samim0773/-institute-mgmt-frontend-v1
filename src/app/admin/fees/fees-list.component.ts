@@ -10,6 +10,7 @@ import {
 import { FeeService, Bill, StudentDues, SummaryPeriod } from './fee.service';
 import { StudentService }                from '../students/student.service';
 import { NotificationService }           from '../../core/services/notification.service';
+import { AuthService }                   from '../../core/services/auth.service';
 import { RecordPaymentDialogComponent }  from './record-payment.component';
 
 type ViewMode = 'all' | 'dues';
@@ -75,14 +76,18 @@ export class FeesListComponent implements OnInit, OnDestroy {
     { value: 'waived',  label: 'Waived'       },
   ];
 
+  canExport    = false;
+  exportingFees = false;
+
   private destroy$ = new Subject<void>();
 
   constructor(
-    private feeSvc:     FeeService,
-    private studentSvc: StudentService,
-    private notify:     NotificationService,
-    private router:     Router,
-    private dialog:     MatDialog,
+    private feeSvc:      FeeService,
+    private studentSvc:  StudentService,
+    private notify:      NotificationService,
+    private router:      Router,
+    private dialog:      MatDialog,
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
@@ -90,9 +95,30 @@ export class FeesListComponent implements OnInit, OnDestroy {
     this.loadClassNames();
     this.watchSectionReset();
     this.watchDuesFilters();
+    this.authService.getMyInstituteInfo()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(info => { this.canExport = info?.plan === 'advance'; });
   }
 
   ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
+
+  exportFees(): void {
+    this.exportingFees = true;
+    const status = this.statusFilter.value || undefined;
+    this.feeSvc.exportFees({ status })
+      .pipe(finalize(() => (this.exportingFees = false)), takeUntil(this.destroy$))
+      .subscribe({
+        next: blob => {
+          const url  = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href     = url;
+          link.download = `fees_${new Date().toISOString().slice(0, 10)}.xlsx`;
+          link.click();
+          URL.revokeObjectURL(url);
+        },
+        error: () => this.notify.error('Export failed. Please try again.'),
+      });
+  }
 
   // ── Summary stat cards ─────────────────────────────────────────────────────
   loadStats(): void {

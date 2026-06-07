@@ -1,0 +1,82 @@
+<!-- student-results.component.html -->
+<div class="results-page">
+  <h2 class="page-heading">My Results</h2>
+
+  <div *ngIf="loading" class="loading-center">
+    <mat-spinner diameter="44"></mat-spinner>
+  </div>
+
+  <div *ngIf="error" class="error-msg">
+    <mat-icon>error_outline</mat-icon> {{ error }}
+  </div>
+
+  <div *ngIf="!loading && results.length === 0 && !error" class="empty-state">
+    <mat-icon class="empty-icon">grade</mat-icon>
+    <p>No published results yet.</p>
+    <small>Results will appear here once your teacher publishes them.</small>
+  </div>
+
+  <div *ngIf="!loading && results.length > 0" class="results-list">
+    <mat-card class="result-card" *ngFor="let r of results">
+      <mat-card-header (click)="toggle(r._id)" class="result-header clickable">
+        <div class="result-meta">
+          <span class="exam-name">{{ examName(r) }}</span>
+          <span class="exam-period">{{ examPeriod(r) }}</span>
+        </div>
+        <div class="result-summary">
+          <span class="result-chip" [class.chip-pass]="r.isPassed" [class.chip-fail]="!r.isPassed">
+            {{ r.isPassed ? 'PASS' : 'FAIL' }}
+          </span>
+          <span class="pct">{{ r.percentage.toFixed(1) }}%</span>
+          <span class="grade">{{ r.grade }}</span>
+          <span *ngIf="r.rank" class="rank">Rank #{{ r.rank }}</span>
+          <mat-icon class="expand-icon">{{ isExpanded(r._id) ? 'expand_less' : 'expand_more' }}</mat-icon>
+        </div>
+      </mat-card-header>
+
+      <mat-card-content *ngIf="isExpanded(r._id)" class="result-detail">
+        <table class="marks-table">
+          <thead>
+            <tr>
+              <th>Subject</th>
+              <th class="num">Marks</th>
+              <th class="num">Out of</th>
+              <th class="num">%</th>
+              <th>Grade</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let s of r.subjects" [class.absent-row]="s.isAbsent">
+              <td>{{ s.subjectName }}</td>
+              <td class="num">{{ s.isAbsent ? 'AB' : s.marksObtained }}</td>
+              <td class="num">{{ s.maxMarks }}</td>
+              <td class="num">{{ s.isAbsent ? '—' : ((s.marksObtained / s.maxMarks * 100).toFixed(1)) }}</td>
+              <td>{{ s.grade || '—' }}</td>
+              <td>
+                <span class="status-chip" [class.chip-pass]="s.isPassed && !s.isAbsent" [class.chip-fail]="!s.isPassed || s.isAbsent">
+                  {{ s.isAbsent ? 'Absent' : (s.isPassed ? 'Pass' : 'Fail') }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td><strong>Total</strong></td>
+              <td class="num"><strong>{{ r.totalMarks }}</strong></td>
+              <td class="num"><strong>{{ r.maxTotalMarks }}</strong></td>
+              <td class="num"><strong>{{ r.percentage.toFixed(1) }}%</strong></td>
+              <td><strong>{{ r.grade }}</strong></td>
+              <td>
+                <span class="status-chip" [class.chip-pass]="r.isPassed" [class.chip-fail]="!r.isPassed">
+                  {{ r.isPassed ? 'Pass' : 'Fail' }}
+                </span>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+        <p *ngIf="r.gradeRemarks" class="grade-remarks">{{ r.gradeRemarks }}</p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

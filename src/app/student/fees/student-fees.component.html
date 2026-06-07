@@ -1,0 +1,109 @@
+<!-- student-fees.component.html -->
+<div class="fees-page">
+  <h2 class="page-heading">My Fees</h2>
+
+  <div *ngIf="loading" class="loading-center"><mat-spinner diameter="44"></mat-spinner></div>
+  <div *ngIf="error" class="error-msg"><mat-icon>error_outline</mat-icon> {{ error }}</div>
+
+  <!-- Payment status messages -->
+  <div *ngIf="paymentSuccess" class="payment-alert payment-alert--success">
+    <mat-icon>check_circle</mat-icon> {{ paymentSuccess }}
+  </div>
+  <div *ngIf="paymentError" class="payment-alert payment-alert--error">
+    <mat-icon>error_outline</mat-icon> {{ paymentError }}
+    <button mat-icon-button (click)="paymentError = ''"><mat-icon>close</mat-icon></button>
+  </div>
+
+  <div *ngIf="!loading && !error" class="fee-summary-row">
+    <div class="summary-chip summary-chip--green">
+      <mat-icon>check_circle</mat-icon>
+      <span>Paid: <strong>₹{{ totalPaid.toLocaleString('en-IN') }}</strong></span>
+    </div>
+    <div class="summary-chip summary-chip--red" *ngIf="totalPending > 0">
+      <mat-icon>warning</mat-icon>
+      <span>Pending: <strong>₹{{ totalPending.toLocaleString('en-IN') }}</strong></span>
+    </div>
+    <div class="summary-chip summary-chip--green" *ngIf="totalPending === 0">
+      <mat-icon>verified</mat-icon>
+      <span>All dues cleared!</span>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && bills.length === 0 && !error" class="empty-state">
+    <mat-icon class="empty-icon">receipt_long</mat-icon>
+    <p>No fee records found.</p>
+  </div>
+
+  <div *ngIf="!loading && bills.length > 0" class="bills-list">
+    <mat-card class="bill-card" *ngFor="let bill of bills"
+      [class.bill-card--paid]="bill.overallStatus === 'paid'"
+      [class.bill-card--pending]="bill.overallStatus === 'pending'"
+      [class.bill-card--partial]="bill.overallStatus === 'partial'">
+
+      <mat-card-header (click)="toggle(bill.billId)" class="bill-header clickable">
+        <div class="bill-meta">
+          <span class="bill-year">{{ bill.academicYear }}</span>
+          <span class="bill-due">Due: {{ bill.dueDate | date:'dd MMM yyyy' }}</span>
+        </div>
+        <div class="bill-right">
+          <div class="bill-amounts">
+            <span class="bill-total">₹{{ bill.totalAmount.toLocaleString('en-IN') }}</span>
+            <span *ngIf="bill.totalDue > 0" class="bill-due-amount">Due: ₹{{ bill.totalDue.toLocaleString('en-IN') }}</span>
+          </div>
+          <span class="status-chip"
+            [class.chip-paid]="bill.overallStatus === 'paid'"
+            [class.chip-pending]="bill.overallStatus === 'pending'"
+            [class.chip-partial]="bill.overallStatus === 'partial'">
+            {{ bill.overallStatus | titlecase }}
+          </span>
+          <mat-icon>{{ expanded.has(bill.billId) ? 'expand_less' : 'expand_more' }}</mat-icon>
+        </div>
+      </mat-card-header>
+
+      <mat-card-content *ngIf="expanded.has(bill.billId)">
+        <table class="fee-table">
+          <thead>
+            <tr><th>Fee Type</th><th class="num">Amount</th><th class="num">Paid</th><th class="num">Due</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of bill.feeItems">
+              <td>{{ item.feeType }}</td>
+              <td class="num">₹{{ item.amount.toLocaleString('en-IN') }}</td>
+              <td class="num">₹{{ (item.amountPaid || 0).toLocaleString('en-IN') }}</td>
+              <td class="num">₹{{ (item.amountDue || 0).toLocaleString('en-IN') }}</td>
+              <td>
+                <span class="status-chip"
+                  [class.chip-paid]="item.status === 'paid'"
+                  [class.chip-pending]="item.status === 'pending'"
+                  [class.chip-partial]="item.status === 'partial'">
+                  {{ item.status | titlecase }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Pay Now — Advance plan only, shown for pending/partial bills -->
+        <div
+          *ngIf="canPayOnline && bill.overallStatus !== 'paid' && bill.overallStatus !== 'waived'"
+          class="pay-now-row"
+        >
+          <button
+            mat-raised-button
+            color="primary"
+            class="pay-now-btn"
+            (click)="initiatePayment(bill); $event.stopPropagation()"
+            [disabled]="payingBillId === bill.billId"
+          >
+            <mat-spinner *ngIf="payingBillId === bill.billId" diameter="18"></mat-spinner>
+            <mat-icon *ngIf="payingBillId !== bill.billId">payment</mat-icon>
+            {{ payingBillId === bill.billId ? 'Opening payment...' : 'Pay ₹' + bill.totalDue.toLocaleString('en-IN') + ' Now' }}
+          </button>
+          <span class="pay-secure-hint">
+            <mat-icon class="lock-icon">lock</mat-icon> Secured by Razorpay
+          </span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
