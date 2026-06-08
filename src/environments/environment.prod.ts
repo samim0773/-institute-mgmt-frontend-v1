@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://institute-mgmt-backend-v1-production.up.railway.app/api',
+  apiUrl: 'https://darkviolet-partridge-986785.hostingersite.com/api',
   appName: 'Institute Management System',
 };
